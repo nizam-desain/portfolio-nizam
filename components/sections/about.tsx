@@ -7,9 +7,27 @@ import { Reveal } from "@/components/ui/reveal";
 import { Counter } from "@/components/ui/counter";
 import { supabase } from "@/lib/supabase";
 
+// Tipe data (Interface) biar Next.js seneng dan lolos Vercel
+interface Certification {
+  id: string;
+  title: string;
+  issuer: string;
+  year: string;
+  category: string;
+  credential_url: string | null;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  event_name: string;
+  year: string;
+  credential_url: string | null;
+}
+
 export function About() {
-  const [certifications, setCertifications] = useState<any[]>([]);
-  const [achievements, setAchievements] = useState<any[]>([]);
+  const [certifications, setCertifications] = useState<Certification[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
 
   useEffect(() => {
     async function fetchData() {
@@ -18,14 +36,14 @@ export function About() {
         .from("certifications")
         .select("*")
         .order("year", { ascending: false });
-      if (certs) setCertifications(certs);
+      if (certs) setCertifications(certs as Certification[]);
 
       // Narik data Penghargaan/Lomba
       const { data: achs } = await supabase
         .from("achievements")
         .select("*")
         .order("year", { ascending: false });
-      if (achs) setAchievements(achs);
+      if (achs) setAchievements(achs as Achievement[]);
     }
 
     fetchData();
