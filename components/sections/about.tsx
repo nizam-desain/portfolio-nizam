@@ -1,9 +1,36 @@
-import { GraduationCap, Languages as LanguagesIcon } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { GraduationCap, Languages as LanguagesIcon, Award, Medal, ArrowUpRight } from "lucide-react";
 import { aboutTimeline, coreValues, education, stats } from "@/data/content";
 import { Reveal } from "@/components/ui/reveal";
 import { Counter } from "@/components/ui/counter";
+import { supabase } from "@/lib/supabase";
 
 export function About() {
+  const [certifications, setCertifications] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      // Narik data Sertifikat
+      const { data: certs } = await supabase
+        .from("certifications")
+        .select("*")
+        .order("year", { ascending: false });
+      if (certs) setCertifications(certs);
+
+      // Narik data Penghargaan/Lomba
+      const { data: achs } = await supabase
+        .from("achievements")
+        .select("*")
+        .order("year", { ascending: false });
+      if (achs) setAchievements(achs);
+    }
+
+    fetchData();
+  }, []);
+
   return (
     <section id="about" className="relative py-28 md:py-36">
       <div className="mx-auto max-w-6xl px-6">
@@ -81,6 +108,87 @@ export function About() {
             </div>
           </div>
         </div>
+
+        {/* =======================================================
+            BAGIAN SERTIFIKAT & PENGHARGAAN DARI SUPABASE 
+        ======================================================= */}
+        <div className="mt-28 space-y-16">
+          {/* BAGIAN SERTIFIKAT */}
+          <Reveal>
+            <div className="mb-12">
+              <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold uppercase tracking-wider text-ink-muted">
+                <Award size={20} /> Certifications
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {certifications.length === 0 ? (
+                  <p className="text-sm text-ink-muted">No certifications loaded yet.</p>
+                ) : (
+                  certifications.map((cert) => (
+                    <div key={cert.id} className="card-surface flex flex-col gap-4 p-6">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-blue/10 text-accent-blue">
+                        <Award size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-ink">{cert.title}</h4>
+                        <p className="text-sm text-ink-muted">{cert.issuer} • {cert.year}</p>
+                        <span className="mt-2 inline-block rounded-full border border-line px-3 py-1 text-[10px] uppercase tracking-wider text-ink-muted">
+                          {cert.category}
+                        </span>
+                      </div>
+                      {cert.credential_url && (
+                        <a
+                          href={cert.credential_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-auto flex w-fit items-center gap-1 text-sm font-medium text-accent-blue transition-colors hover:text-accent-purple"
+                        >
+                          Show credential <ArrowUpRight size={14} />
+                        </a>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </Reveal>
+
+          {/* BAGIAN PENGHARGAAN & LOMBA */}
+          <Reveal>
+            <div>
+              <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold uppercase tracking-wider text-ink-muted">
+                <Medal size={20} /> Achievements & Awards
+              </h3>
+              <div className="flex flex-col gap-4">
+                {achievements.length === 0 ? (
+                  <p className="text-sm text-ink-muted">No achievements loaded yet.</p>
+                ) : (
+                  achievements.map((award) => (
+                    <div key={award.id} className="flex flex-col gap-2 border-b border-line pb-4 last:border-0 md:flex-row md:items-center md:justify-between md:gap-0">
+                      <div>
+                        <h4 className="font-semibold text-ink">{award.title}</h4>
+                        <p className="text-sm text-ink-muted">{award.event_name}</p>
+                      </div>
+                      <div className="flex items-center justify-between md:gap-4">
+                        {award.credential_url && (
+                          <a
+                            href={award.credential_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-accent-blue transition-colors hover:text-accent-purple"
+                          >
+                            Show Certificate <ArrowUpRight size={14} className="inline" />
+                          </a>
+                        )}
+                        <span className="text-sm font-mono text-ink-muted">{award.year}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
       </div>
     </section>
   );
