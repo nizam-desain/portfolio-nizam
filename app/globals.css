@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  @apply bg-canvas text-ink dark:bg-canvas dark:text-ink transition-colors duration-300;
+  background-color: #0a0a0b;
+  color: #ededef;
+  font-feature-settings: "ss01", "cv01";
+}
+
+.light body {
+  background-color: #fafafa;
+  color: #101012;
+}
+
+::selection {
+  background: rgba(79, 124, 255, 0.35);
+  color: inherit;
+}
+
+/* visible focus ring everywhere, keyboard-only via :focus-visible */
+:focus-visible {
+  outline: 2px solid #4f7cff;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.eyebrow {
+  @apply font-mono text-xs uppercase tracking-[0.2em] text-accent-blue;
+}
+
+.section-heading {
+  @apply text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-balance;
+}
+
+.card-surface {
+  @apply rounded-xl2 border border-line dark:border-line bg-white/[0.02] backdrop-blur-sm;
+}
+
+.light .card-surface {
+  @apply bg-black/[0.02] border-line-light;
+}
+
+.glass-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+}
+
+.light .glass-panel {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(0, 0, 0, 0.01) 100%
+  );
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
