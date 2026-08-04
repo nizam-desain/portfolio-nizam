@@ -54,10 +54,10 @@ export function Contact() {
           <div>
             <Reveal>
               <span className="eyebrow">Contact</span>
-              <h2 className="section-heading mt-4">Let's build something together.</h2>
+              <h2 className="section-heading mt-4">Let&apos;s build something together.</h2>
               <p className="mt-6 max-w-md text-lg text-ink-muted">
-                I'm currently open for new opportunities. Whether you have a question 
-                or just want to say hi, I'll try my best to get back to you!
+                I&apos;m currently open for new opportunities. Whether you have a question 
+                or just want to say hi, I&apos;ll try my best to get back to you!
               </p>
             </Reveal>
 
