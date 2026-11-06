@@ -46,8 +46,29 @@ export function About() {
           </Reveal>
         </div>
 
+        {/* Working principle — a thematic statement set editorially, not a quotation */}
+        <Reveal className="mt-24">
+          <figure className="relative grid items-center gap-6 border-y border-line py-12 sm:py-16 lg:grid-cols-12">
+            <div aria-hidden className="hidden lg:col-span-2 lg:flex lg:justify-center">
+              <svg viewBox="0 0 80 100" className="h-24 w-20 text-accent" fill="none">
+                <path d="M6 100 V40 A34 34 0 0 1 74 40 V100" stroke="currentColor" strokeWidth="1" />
+                <path d="M18 100 V44 A22 22 0 0 1 62 44 V100" stroke="currentColor" strokeWidth="1" opacity="0.45" />
+              </svg>
+            </div>
+            <div className="lg:col-span-9">
+              <figcaption className="eyebrow flex items-center gap-3">
+                <span className="h-px w-8 bg-accent" aria-hidden />
+                {about.principle.label}
+              </figcaption>
+              <p className="mt-5 font-serif text-[2rem] leading-[1.08] text-ink sm:text-[2.75rem] lg:text-[3.4rem]">
+                Understand the <span className="italic text-accent">problem</span> before designing the solution.
+              </p>
+            </div>
+          </figure>
+        </Reveal>
+
         {/* Approach */}
-        <div className="mt-24">
+        <div className="mt-20">
           <Reveal>
             <h3 className="eyebrow">How I approach a problem</h3>
           </Reveal>

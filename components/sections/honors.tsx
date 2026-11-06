@@ -35,7 +35,7 @@ export function Honors() {
   const [lead, ...others] = awards;
 
   return (
-    <section id="honors" aria-labelledby="honors-title" className="relative border-t border-line bg-surface py-24 sm:py-32">
+    <section id="honors" aria-labelledby="honors-title" className="textured relative border-t border-line bg-surface py-24 sm:py-32">
       <div className="container-page">
         <SectionHeader
           id="honors-title"
@@ -53,9 +53,18 @@ export function Honors() {
         <Reveal className="mt-16">
           <article
             aria-labelledby={`award-${lead.id}`}
-            className="grid overflow-hidden rounded-2xl border border-line bg-raised lg:grid-cols-12"
+            className="relative grid overflow-hidden rounded-2xl border border-line bg-raised shadow-soft lg:grid-cols-12"
           >
-            <div className="flex flex-col justify-between gap-10 p-7 sm:p-10 lg:col-span-5">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-brass/0 via-brass to-brass/0" />
+            <div className="relative flex flex-col justify-between gap-10 p-7 sm:p-10 lg:col-span-5">
+              {/* Rank medallion — restrained, single metallic accent */}
+              <span
+                aria-hidden
+                className="absolute right-7 top-7 grid h-16 w-16 place-items-center rounded-full border border-brass/70 sm:right-10 sm:top-10"
+              >
+                <span className="absolute inset-1 rounded-full border border-brass/30" />
+                <span className="font-serif text-2xl italic leading-none text-brass">II</span>
+              </span>
               <div>
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="chip border-accent/40 text-accent">{lead.scope}</span>
@@ -100,16 +109,25 @@ export function Honors() {
           </article>
         </Reveal>
 
-        {/* Other awards */}
-        <ul className="mt-6 grid gap-6 md:grid-cols-2">
-          {others.map((a, i) => {
+        {/* Other awards, grouped by scope */}
+        {(["International", "National"] as const).map((scope) => {
+          const group = { scope, items: others.filter((a) => a.scope === scope) };
+          if (!group.items.length) return null;
+          return (
+            <div key={scope} className="mt-14">
+              <div className="flex items-center gap-4">
+                <h3 className="eyebrow text-brass">{scope}</h3>
+                <span aria-hidden className="h-px flex-1 bg-gradient-to-r from-brass/50 to-transparent" />
+              </div>
+              <ul className="mt-6 grid gap-6 md:grid-cols-2">
+          {group.items.map((a, i) => {
             const img = a.images[0];
             return (
               <Reveal as="li" key={a.id} delay={0.06 * i}>
                 <article
                   aria-labelledby={`award-${a.id}`}
                   className={cn(
-                    "group grid h-full overflow-hidden rounded-2xl border border-line bg-raised",
+                    "group relative grid h-full overflow-hidden rounded-2xl border border-line bg-raised transition-[box-shadow,border-color] duration-500 hover:border-brass/50 hover:shadow-soft",
                     img ? "grid-rows-[auto_1fr]" : "",
                   )}
                 >
@@ -144,9 +162,9 @@ export function Honors() {
                       <span className="chip">{a.date}</span>
                     </div>
                     <p className="mt-5 font-serif text-[2rem] italic leading-none text-ink">{a.title}</p>
-                    <h3 id={`award-${a.id}`} className="mt-3 text-base font-medium leading-snug text-ink">
+                    <h4 id={`award-${a.id}`} className="mt-3 text-base font-medium leading-snug text-ink">
                       {a.event}
-                    </h3>
+                    </h4>
                     {a.organizer ? <p className="mt-1 text-sm text-muted">{a.organizer}</p> : null}
                     <p className="mt-4 text-sm leading-relaxed text-muted">{a.description}</p>
                     <p className="mt-auto pt-5 text-xs leading-relaxed text-muted">
@@ -158,7 +176,10 @@ export function Honors() {
               </Reveal>
             );
           })}
-        </ul>
+              </ul>
+            </div>
+          );
+        })}
       </div>
 
       <AnimatePresence>

@@ -14,12 +14,17 @@
   --ink: 28 26 23;           /* primary text — graphite */
   --muted: 92 87 80;         /* secondary text */
   --faint: 140 133 123;      /* tertiary / meta (large or decorative only) */
-  --line: 218 211 199;       /* hairlines */
+  --line: 210 201 186;       /* hairlines — decorative, ~1.5:1 */
   --accent: 154 72 36;       /* clay — 5.9:1 on paper */
   --accent-ink: 255 250 244; /* text on accent */
   --sage: 86 104 88;
   --shadow: 60 44 28;
+  --brass: 126 96 46;        /* honours only — metallic accent, ≥4.8:1 as text */
+  --slate: 84 100 120;       /* third case-study tone */
   --header-h: 4.25rem;
+  --page: 246 243 237;       /* outer page colour, used for seams between bands */
+  /* Static paper grain: dark speckle, alpha baked into the tile (~5%). */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.11 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 .dark {
@@ -30,11 +35,65 @@
   --ink: 238 233 225;
   --muted: 168 161 151;
   --faint: 122 116 108;
-  --line: 52 49 45;
+  --line: 56 52 48;
+  --page: 19 18 17;
   --accent: 226 148 104;     /* lifted clay — 8:1 on paper */
   --accent-ink: 28 18 12;
   --sage: 150 172 152;
   --shadow: 0 0 0;
+  --brass: 196 166 108;
+  --slate: 150 168 190;
+  /* Light speckle, lower alpha so dark mode never looks dusty. */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.96  0 0 0 0 0.9  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Feature band — wraps the bridge marquee and the professional case studies.
+   It changes the page's register without leaving the active theme:
+   light theme → warm sand (graphite type, clay accents);
+   dark theme  → the deeper charcoal of the original design.
+   Re-declaring tokens means every component inside adapts automatically.
+   Contrast (WCAG): ink ≥ 12.6:1, muted ≥ 6.3:1, accent ≥ 5.0:1 on every
+   surface in the band, in both themes. */
+.band-feature {
+  --paper: 235 228 215;
+  --surface: 227 219 204;
+  --raised: 246 242 234;
+  --muted: 80 74 66;
+  --line: 204 194 178;
+  --accent: 146 66 32;
+  --sage: 76 96 80;
+  --slate: 72 88 110;
+}
+.dark .band-feature {
+  --paper: 12 11 10;
+  --surface: 20 19 17;
+  --raised: 27 25 23;
+  --muted: 168 161 151;
+  --line: 48 45 41;
+  --accent: 226 148 104;
+  --sage: 150 172 152;
+  --slate: 150 168 190;
+}
+
+/* Spotlight panel — the single dark feature panel kept in light mode, used
+   for the lead (ongoing) case study's cover. In dark mode it matches the
+   band so it doesn't double up on darkness. */
+.panel-ink {
+  color-scheme: dark;
+  --paper: 30 28 25;
+  --surface: 38 35 32;
+  --raised: 46 43 39;
+  --ink: 240 235 227;
+  --muted: 176 168 157;
+  --line: 66 61 56;
+  --accent: 228 152 110;
+  --sage: 156 178 158;
+  --slate: 154 172 196;
+}
+.dark .panel-ink {
+  --surface: 20 19 17;
+  --raised: 27 25 23;
+  --line: 48 45 41;
 }
 
 @layer base {
@@ -46,6 +105,7 @@
 
   body {
     @apply bg-paper font-sans text-ink antialiased;
+    background-image: var(--grain);
     font-feature-settings: "ss01", "cv11";
     text-rendering: optimizeLegibility;
   }
@@ -71,6 +131,12 @@
 
 /* Theme switch: a circular reveal from the toggle where the View
    Transitions API is available; otherwise an instant swap. */
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
@@ -88,6 +154,10 @@
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .marquee-track {
+    animation: none !important;
   }
 }
 
@@ -132,16 +202,71 @@
     @apply inline-flex items-center rounded-full border border-line px-2.5 py-1 text-xs text-muted;
   }
 
-  /* Subtle paper grain so flat surfaces don't feel digital-sterile. */
-  .grain::before {
+  /* Texture lives in the background layer (below content), never over it,
+     so text and certificate images are untouched. Apply to any element
+     that paints its own background colour. */
+  .textured {
+    background-image: var(--grain);
+  }
+
+  /* Oversized outline index numerals behind selected section headers. */
+  .outline-numeral {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--muted) / 0.38);
+  }
+
+  /* Architectural registration mark (small crosshair), purely decorative. */
+  .reg-mark {
+    position: relative;
+    display: inline-block;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .reg-mark::before,
+  .reg-mark::after {
     content: "";
     position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.035;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background: currentColor;
   }
-  .dark .grain::before {
-    opacity: 0.05;
+  .reg-mark::before {
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+  }
+  .reg-mark::after {
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+  }
+
+  /* Case-study diagram reveal (CSS, toggled once by IntersectionObserver). */
+  .dg [data-a="draw"] {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.1s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s);
+  }
+  .dg [data-a="pop"] {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s);
+  }
+  .dg.in [data-a="draw"] {
+    stroke-dashoffset: 0;
+  }
+  .dg.in [data-a="pop"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Editorial marquee — CSS-only transform loop, two identical halves. */
+  .marquee-track {
+    animation: marquee var(--marquee-duration, 48s) linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
   }
 }

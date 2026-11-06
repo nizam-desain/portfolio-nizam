@@ -21,6 +21,8 @@ const config: Config = {
         accent: token("accent"),
         "accent-ink": token("accent-ink"),
         sage: token("sage"),
+        brass: token("brass"),
+        slate: token("slate"),
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
@@ -46,12 +48,14 @@ const config: Config = {
         "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
         rise: { from: { opacity: "0", transform: "translateY(16px)" }, to: { opacity: "1", transform: "none" } },
         "mask-up": { from: { transform: "translateY(105%)" }, to: { transform: "none" } },
+        "draw-y": { from: { transform: "scaleY(0)" }, to: { transform: "scaleY(1)" } },
       },
       animation: {
         "fade-in": "fade-in 0.4s ease-out both",
         rise: "rise 1s cubic-bezier(0.16, 1, 0.3, 1) both",
         "rise-slow": "rise 1.4s cubic-bezier(0.16, 1, 0.3, 1) both",
         "mask-up": "mask-up 1.1s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "draw-y": "draw-y 1.6s cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },

@@ -52,6 +52,17 @@ export function Hero() {
   const imgY = useSpring(useTransform(py, [-0.5, 0.5], [6, -6]), spring);
   const glareX = useTransform(px, [-0.5, 0.5], ["20%", "80%"]);
   const glareY = useTransform(py, [-0.5, 0.5], ["15%", "85%"]);
+  // Depth layers: the offset frame drifts against the portrait, the shadow
+  // answers the tilt, and a registration mark tracks the pointer slightly.
+  const frameX = useSpring(useTransform(px, [-0.5, 0.5], [14, -14]), spring);
+  const frameY = useSpring(useTransform(py, [-0.5, 0.5], [10, -10]), spring);
+  const markX = useSpring(useTransform(px, [-0.5, 0.5], [-18, 18]), spring);
+  const markY = useSpring(useTransform(py, [-0.5, 0.5], [-12, 12]), spring);
+  const shadow = useTransform(
+    [shiftX, shiftY],
+    ([x, y]: number[]) =>
+      `${(-x * 1.6).toFixed(1)}px ${(28 - y * 1.6).toFixed(1)}px 60px -22px rgb(var(--shadow) / 0.38), 0 2px 4px rgb(var(--shadow) / 0.06)`,
+  );
   const glare = useTransform(
     [glareX, glareY],
     ([gx, gy]) => `radial-gradient(circle at ${gx} ${gy}, rgba(255,255,255,0.35), transparent 55%)`,
@@ -81,7 +92,7 @@ export function Hero() {
       onPointerMove={onMove}
       onPointerLeave={onLeave}
       aria-labelledby="hero-name"
-      className="grain relative isolate overflow-hidden pb-20 pt-[calc(var(--header-h)+2.5rem)] sm:pb-24 lg:min-h-[100svh] lg:pb-16 lg:pt-[calc(var(--header-h)+3.5rem)]"
+      className="relative isolate overflow-hidden pb-20 pt-[calc(var(--header-h)+2.5rem)] sm:pb-24 lg:min-h-[100svh] lg:pb-16 lg:pt-[calc(var(--header-h)+3.5rem)]"
     >
       {/* Background: a slow, oversized arch echoing the portrait frame */}
       <motion.svg
@@ -104,6 +115,19 @@ export function Hero() {
           />
         ))}
       </motion.svg>
+
+      {/* Editorial column guides — static hairlines that draw in once (desktop only) */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 hidden lg:block">
+        <div className="container-page relative h-full">
+          {["0%", "58.333%", "100%"].map((left, i) => (
+            <span
+              key={left}
+              className="animate-draw-y absolute top-0 h-full w-px origin-top bg-line/60"
+              style={{ left, animationDelay: `${0.2 + i * 0.15}s` }}
+            />
+          ))}
+        </div>
+      </div>
 
       <div className="container-page grid gap-10 lg:grid-cols-12 lg:grid-rows-[auto_1fr] lg:gap-x-10 lg:gap-y-0">
         {/* Copy — part A: positioning + name */}
@@ -183,7 +207,19 @@ export function Hero() {
             className="animate-rise-slow w-[86%] max-w-[22rem] sm:w-[58%] sm:max-w-[26rem] lg:mx-auto lg:w-full"
             style={{ animationDelay: "0.25s" }}
           >
-          <motion.div style={{ y: scrollY, scale: scrollScale }}>
+          <motion.div style={{ y: scrollY, scale: scrollScale }} className="relative">
+            {/* Offset arch frame on its own depth plane */}
+            <motion.div
+              aria-hidden
+              style={interactive ? { x: frameX, y: frameY } : undefined}
+              className="pointer-events-none absolute left-3 top-3 -mr-3 aspect-[5/6] w-full rounded-b-[1.25rem] rounded-t-[999px] border border-accent/45 sm:left-4 sm:top-4 sm:aspect-[4/5] lg:left-5 lg:top-5"
+            />
+            {/* Registration mark at the arch's spring line */}
+            <motion.span
+              aria-hidden
+              style={interactive ? { x: markX, y: markY } : undefined}
+              className="reg-mark pointer-events-none absolute -left-6 top-[38%] hidden text-accent lg:block"
+            />
             <motion.div
               animate={reduce ? undefined : { y: [0, -7, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
@@ -196,7 +232,10 @@ export function Hero() {
                 }
                 className="relative"
               >
-                <div className="relative aspect-[5/6] overflow-hidden sm:aspect-[4/5] rounded-t-[999px] rounded-b-[1.25rem] bg-surface shadow-lift ring-1 ring-ink/10">
+                <motion.div
+                  style={interactive ? { boxShadow: shadow } : undefined}
+                  className="relative aspect-[5/6] overflow-hidden rounded-b-[1.25rem] rounded-t-[999px] bg-surface shadow-lift ring-1 ring-ink/10 sm:aspect-[4/5]"
+                >
                   <motion.div
                     className="absolute -inset-3"
                     style={interactive ? { x: imgX, y: imgY } : undefined}
@@ -223,7 +262,13 @@ export function Hero() {
                     aria-hidden
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/35 to-transparent"
                   />
-                </div>
+                </motion.div>
+                <span
+                  aria-hidden
+                  className="absolute -right-9 top-[12%] hidden font-mono text-[0.625rem] uppercase tracking-[0.3em] text-muted [writing-mode:vertical-rl] xl:block"
+                >
+                  Fig. 01 — Business analysis · Strategy &amp; operations
+                </span>
                 <figcaption className="mt-4 flex items-center justify-between text-xs text-muted">
                   <span className="font-mono uppercase tracking-[0.16em]">{profile.location}</span>
                   <span className="hidden font-mono uppercase tracking-[0.16em] sm:inline">Portfolio · 2026</span>

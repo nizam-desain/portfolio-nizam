@@ -191,8 +191,8 @@ export function Lightbox({
                 type="button"
                 key={item.key}
                 custom={dir}
-                initial={{ opacity: 0, x: dir * 40 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, x: dir * 40, scale: dir === 0 ? 0.96 : 1 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: dir * -40 }}
                 transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                 onClick={(e) => {
