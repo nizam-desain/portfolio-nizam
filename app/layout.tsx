@@ -1,81 +1,108 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { Instrument_Serif } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ScrollProgress } from "@/components/sections/scroll-progress";
-import { profile } from "@/data/content";
+import { Providers } from "@/components/providers";
+import { profile, siteUrl, education } from "@/data/content";
 
-const siteUrl = "https://example.com";
+const serif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+  display: "swap",
+});
+
+const title = `${profile.name} — Business Analyst · Process Improvement · Strategy & Operations`;
+const description =
+  "Portfolio of Nizamuddin Zahrani, an Information Systems undergraduate and HR Information Systems intern at Mattel Indonesia, focused on business analysis, process improvement, and strategy & operations.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: `${profile.name} — ${profile.title}`,
-  description: profile.tagline,
+  title: { default: title, template: `%s — ${profile.name}` },
+  description,
+  applicationName: profile.name,
+  authors: [{ name: profile.legalName, url: siteUrl }],
+  creator: profile.legalName,
   keywords: [
-    "Business Information Systems",
-    "ERP",
-    "Supply Chain",
-    "Digital Transformation",
-    "Data Analytics",
-    "Product Management",
-    profile.name,
+    "Nizamuddin Zahrani",
+    "Business Analyst",
+    "Functional Analyst",
+    "Business Process Improvement",
+    "Strategy and Operations",
+    "Requirements Analysis",
+    "President University",
+    "Information Systems",
   ],
-  authors: [{ name: profile.name }],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: `${profile.name} — ${profile.title}`,
-    description: profile.tagline,
-    url: siteUrl,
-    siteName: profile.name,
     type: "profile",
+    url: "/",
+    siteName: profile.name,
+    title,
+    description,
+    locale: "en_US",
+    firstName: "Nizamuddin",
+    lastName: "Zahrani",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: `${profile.name} — ${profile.title}`,
-    description: profile.tagline,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  twitter: { card: "summary_large_image", title, description },
+  robots: { index: true, follow: true },
+  formatDetection: { telephone: false },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f6f3ed" },
+    { media: "(prefers-color-scheme: dark)", color: "#131211" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: profile.name,
-    jobTitle: profile.title,
-    email: profile.email,
+    name: profile.legalName,
+    alternateName: profile.name,
     url: siteUrl,
-    sameAs: [profile.linkedin, profile.github, profile.instagram],
+    image: `${siteUrl}${profile.portrait.src}`,
+    email: `mailto:${profile.email}`,
+    jobTitle: "Business Analyst (aspiring) — HR Information Systems Intern",
+    address: { "@type": "PostalAddress", addressLocality: "Cikarang", addressCountry: "ID" },
+    alumniOf: { "@type": "CollegeOrUniversity", name: education.school },
+    knowsAbout: [
+      "Business process analysis",
+      "Requirements elicitation",
+      "Functional testing",
+      "Stakeholder management",
+      "Enterprise Resource Planning",
+    ],
+    sameAs: [profile.linkedin, profile.github],
   };
 
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${GeistMono.variable} dark`}
+      className={`${GeistSans.variable} ${GeistMono.variable} ${serif.variable}`}
       suppressHydrationWarning
     >
-      <head>
+      <body>
         <script
           type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-      </head>
-      <body className="font-sans antialiased">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <Providers>
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-accent-blue focus:px-4 focus:py-2 focus:text-white"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
           >
             Skip to content
           </a>
-          <ScrollProgress />
           {children}
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
