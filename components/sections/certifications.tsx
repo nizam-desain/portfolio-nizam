@@ -13,6 +13,11 @@ import { cn } from "@/lib/utils";
 type Filter = "All" | CertCategory;
 const INITIAL = 8;
 
+const issuers = Array.from(
+  certificates.reduce((m, c) => m.set(c.issuer, (m.get(c.issuer) ?? 0) + 1), new Map<string, number>()),
+  ([name, count]) => ({ name, count }),
+).sort((a, b) => b.count - a.count);
+
 const issuerMark: Record<Certificate["issuer"], { mark: string; className: string }> = {
   Google: { mark: "G", className: "font-sans font-semibold" },
   "Dicoding Indonesia": { mark: "d", className: "font-sans font-semibold" },
@@ -70,7 +75,26 @@ export function Certifications() {
           intro={`${certificates.length} unique credentials, shown as issued. Open any certificate to view it full-screen, zoom in, download the original, or verify it with the issuer.`}
         />
 
+        {/* Static issuer summary */}
         <Reveal className="mt-12">
+          <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-4">
+            {[
+              { k: "Credentials", v: String(certificates.length) },
+              ...issuers.slice(0, 2).map((i) => ({ k: i.name, v: String(i.count) })),
+              { k: "Verifiable online", v: String(certificates.filter((c) => c.verifyUrl).length) },
+            ].map((d) => (
+                <div key={d.k} className="bg-raised px-5 py-4">
+                  <dt className="eyebrow">{d.k}</dt>
+                  <dd className="mt-1 font-serif text-3xl leading-none text-ink">{d.v}</dd>
+                </div>
+              ))}
+          </dl>
+          <p className="mt-3 text-xs text-muted">
+            Issued by {issuers.map((i) => `${i.name} (${i.count})`).join(", ")}.
+          </p>
+        </Reveal>
+
+        <Reveal className="mt-10">
           <div
             role="toolbar"
             aria-label="Filter certificates by category"

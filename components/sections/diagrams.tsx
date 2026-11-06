@@ -1,122 +1,36 @@
 "use client";
 
-import { createContext, useContext, useId } from "react";
-import { motion } from "framer-motion";
+import { createContext, useContext, useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import type { CaseStudy } from "@/data/content";
 
 /*
- * Abstract, explicitly illustrative diagrams for the case studies.
- * They show the *kind* of analysis performed — they are not, and do not
- * depict, any real company system, data, or screen.
+ * Original, explicitly illustrative information-design covers for the case
+ * studies. Each shows the *kind* of analysis performed — none depicts any
+ * real company system, screen, rule, or data. Colours come from tokens, and
+ * each cover is tinted by `--tone` (set by the parent) so the three projects
+ * differ within one visual language.
  */
 
-const ease = [0.16, 1, 0.3, 1] as const;
 const MarkerId = createContext("arrow");
-const draw = (delay = 0) => ({
-  initial: { pathLength: 0, opacity: 0 },
-  whileInView: { pathLength: 1, opacity: 1 },
-  viewport: { once: true, margin: "0px 0px -15% 0px" },
-  transition: { duration: 1.2, delay, ease },
-});
-const pop = (delay = 0) => ({
-  initial: { opacity: 0, scale: 0.9 },
-  whileInView: { opacity: 1, scale: 1 },
-  viewport: { once: true, margin: "0px 0px -15% 0px" },
-  transition: { duration: 0.6, delay, ease },
-});
 
 const C = {
   ink: "rgb(var(--ink))",
   muted: "rgb(var(--muted))",
   line: "rgb(var(--line))",
-  accent: "rgb(var(--accent))",
-  sage: "rgb(var(--sage))",
+  tone: "rgb(var(--tone, var(--accent)))",
+  toneSoft: "rgb(var(--tone, var(--accent)) / 0.12)",
   raised: "rgb(var(--raised))",
+  surface: "rgb(var(--surface))",
 };
+const mono = "var(--font-geist-mono)";
+const sans = "var(--font-geist-sans)";
 
-function Node({
-  x,
-  y,
-  w = 96,
-  label,
-  tone = "default",
-  delay = 0,
-}: {
-  x: number;
-  y: number;
-  w?: number;
-  label: string;
-  tone?: "default" | "accent" | "sage" | "ghost";
-  delay?: number;
-}) {
-  const stroke = tone === "accent" ? C.accent : tone === "sage" ? C.sage : C.line;
-  return (
-    <motion.g {...pop(delay)} style={{ transformOrigin: `${x + w / 2}px ${y + 17}px` }}>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={34}
-        rx={17}
-        fill={C.raised}
-        stroke={stroke}
-        strokeWidth={tone === "default" || tone === "ghost" ? 1 : 1.5}
-        strokeDasharray={tone === "ghost" ? "4 4" : undefined}
-      />
-      <text
-        x={x + w / 2}
-        y={y + 21.5}
-        textAnchor="middle"
-        fontSize="11"
-        fontFamily="var(--font-geist-sans)"
-        fill={tone === "ghost" ? C.muted : C.ink}
-      >
-        {label}
-      </text>
-    </motion.g>
-  );
-}
-
-function Arrow({ d, delay = 0, color = C.muted, dashed = false }: { d: string; delay?: number; color?: string; dashed?: boolean }) {
-  return (
-    <motion.path
-      d={d}
-      fill="none"
-      stroke={color}
-      strokeWidth={1.2}
-      strokeDasharray={dashed ? "3 4" : undefined}
-      markerEnd={`url(#${useContext(MarkerId)})`}
-      {...draw(delay)}
-    />
-  );
-}
-
-function Label({ x, y, children, color = C.muted }: { x: number; y: number; children: string; color?: string }) {
-  return (
-    <motion.text
-      {...pop(0.1)}
-      x={x}
-      y={y}
-      fontSize="9.5"
-      letterSpacing="1.6"
-      fontFamily="var(--font-geist-mono)"
-      fill={color}
-    >
-      {children}
-    </motion.text>
-  );
-}
-
-function Friction({ x, y, delay }: { x: number; y: number; delay: number }) {
-  return (
-    <motion.g {...pop(delay)} style={{ transformOrigin: `${x}px ${y}px` }}>
-      <circle cx={x} cy={y} r={9} fill={C.raised} stroke={C.accent} strokeWidth={1.2} />
-      <text x={x} y={y + 3.5} textAnchor="middle" fontSize="10" fontWeight="600" fill={C.accent}>
-        !
-      </text>
-    </motion.g>
-  );
-}
+// CSS-driven reveal (see .dg rules in globals.css): far cheaper to hydrate
+// than one Framer component per shape. `pathLength=1` normalises the stroke
+// so the draw-in works for any path length.
+const draw = (delay = 0) =>
+  ({ "data-a": "draw", pathLength: 1, style: { "--d": `${delay}s` } as CSSProperties }) as const;
+const pop = (delay = 0) => ({ "data-a": "pop", style: { "--d": `${delay}s` } as CSSProperties }) as const;
 
 function Defs() {
   const id = useContext(MarkerId);
@@ -125,116 +39,248 @@ function Defs() {
       <marker id={id} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M0 0 L10 5 L0 10 z" fill={C.muted} />
       </marker>
+      <pattern id={`${id}-dots`} width="16" height="16" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r="0.9" fill={C.line} />
+      </pattern>
     </defs>
   );
 }
 
-function ProcessDiagram() {
+function Dots({ w, h }: { w: number; h: number }) {
+  const id = useContext(MarkerId);
+  return <rect width={w} height={h} fill={`url(#${id}-dots)`} opacity={0.9} />;
+}
+
+function Arrow({ d, delay = 0, tone = false, dashed = false }: { d: string; delay?: number; tone?: boolean; dashed?: boolean }) {
+  const id = useContext(MarkerId);
   return (
-    <svg viewBox="0 0 520 300" className="h-full w-full" role="img" aria-label="Illustrative AS-IS versus TO-BE workflow comparison">
-      <Defs />
-      <Label x={24} y={36}>AS-IS · OBSERVED</Label>
-      <Node x={24} y={52} w={82} label="Order" />
-      <Node x={140} y={52} w={92} label="Admin check" delay={0.1} />
-      <Node x={266} y={52} w={84} label="Kitchen" delay={0.2} />
-      <Node x={384} y={52} w={108} label="Status update" delay={0.3} />
-      <Arrow d="M106 69 H138" delay={0.2} />
-      <Arrow d="M232 69 H264" delay={0.3} />
-      <Arrow d="M350 69 H382" delay={0.4} />
-      <Arrow d="M438 86 C 438 128, 186 128, 186 88" delay={0.5} dashed />
-      <Friction x={122} y={48} delay={0.6} />
-      <Friction x={366} y={48} delay={0.7} />
-      <Friction x={312} y={118} delay={0.8} />
-      <motion.line x1={24} x2={496} y1={160} y2={160} stroke={C.line} {...draw(0.4)} />
-      <Label x={24} y={196} color={C.accent}>TO-BE · PROPOSED</Label>
-      <Node x={24} y={212} w={82} label="Order" tone="accent" delay={0.6} />
-      <Node x={140} y={212} w={118} label="Shared status" tone="accent" delay={0.7} />
-      <Node x={292} y={212} w={84} label="Kitchen" tone="accent" delay={0.8} />
-      <Node x={410} y={212} w={82} label="Fulfil" tone="sage" delay={0.9} />
-      <Arrow d="M106 229 H138" delay={0.8} color={C.accent} />
-      <Arrow d="M258 229 H290" delay={0.9} color={C.accent} />
-      <Arrow d="M376 229 H408" delay={1} color={C.accent} />
-      <Label x={24} y={284}>ILLUSTRATIVE · NOT A SYSTEM SCREENSHOT</Label>
-    </svg>
+    <path
+      d={d}
+      fill="none"
+      stroke={tone ? C.tone : C.muted}
+      strokeWidth={1.2}
+      strokeDasharray={dashed ? "3 4" : undefined}
+      markerEnd={`url(#${id})`}
+      {...(dashed ? pop(delay) : draw(delay))}
+    />
   );
 }
 
-function ApprovalDiagram() {
+function Pill({
+  x,
+  y,
+  w,
+  label,
+  variant = "plain",
+  delay = 0,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  label: string;
+  variant?: "plain" | "tone" | "solid" | "ghost";
+  delay?: number;
+}) {
+  const fill = variant === "solid" ? C.tone : variant === "tone" ? C.toneSoft : C.raised;
+  const stroke = variant === "plain" ? C.line : C.tone;
+  const text = variant === "solid" ? "rgb(var(--raised))" : variant === "ghost" ? C.muted : C.ink;
   return (
-    <svg viewBox="0 0 520 300" className="h-full w-full" role="img" aria-label="Illustrative request and approval workflow with test scenarios">
-      <Defs />
-      <Label x={24} y={36}>REQUEST → APPROVAL · RULES & EXCEPTIONS</Label>
-      <Node x={24} y={118} w={86} label="Request" />
-      <Node x={150} y={118} w={88} label="Review" delay={0.1} />
-      <motion.g {...pop(0.2)} style={{ transformOrigin: "296px 135px" }}>
-        <rect x={278} y={117} width={36} height={36} rx={4} transform="rotate(45 296 135)" fill={C.raised} stroke={C.accent} strokeWidth={1.5} />
-        <text x={296} y={139} textAnchor="middle" fontSize="11" fill={C.ink}>
-          rule
-        </text>
-      </motion.g>
-      <Node x={360} y={64} w={100} label="Approved" tone="sage" delay={0.4} />
-      <Node x={360} y={172} w={100} label="Returned" tone="ghost" delay={0.5} />
-      <Arrow d="M110 135 H148" delay={0.2} />
-      <Arrow d="M238 135 H270" delay={0.3} />
-      <Arrow d="M314 128 C 334 100, 340 82, 358 81" delay={0.4} />
-      <Arrow d="M314 142 C 334 170, 340 188, 358 189" delay={0.5} />
-      <Arrow d="M410 206 C 410 250, 194 250, 194 156" delay={0.6} dashed />
-      <Label x={226} y={244}>EXCEPTION PATH</Label>
-      {/* test-scenario checklist */}
-      <motion.g {...pop(0.8)}>
-        {[0, 1, 2].map((i) => (
-          <g key={i} transform={`translate(24 ${210 + i * 18})`}>
-            <rect width={11} height={11} rx={2.5} fill="none" stroke={C.sage} />
-            <motion.path d="M2.5 5.8 L4.8 8 L8.8 3.2" fill="none" stroke={C.sage} strokeWidth={1.5} {...draw(1 + i * 0.15)} />
-            <rect x={18} y={3.5} width={[92, 70, 104][i]} height={4} rx={2} fill={C.line} />
-          </g>
-        ))}
-        <text x={24} y={200} fontSize="9.5" letterSpacing="1.6" fontFamily="var(--font-geist-mono)" fill={C.muted}>
-          TEST SCENARIOS
-        </text>
-      </motion.g>
-      <Label x={24} y={284}>ILLUSTRATIVE · NOT A SYSTEM SCREENSHOT</Label>
-    </svg>
-  );
-}
-
-function RequisitionDiagram() {
-  const Doc = ({ x, title, delay }: { x: number; title: string; delay: number }) => (
-    <motion.g {...pop(delay)} style={{ transformOrigin: `${x + 85}px 150px` }}>
-      <rect x={x} y={58} width={170} height={190} rx={10} fill={C.raised} stroke={C.line} />
-      <text x={x + 18} y={86} fontSize="12" fontWeight="600" fill={C.ink} fontFamily="var(--font-geist-sans)">
-        {title}
+    <g {...pop(delay)}>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={30}
+        rx={15}
+        fill={fill}
+        stroke={stroke}
+        strokeDasharray={variant === "ghost" ? "4 4" : undefined}
+      />
+      <text x={x + w / 2} y={y + 19.5} textAnchor="middle" fontSize="11" fontFamily={sans} fill={text}>
+        {label}
       </text>
-      {[0, 1, 2, 3].map((i) => (
-        <g key={i} transform={`translate(${x + 18} ${106 + i * 30})`}>
-          <circle cx={8} cy={8} r={8} fill="none" stroke={i < 3 ? C.accent : C.line} />
-          <text x={8} y={11.5} textAnchor="middle" fontSize="9" fill={i < 3 ? C.accent : C.muted}>
-            {i + 1}
-          </text>
-          <rect x={24} y={2} width={[104, 84, 112, 72][i]} height={4} rx={2} fill={C.line} />
-          <rect x={24} y={10} width={[64, 92, 54, 80][i]} height={3} rx={1.5} fill={C.line} opacity={0.6} />
+    </g>
+  );
+}
+
+function Mark({ x, y, delay }: { x: number; y: number; delay: number }) {
+  return (
+    <g {...pop(delay)}>
+      <circle cx={x} cy={y} r={8} fill={C.raised} stroke={C.tone} />
+      <text x={x} y={y + 3.5} textAnchor="middle" fontSize="10" fontWeight="600" fill={C.tone}>
+        !
+      </text>
+    </g>
+  );
+}
+
+function Tag({ x, y, children, tone = false }: { x: number; y: number; children: string; tone?: boolean }) {
+  return (
+    <text x={x} y={y} fontSize="9" letterSpacing="1.6" fontFamily={mono} fill={tone ? C.tone : C.muted}>
+      {children}
+    </text>
+  );
+}
+
+/* 01 — Service blueprint: lanes for customer, front-of-house and kitchen. */
+function ServiceBlueprint() {
+  const W = 720;
+  const H = 300;
+  const lanes = [
+    { y: 34, label: "CUSTOMER" },
+    { y: 122, label: "FRONT OF HOUSE" },
+    { y: 210, label: "KITCHEN" },
+  ];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" role="img" aria-label="Illustrative service blueprint of an ordering and fulfilment journey, with friction points marked at hand-offs">
+      <Defs />
+      <Dots w={W} h={H} />
+      {lanes.map((l, i) => (
+        <g key={l.label}>
+          <rect x={0} y={l.y - 10} width={W} height={78} fill={i === 1 ? C.toneSoft : "transparent"} />
+          <Tag x={18} y={l.y + 4}>{l.label}</Tag>
+          {i > 0 ? <line x1={0} x2={W} y1={l.y - 10} y2={l.y - 10} stroke={C.line} strokeDasharray={i === 1 ? "2 5" : undefined} /> : null}
         </g>
       ))}
-    </motion.g>
+      <Tag x={W - 168} y={108} tone>LINE OF VISIBILITY</Tag>
+      {/* customer */}
+      <Pill x={150} y={46} w={88} label="Browse" delay={0.05} />
+      <Pill x={290} y={46} w={88} label="Order" variant="tone" delay={0.15} />
+      <Pill x={570} y={46} w={98} label="Receive" variant="tone" delay={0.7} />
+      {/* front */}
+      <Pill x={290} y={134} w={88} label="Confirm" delay={0.25} />
+      <Pill x={430} y={134} w={110} label="Status updates" variant="solid" delay={0.5} />
+      <Pill x={580} y={134} w={88} label="Hand-off" delay={0.65} />
+      {/* kitchen */}
+      <Pill x={430} y={222} w={110} label="Prepare" delay={0.4} />
+      <Arrow d="M238 61 H286" delay={0.2} />
+      <Arrow d="M334 76 V130" delay={0.3} />
+      <Arrow d="M378 149 C 410 149, 420 200, 482 218" delay={0.4} />
+      <Arrow d="M485 222 V168" delay={0.55} tone />
+      <Arrow d="M540 149 H576" delay={0.6} />
+      <Arrow d="M624 134 V80" delay={0.7} tone />
+      <Mark x={356} y={104} delay={0.8} />
+      <Mark x={560} y={128} delay={0.9} />
+    </svg>
   );
+}
+
+/* 02 — Request & approval: staircase with a rule gate and an exception loop. */
+function ApprovalStair() {
+  const W = 520;
+  const H = 340;
   return (
-    <svg viewBox="0 0 520 300" className="h-full w-full" role="img" aria-label="Illustrative requisition workflow documentation for two request types">
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" role="img" aria-label="Illustrative request and approval workflow: initiation, review, rule validation and completion, with an exception path and test scenarios">
       <Defs />
-      <Label x={24} y={36}>REQUISITION WORKFLOWS · USER DOCUMENTATION</Label>
-      <Doc x={40} title="OJT requisition" delay={0.1} />
-      <Doc x={310} title="Internship requisition" delay={0.25} />
-      <Arrow d="M216 150 C 250 120, 274 120, 306 150" delay={0.5} dashed />
-      <Label x={226} y={112}>CLARIFY</Label>
-      <Label x={24} y={284}>ILLUSTRATIVE · NOT A SYSTEM SCREENSHOT</Label>
+      <Dots w={W} h={H} />
+      <path d="M30 270 H130 V210 H230 V150 H330 V90 H490" fill="none" stroke={C.line} {...draw(0)} />
+      <Pill x={40} y={236} w={84} label="Request" delay={0.1} />
+      <Pill x={140} y={176} w={84} label="Review" delay={0.2} />
+      <g {...pop(0.3)}>
+        <rect x={262} y={104} width={34} height={34} rx={4} transform="rotate(45 279 121)" fill={C.toneSoft} stroke={C.tone} />
+        <text x={279} y={125} textAnchor="middle" fontSize="10" fontFamily={sans} fill={C.ink}>
+          rule
+        </text>
+      </g>
+      <Pill x={370} y={56} w={104} label="Complete" variant="solid" delay={0.45} />
+      <Arrow d="M124 251 C 140 251, 150 230, 168 208" delay={0.25} />
+      <Arrow d="M224 191 C 245 186, 256 160, 266 138" delay={0.35} />
+      <Arrow d="M300 108 C 326 88, 346 74, 366 71" delay={0.5} tone />
+      <Arrow d="M282 146 C 282 230, 120 300, 82 268" delay={0.6} dashed />
+      <Tag x={150} y={318}>EXCEPTION · RETURN FOR CORRECTION</Tag>
+      <g {...pop(0.7)}>
+        <Tag x={340} y={190} tone>SCENARIOS</Tag>
+        {[0, 1, 2, 3].map((i) => (
+          <g key={i} transform={`translate(340 ${204 + i * 18})`}>
+            <rect width={11} height={11} rx={2.5} fill="none" stroke={C.tone} />
+            <path d="M2.5 5.8 L4.8 8 L8.8 3.2" fill="none" stroke={C.tone} strokeWidth={1.5} {...draw(0.9 + i * 0.12)} />
+            <rect x={18} y={3.5} width={[96, 72, 110, 84][i]} height={4} rx={2} fill={C.line} />
+          </g>
+        ))}
+      </g>
+    </svg>
+  );
+}
+
+/* 03 — Requisition: a stepper above an abstract form and its user guide. */
+function RequisitionDoc() {
+  const W = 440;
+  const H = 400;
+  const steps = ["Request", "Process", "Document"];
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" role="img" aria-label="Illustrative requisition workflow: an abstract request form with a three-step stepper and an accompanying user guide">
+      <Defs />
+      <Dots w={W} h={H} />
+      {/* stepper */}
+      <line x1={70} x2={370} y1={52} y2={52} stroke={C.line} {...draw(0)} />
+      {steps.map((s, i) => (
+        <g key={s} {...pop(0.1 + i * 0.12)}>
+          <circle cx={70 + i * 150} cy={52} r={10} fill={i < 2 ? C.tone : C.raised} stroke={C.tone} />
+          <text x={70 + i * 150} y={55.5} textAnchor="middle" fontSize="9" fill={i < 2 ? "rgb(var(--raised))" : C.tone}>
+            {i + 1}
+          </text>
+          <text x={70 + i * 150} y={82} textAnchor="middle" fontSize="10" fontFamily={sans} fill={C.ink}>
+            {s}
+          </text>
+        </g>
+      ))}
+      {/* abstract form */}
+      <g {...pop(0.3)}>
+        <rect x={40} y={110} width={220} height={250} rx={12} fill={C.raised} stroke={C.line} />
+        <Tag x={58} y={136}>REQUISITION</Tag>
+        {[0, 1, 2, 3].map((i) => (
+          <g key={i} transform={`translate(58 ${154 + i * 44})`}>
+            <rect width={[70, 54, 82, 60][i]} height={4} rx={2} fill={C.muted} opacity={0.5} />
+            <rect y={12} width={184} height={20} rx={6} fill="none" stroke={C.line} />
+          </g>
+        ))}
+        <rect x={58} y={330} width={70} height={18} rx={9} fill={C.tone} />
+      </g>
+      {/* user guide pages */}
+      <g {...pop(0.5)}>
+        <rect x={290} y={142} width={120} height={150} rx={8} fill={C.surface} stroke={C.line} transform="rotate(4 350 217)" />
+        <rect x={282} y={132} width={120} height={150} rx={8} fill={C.raised} stroke={C.tone} />
+        <Tag x={296} y={154} tone>USER GUIDE</Tag>
+        {[0, 1, 2, 3, 4].map((i) => (
+          <rect key={i} x={296} y={168 + i * 20} width={[86, 70, 92, 60, 78][i]} height={4} rx={2} fill={C.line} />
+        ))}
+      </g>
+      <Arrow d="M262 200 C 270 196, 274 194, 280 192" delay={0.6} tone />
     </svg>
   );
 }
 
 export function CaseDiagram({ kind }: { kind: CaseStudy["diagram"] }) {
-  const id = `arrow-${useId().replace(/:/g, "")}`;
+  const id = `dg-${useId().replace(/:/g, "")}`;
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -15% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
   return (
-    <MarkerId.Provider value={id}>
-      {kind === "approval" ? <ApprovalDiagram /> : kind === "requisition" ? <RequisitionDiagram /> : <ProcessDiagram />}
-    </MarkerId.Provider>
+    <div ref={ref} className={shown ? "dg in h-full w-full" : "dg h-full w-full"}>
+      <MarkerId.Provider value={id}>
+        {kind === "approval" ? <ApprovalStair /> : kind === "requisition" ? <RequisitionDoc /> : <ServiceBlueprint />}
+      </MarkerId.Provider>
+    </div>
   );
 }
+
+/** Aspect ratio of each cover's artwork (viewBox), used by layout. */
+export const diagramRatio: Record<CaseStudy["diagram"], string> = {
+  process: "720 / 300",
+  approval: "520 / 340",
+  requisition: "440 / 400",
+};

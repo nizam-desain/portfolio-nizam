@@ -71,7 +71,7 @@ export function Contact() {
     "w-full rounded-lg border border-line bg-paper px-4 py-3 text-[0.975rem] text-ink placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-accent/25";
 
   return (
-    <section id="contact" aria-labelledby="contact-title" className="grain relative overflow-hidden bg-surface py-24 sm:py-32">
+    <section id="contact" aria-labelledby="contact-title" className="textured relative overflow-hidden bg-surface py-24 sm:py-32">
       <div className="container-page">
         <SectionHeader
           id="contact-title"

@@ -1,23 +1,29 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
 import { Plus } from "lucide-react";
 import { featuredExperience as mattel, otherExperience } from "@/data/content";
 import { Reveal } from "@/components/ui/reveal";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cn } from "@/lib/utils";
+import { AnalysisFlow } from "@/components/sections/analysis-flow";
 
 export function Experience() {
   const [open, setOpen] = useState<string | null>(otherExperience[0]?.id ?? null);
+  // Timeline progress: the accent rule fills as the list scrolls through view.
+  const listRef = useRef<HTMLOListElement>(null);
+  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 55%"] });
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
 
   return (
-    <section id="experience" aria-labelledby="experience-title" className="relative bg-surface py-24 sm:py-32">
+    <section id="experience" aria-labelledby="experience-title" className="textured relative bg-surface py-24 sm:py-32">
       <div className="container-page">
         <SectionHeader
           id="experience-title"
           index="02"
           label="Experience"
+          numeral
           title={
             <>
               Corporate exposure, <span className="italic text-accent">grounded</span> in real operations.
@@ -62,10 +68,12 @@ export function Experience() {
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.6, delay: 0.06 * i, ease: [0.16, 1, 0.3, 1] }}
-                      className="grid grid-cols-[2rem_1fr] gap-2 border-t border-line py-4 first:border-t-0 first:pt-0"
+                      className="group/row grid grid-cols-[2rem_1fr] gap-2 border-t border-line py-4 first:border-t-0 first:pt-0"
                     >
                       <span className="font-mono text-xs tabular-nums text-accent">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-[0.975rem] leading-relaxed text-ink">{h}</span>
+                      <span className="text-[0.975rem] leading-relaxed text-ink transition-transform duration-500 ease-editorial group-hover/row:translate-x-1">
+                        {h}
+                      </span>
                     </motion.li>
                   ))}
                 </ul>
@@ -74,6 +82,7 @@ export function Experience() {
                 </a>
               </div>
             </div>
+            <AnalysisFlow />
           </article>
         </Reveal>
 
@@ -87,8 +96,13 @@ export function Experience() {
             </p>
           </Reveal>
 
-          <ol className="relative lg:col-span-8">
+          <ol ref={listRef} className="relative lg:col-span-8">
             <span aria-hidden className="absolute bottom-2 left-[0.4375rem] top-2 w-px bg-line" />
+            <motion.span
+              aria-hidden
+              style={{ scaleY: progress }}
+              className="absolute bottom-2 left-[0.4375rem] top-2 w-px origin-top bg-accent"
+            />
             {otherExperience.map((item, i) => {
               const isOpen = open === item.id;
               const panelId = `exp-panel-${item.id}`;

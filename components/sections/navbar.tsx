@@ -50,11 +50,12 @@ export function Navbar() {
         )}
       >
         <nav aria-label="Primary" className="container-page flex h-full items-center justify-between gap-6">
-          <a href="#top" className="group flex items-baseline gap-2 text-ink" aria-label={`${profile.name} — back to top`}>
-            <span className="font-serif text-[1.35rem] italic leading-none">Nizamuddin</span>
+          <a href="#top" className="group flex items-baseline gap-2 text-ink">
+            <span className="font-serif text-[1.35rem] italic leading-none">Nizamuddin</span>{" "}
             <span className="hidden text-sm tracking-tight text-muted transition-colors group-hover:text-ink sm:inline">
               Zahrani
             </span>
+            <span className="sr-only"> — back to top</span>
           </a>
 
           <ul className="hidden items-center gap-1 lg:flex">
@@ -75,7 +76,9 @@ export function Navbar() {
                         layoutId="nav-active"
                         className="absolute inset-0 -z-10 rounded-full bg-ink/[0.06]"
                         transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      />
+                      >
+                        <span className="absolute bottom-1 left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-accent" />
+                      </motion.span>
                     ) : null}
                     {l.label}
                   </a>

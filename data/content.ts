@@ -64,6 +64,10 @@ export const about = {
       detail: "Turn needs into clear functional requirements, then test the outcome against agreed rules.",
     },
   ],
+  principle: {
+    label: "A working principle",
+    text: "Understand the problem before designing the solution.",
+  },
   facts: [
     { label: "Currently", value: "HR Information Systems Intern, Mattel Indonesia" },
     { label: "Studying", value: "Information Systems for Business & Management, President University" },
@@ -360,6 +364,16 @@ export const academicProjects: AcademicProject[] = [
 ];
 
 // ── Skills ───────────────────────────────────────────────────
+
+// The six areas the portfolio is positioned around (shown as a typographic row).
+export const focusAreas = [
+  "Business Analysis",
+  "Business Process Improvement",
+  "Stakeholder Collaboration",
+  "Functional Analysis",
+  "Requirements Analysis",
+  "Strategy & Operations",
+];
 
 export const skillGroups = [
   {
