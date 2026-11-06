@@ -24,7 +24,7 @@ function StatusPill({ cs }: { cs: CaseStudy }) {
     <span
       className={cn(
         "inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium",
-        cs.statusTone === "ongoing" ? "bg-accent/10 text-accent" : "bg-sage/15 text-sage",
+        cs.statusTone === "ongoing" ? "bg-accent/10 text-accent" : "bg-sage/[0.08] text-sage",
       )}
     >
       <span
@@ -118,13 +118,12 @@ export function CaseStudies() {
   const [lead, ...pair] = caseStudies;
 
   return (
-    <section id="work" aria-labelledby="work-title" className="relative py-24 sm:py-32">
+    <section id="work" aria-labelledby="work-title" className="relative pb-32 pt-16 sm:pb-40 sm:pt-20">
       <div className="container-page">
         <SectionHeader
           id="work-title"
           index="03"
           label="Professional case studies"
-          numeral
           title={
             <>
               Featured work from <span className="italic text-accent">Mattel Indonesia</span>.
@@ -136,7 +135,8 @@ export function CaseStudies() {
         {/* Lead case study — full-width feature */}
         <Reveal className="mt-16">
           <article aria-labelledby={`cs-${lead.slug}`} className="group">
-            <Cover cs={lead} className="shadow-lift" />
+            {/* Spotlight: the one dark feature panel in light mode, for the ongoing lead study */}
+            <Cover cs={lead} className="panel-ink shadow-lift" />
             <div className="mt-8 grid gap-8 lg:grid-cols-12">
               <div className="lg:col-span-5">
                 <div className="flex flex-wrap items-center gap-3">

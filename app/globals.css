@@ -14,14 +14,15 @@
   --ink: 28 26 23;           /* primary text — graphite */
   --muted: 92 87 80;         /* secondary text */
   --faint: 140 133 123;      /* tertiary / meta (large or decorative only) */
-  --line: 218 211 199;       /* hairlines */
+  --line: 210 201 186;       /* hairlines — decorative, ~1.5:1 */
   --accent: 154 72 36;       /* clay — 5.9:1 on paper */
   --accent-ink: 255 250 244; /* text on accent */
   --sage: 86 104 88;
   --shadow: 60 44 28;
-  --brass: 150 118 62;       /* honours only — muted metallic hairlines */
+  --brass: 126 96 46;        /* honours only — metallic accent, ≥4.8:1 as text */
   --slate: 84 100 120;       /* third case-study tone */
   --header-h: 4.25rem;
+  --page: 246 243 237;       /* outer page colour, used for seams between bands */
   /* Static paper grain: dark speckle, alpha baked into the tile (~5%). */
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.16  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.11 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
@@ -34,7 +35,8 @@
   --ink: 238 233 225;
   --muted: 168 161 151;
   --faint: 122 116 108;
-  --line: 52 49 45;
+  --line: 56 52 48;
+  --page: 19 18 17;
   --accent: 226 148 104;     /* lifted clay — 8:1 on paper */
   --accent-ink: 28 18 12;
   --sage: 150 172 152;
@@ -45,30 +47,53 @@
   --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.96  0 0 0 0 0.9  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
-/* Inverted band — used once (the Work section) to change the page's rhythm.
-   Light theme: a deep graphite band. Dark theme: a deeper, near-black band.
-   Re-declaring the tokens means every component inside adapts automatically. */
-.band-invert {
-  color-scheme: dark;
-  --paper: 26 24 22;
-  --surface: 34 31 28;
-  --raised: 40 37 34;
-  --ink: 240 235 227;
-  --muted: 176 168 157;
-  --faint: 128 121 112;
-  --line: 60 56 51;
-  --accent: 228 152 110;
-  --accent-ink: 28 18 12;
-  --sage: 156 178 158;
-  --slate: 154 172 196;
-  --shadow: 0 0 0;
-  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 0.96  0 0 0 0 0.9  0 0 0 0.06 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+/* Feature band — wraps the bridge marquee and the professional case studies.
+   It changes the page's register without leaving the active theme:
+   light theme → warm sand (graphite type, clay accents);
+   dark theme  → the deeper charcoal of the original design.
+   Re-declaring tokens means every component inside adapts automatically.
+   Contrast (WCAG): ink ≥ 12.6:1, muted ≥ 6.3:1, accent ≥ 5.0:1 on every
+   surface in the band, in both themes. */
+.band-feature {
+  --paper: 235 228 215;
+  --surface: 227 219 204;
+  --raised: 246 242 234;
+  --muted: 80 74 66;
+  --line: 204 194 178;
+  --accent: 146 66 32;
+  --sage: 76 96 80;
+  --slate: 72 88 110;
 }
-.dark .band-invert {
+.dark .band-feature {
   --paper: 12 11 10;
   --surface: 20 19 17;
   --raised: 27 25 23;
-  --line: 44 41 38;
+  --muted: 168 161 151;
+  --line: 48 45 41;
+  --accent: 226 148 104;
+  --sage: 150 172 152;
+  --slate: 150 168 190;
+}
+
+/* Spotlight panel — the single dark feature panel kept in light mode, used
+   for the lead (ongoing) case study's cover. In dark mode it matches the
+   band so it doesn't double up on darkness. */
+.panel-ink {
+  color-scheme: dark;
+  --paper: 30 28 25;
+  --surface: 38 35 32;
+  --raised: 46 43 39;
+  --ink: 240 235 227;
+  --muted: 176 168 157;
+  --line: 66 61 56;
+  --accent: 228 152 110;
+  --sage: 156 178 158;
+  --slate: 154 172 196;
+}
+.dark .panel-ink {
+  --surface: 20 19 17;
+  --raised: 27 25 23;
+  --line: 48 45 41;
 }
 
 @layer base {
@@ -187,8 +212,7 @@
   /* Oversized outline index numerals behind selected section headers. */
   .outline-numeral {
     color: transparent;
-    -webkit-text-stroke: 1px rgb(var(--line));
-    opacity: 0.9;
+    -webkit-text-stroke: 1px rgb(var(--muted) / 0.38);
   }
 
   /* Architectural registration mark (small crosshair), purely decorative. */

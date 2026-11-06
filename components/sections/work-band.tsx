@@ -5,8 +5,9 @@ import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion
 import type { ReactNode } from "react";
 
 /**
- * The page's one deliberate change of register: an inverted band holding the
- * bridge marquee and the professional case studies. As it scrolls in, its
+ * The page's one deliberate change of register: a theme-aware feature band
+ * (warm sand in light mode, deep charcoal in dark) holding the bridge marquee
+ * and the professional case studies. As it scrolls in, its
  * top edge opens from an inset, rounded sheet to full width (clip-path only —
  * no pinning, no scroll hijacking). Static under reduced motion.
  */
@@ -33,8 +34,14 @@ export function WorkBand({ children }: { children: ReactNode }) {
   });
 
   return (
-    <motion.div ref={ref} style={{ clipPath }} className="band-invert textured relative bg-paper text-ink">
+    <motion.div ref={ref} style={{ clipPath }} className="band-feature textured relative border-t border-line bg-paper text-ink">
       {children}
+      {/* Seam: the band dissolves into the page colour of the next section. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-28 sm:h-36"
+        style={{ background: "linear-gradient(to bottom, rgb(var(--paper) / 0), rgb(var(--page)))" }}
+      />
     </motion.div>
   );
 }

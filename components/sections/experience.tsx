@@ -17,7 +17,7 @@ export function Experience() {
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
 
   return (
-    <section id="experience" aria-labelledby="experience-title" className="textured relative bg-surface py-24 sm:py-32">
+    <section id="experience" aria-labelledby="experience-title" className="textured relative bg-surface pb-14 pt-24 sm:pb-20 sm:pt-32">
       <div className="container-page">
         <SectionHeader
           id="experience-title"

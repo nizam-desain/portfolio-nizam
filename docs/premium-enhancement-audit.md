@@ -108,3 +108,37 @@ Notes:
   components) and raised mobile TBT, giving a Performance median of 87. Moving that reveal to CSS, toggled by one
   IntersectionObserver per diagram, brought it back to baseline.
 - **Accessibility fix:** an existing label-content mismatch on the nav wordmark ("NizamuddinZahrani") is fixed.
+
+## Revision — light-mode contrast and visual harmony
+
+**Feedback addressed:**
+- The light-mode Work band was near-black and felt disconnected from the sections around it.
+- There was excess space between the Experience timeline and the marquee.
+- Some secondary elements looked too faint.
+- The band ended abruptly against the Academic section.
+
+**Changes:**
+- **Theme-aware band:** `.band-invert` (forced dark) is now `.band-feature`. Light mode uses warm sand
+  (paper 235 228 215) with graphite type and a deepened clay accent; dark mode keeps the original charcoal.
+- **One spotlight panel:** the only dark panel left in light mode is the lead Click2Eat cover (`.panel-ink`),
+  marking the ongoing lead study.
+- **Continuity:** a hairline defines the band's top edge, and a gradient seam dissolves its bottom into the page
+  colour (`--page`) of the Academic section.
+- **Spacing:** Experience bottom padding goes from 8rem to 5rem; marquee top padding from 7rem to 4rem.
+  The Work outline numeral was removed, since the marquee is already the expressive moment there.
+- **Tokens:** hairlines strengthened slightly (light line 210 201 186). Light brass deepened to 126 96 46 so
+  honours labels reach ≥ 4.8:1. Outline numerals are stroked from `--muted` at 38% so they are visible but
+  quiet.
+
+**Contrast measured in-browser** (every visible text node, real blended backgrounds, WCAG AA thresholds):
+0 failures in light and dark at 375, 768, 1440 and 1920 px (about 450 text nodes per page). The only
+failure found, sage status pills on sand at 4.39:1, was fixed by lightening the pill tint. axe-core's
+`color-contrast` also reports 0 violations, but it can't resolve backgrounds behind the grain texture
+and marks those nodes for manual review, which is why the custom check was used.
+
+**Re-test:**
+- tsc, lint and build: pass.
+- Original suite 37/37 and Phase-2 suite 20/20.
+- Responsive sweep: clean.
+- Lighthouse desktop 100/100/100/100. Mobile Performance 75 / 90 / 88 / 90 / 89 (median 89; the 75 run was
+  a 590 ms TBT spike, the same sandbox noise seen at baseline). A11y / BP / SEO 100. CLS 0.

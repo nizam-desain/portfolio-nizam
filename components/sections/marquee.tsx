@@ -39,7 +39,7 @@ function Row() {
  */
 export function Marquee() {
   return (
-    <section aria-labelledby="bridge-title" className="relative border-b border-line pb-14 pt-24 sm:pb-16 sm:pt-28">
+    <section aria-labelledby="bridge-title" className="relative border-b border-line pb-10 pt-14 sm:pb-12 sm:pt-16">
       <div className="container-page flex items-center gap-4">
         <span className="reg-mark text-accent" aria-hidden />
         <h2 id="bridge-title" className="eyebrow">
@@ -53,7 +53,7 @@ export function Marquee() {
         ))}
       </ul>
       <div
-        className="marquee mt-10 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        className="marquee mt-8 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
         aria-hidden
       >
         <div className="marquee-track flex w-max [--marquee-duration:70s] md:[--marquee-duration:52s]">
