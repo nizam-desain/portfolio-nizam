@@ -2,12 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design tokens ───────────────────────────────────────────
+   Warm editorial palette. The accent is a muted clay drawn from
+   the warm tones of the portrait; the secondary is a quiet sage.
+   Values are RGB channels so Tailwind alpha modifiers work. */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
+  --paper: 246 243 237;      /* page background — warm off-white */
+  --surface: 238 233 224;    /* section surfaces */
+  --raised: 252 250 246;     /* cards, dialogs */
+  --ink: 28 26 23;           /* primary text — graphite */
+  --muted: 92 87 80;         /* secondary text */
+  --faint: 140 133 123;      /* tertiary / meta (large or decorative only) */
+  --line: 218 211 199;       /* hairlines */
+  --accent: 154 72 36;       /* clay — 5.9:1 on paper */
+  --accent-ink: 255 250 244; /* text on accent */
+  --sage: 86 104 88;
+  --shadow: 60 44 28;
+  --header-h: 4.25rem;
 }
 
-html {
-  scroll-behavior: smooth;
+.dark {
+  color-scheme: dark;
+  --paper: 19 18 17;
+  --surface: 27 25 23;
+  --raised: 33 31 29;
+  --ink: 238 233 225;
+  --muted: 168 161 151;
+  --faint: 122 116 108;
+  --line: 52 49 45;
+  --accent: 226 148 104;     /* lifted clay — 8:1 on paper */
+  --accent-ink: 28 18 12;
+  --sage: 150 172 152;
+  --shadow: 0 0 0;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: rgb(var(--accent) / 0.22);
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  h1, h2, h3, h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+/* Theme switch: a circular reveal from the toggle where the View
+   Transitions API is available; otherwise an instant swap. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -18,85 +85,63 @@ html {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
 
-body {
-  @apply bg-canvas text-ink dark:bg-canvas dark:text-ink transition-colors duration-300;
-  background-color: #0a0a0b;
-  color: #ededef;
-  font-feature-settings: "ss01", "cv01";
-}
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-page px-5 sm:px-8 lg:px-12;
+  }
 
-.light body {
-  background-color: #fafafa;
-  color: #101012;
-}
+  .eyebrow {
+    @apply font-mono text-[0.6875rem] uppercase tracking-[0.18em] text-muted;
+  }
 
-::selection {
-  background: rgba(79, 124, 255, 0.35);
-  color: inherit;
-}
+  .hairline {
+    @apply border-line;
+  }
 
-/* visible focus ring everywhere, keyboard-only via :focus-visible */
-:focus-visible {
-  outline: 2px solid #4f7cff;
-  outline-offset: 3px;
-  border-radius: 4px;
-}
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
 
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-}
-.light ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.12);
-}
+  .btn {
+    @apply inline-flex min-h-[2.75rem] items-center justify-center gap-2 rounded-full px-5 text-sm font-medium
+      transition-[transform,background-color,color,border-color,box-shadow] duration-300 ease-editorial
+      active:scale-[0.98];
+  }
+  .btn-primary {
+    @apply btn bg-ink text-paper hover:bg-accent hover:text-accent-ink;
+  }
+  .btn-ghost {
+    @apply btn border border-line text-ink hover:border-ink/40 hover:bg-raised;
+  }
 
-.text-balance {
-  text-wrap: balance;
-}
+  .chip {
+    @apply inline-flex items-center rounded-full border border-line px-2.5 py-1 text-xs text-muted;
+  }
 
-.eyebrow {
-  @apply font-mono text-xs uppercase tracking-[0.2em] text-accent-blue;
-}
-
-.section-heading {
-  @apply text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-balance;
-}
-
-.card-surface {
-  @apply rounded-xl2 border border-line dark:border-line bg-white/[0.02] backdrop-blur-sm;
-}
-
-.light .card-surface {
-  @apply bg-black/[0.02] border-line-light;
-}
-
-.glass-panel {
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.01) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-}
-
-.light .glass-panel {
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.03) 0%,
-    rgba(0, 0, 0, 0.01) 100%
-  );
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  /* Subtle paper grain so flat surfaces don't feel digital-sterile. */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .dark .grain::before {
+    opacity: 0.05;
+  }
 }

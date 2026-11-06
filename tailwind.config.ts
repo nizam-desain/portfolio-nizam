@@ -1,75 +1,57 @@
 import type { Config } from "tailwindcss";
 
+// Colours are CSS variables (RGB channels) defined per theme in
+// app/globals.css, so every utility works in light and dark mode
+// with alpha modifiers (e.g. bg-accent/10).
+const token = (name: string) => `rgb(var(--${name}) / <alpha-value>)`;
+
 const config: Config = {
   darkMode: "class",
-  content: [
-    "./app/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./data/**/*.{ts,tsx}",
-  ],
+  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./data/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        void: "#0A0A0B",
-        surface: {
-          DEFAULT: "#111113",
-          light: "#FFFFFF",
-        },
-        canvas: {
-          DEFAULT: "#0A0A0B",
-          light: "#FAFAFA",
-        },
-        ink: {
-          DEFAULT: "#EDEDEF",
-          muted: "#8A8A93",
-          light: "#101012",
-          "light-muted": "#5C5C66",
-        },
-        line: {
-          DEFAULT: "rgba(255,255,255,0.08)",
-          light: "rgba(10,10,11,0.08)",
-        },
-        accent: {
-          blue: "#4F7CFF",
-          purple: "#7A5FFF",
-          cyan: "#49D8E0",
-        },
+        paper: token("paper"),
+        surface: token("surface"),
+        raised: token("raised"),
+        ink: token("ink"),
+        muted: token("muted"),
+        faint: token("faint"),
+        line: token("line"),
+        accent: token("accent"),
+        "accent-ink": token("accent-ink"),
+        sage: token("sage"),
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "monospace"],
+        sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        serif: ["var(--font-serif)", "ui-serif", "Georgia", "serif"],
       },
-      backgroundImage: {
-        "mesh-gradient":
-          "radial-gradient(circle at 20% 20%, rgba(79,124,255,0.18), transparent 40%), radial-gradient(circle at 80% 0%, rgba(122,95,255,0.16), transparent 45%), radial-gradient(circle at 50% 100%, rgba(73,216,224,0.12), transparent 40%)",
-        "grid-pattern":
-          "linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px)",
+      fontSize: {
+        "display-xl": ["clamp(3rem, 8.4vw, 7.25rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
+        "display-lg": ["clamp(2.5rem, 5.6vw, 4.75rem)", { lineHeight: "1", letterSpacing: "-0.025em" }],
+        "display-md": ["clamp(2rem, 3.8vw, 3.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
+      },
+      maxWidth: {
+        page: "78rem",
+      },
+      boxShadow: {
+        soft: "0 1px 2px rgb(var(--shadow) / 0.06), 0 8px 24px -12px rgb(var(--shadow) / 0.18)",
+        lift: "0 2px 4px rgb(var(--shadow) / 0.06), 0 24px 48px -20px rgb(var(--shadow) / 0.32)",
+      },
+      transitionTimingFunction: {
+        editorial: "cubic-bezier(0.16, 1, 0.3, 1)",
       },
       keyframes: {
-        "flow-dash": {
-          to: { strokeDashoffset: "-200" },
-        },
-        "pulse-node": {
-          "0%, 100%": { opacity: "0.5", transform: "scale(1)" },
-          "50%": { opacity: "1", transform: "scale(1.15)" },
-        },
-        marquee: {
-          from: { transform: "translateX(0)" },
-          to: { transform: "translateX(-50%)" },
-        },
-        "fade-up": {
-          from: { opacity: "0", transform: "translateY(24px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
+        "fade-in": { from: { opacity: "0" }, to: { opacity: "1" } },
+        rise: { from: { opacity: "0", transform: "translateY(16px)" }, to: { opacity: "1", transform: "none" } },
+        "mask-up": { from: { transform: "translateY(105%)" }, to: { transform: "none" } },
       },
       animation: {
-        "flow-dash": "flow-dash 6s linear infinite",
-        "pulse-node": "pulse-node 3s ease-in-out infinite",
-        marquee: "marquee 30s linear infinite",
-        "fade-up": "fade-up 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
-      },
-      borderRadius: {
-        xl2: "1.25rem",
+        "fade-in": "fade-in 0.4s ease-out both",
+        rise: "rise 1s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "rise-slow": "rise 1.4s cubic-bezier(0.16, 1, 0.3, 1) both",
+        "mask-up": "mask-up 1.1s cubic-bezier(0.16, 1, 0.3, 1) both",
       },
     },
   },
