@@ -1,11 +1,13 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
+const PAD = 0.07; // mat padding, as a fraction of the mat's width
+
 /**
- * Uniform container for certificate artwork. Every card shares the same
- * aspect ratio; the certificate inside is fitted without cropping or
- * distortion (portrait certificates stay portrait), and the paper shadow
- * hugs the certificate itself rather than the container.
+ * A uniform mat for certificate artwork. Every mat in a grid shares one
+ * aspect ratio; the certificate inside is fitted whole, without cropping or
+ * distortion (portrait certificates stay portrait), and its shadow hugs the
+ * certificate itself. Built from spans so it can sit inside a button.
  */
 export function CertFrame({
   src,
@@ -15,7 +17,6 @@ export function CertFrame({
   ratio = 4 / 3,
   sizes,
   className,
-  priority,
 }: {
   src: string;
   width: number;
@@ -24,28 +25,21 @@ export function CertFrame({
   ratio?: number;
   sizes: string;
   className?: string;
-  priority?: boolean;
 }) {
-  const wide = width / height >= ratio;
+  // Compare against the mat's inner area, not the mat itself, so the paper edge is always exact.
+  const inner = (1 - 2 * PAD) / (1 / ratio - 2 * PAD);
+  const wide = width / height >= inner;
   return (
-    <div
-      className={cn("relative flex w-full items-center justify-center overflow-hidden bg-surface p-[7%]", className)}
-      style={{ aspectRatio: ratio }}
+    <span
+      className={cn("relative flex w-full items-center justify-center overflow-hidden bg-surface", className)}
+      style={{ aspectRatio: ratio, padding: `${PAD * 100}%` }}
     >
-      <div
-        className="relative max-h-full max-w-full overflow-hidden rounded-[3px] bg-white shadow-soft ring-1 ring-black/5 transition-transform duration-700 ease-editorial group-hover:scale-[1.035]"
+      <span
+        className="relative block max-h-full max-w-full bg-white shadow-lift transition-transform duration-500 ease-draft group-hover:scale-[1.035] group-focus-visible:scale-[1.035]"
         style={{ aspectRatio: `${width} / ${height}`, width: wide ? "100%" : "auto", height: wide ? "auto" : "100%" }}
       >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes={sizes}
-          quality={85}
-          priority={priority}
-          className="object-contain"
-        />
-      </div>
-    </div>
+        <Image src={src} alt={alt} fill sizes={sizes} quality={85} className="object-contain" />
+      </span>
+    </span>
   );
 }

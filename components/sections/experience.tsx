@@ -1,197 +1,244 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
-import { Plus } from "lucide-react";
-import { featuredExperience as mattel, otherExperience } from "@/data/content";
-import { Reveal } from "@/components/ui/reveal";
-import { SectionHeader } from "@/components/ui/section-header";
-import { cn } from "@/lib/utils";
-import { AnalysisFlow } from "@/components/sections/analysis-flow";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowDown, Plus } from "lucide-react";
+import {
+  education,
+  featuredExperience as mattel,
+  otherExperience,
+  sections,
+  timeline,
+  type YearMonth,
+} from "@/data/content";
+import { Section } from "@/components/ui/section";
+import { cn, delay } from "@/lib/utils";
+
+// ── Time axis ────────────────────────────────────────────────
+const years = Array.from({ length: timeline.endYear - timeline.startYear + 1 }, (_, i) => timeline.startYear + i);
+const totalMonths = years.length * 12;
+const monthIndex = ([y, m]: YearMonth) => (y - timeline.startYear) * 12 + (m - 1);
+
+/** Position of a period on the axis, in percent. An open end runs to the "as of" month. */
+function span(start: YearMonth, end: YearMonth | null) {
+  const from = monthIndex(start);
+  const to = monthIndex(end ?? timeline.asOf) + 1; // the end month is included
+  return { left: (from / totalMonths) * 100, width: ((to - from) / totalMonths) * 100 };
+}
+
+// One set of columns for the axis and every row: text, chart, toggle.
+const cols =
+  "grid grid-cols-[minmax(0,1fr)_2.75rem] gap-x-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_2.75rem] lg:gap-x-10";
+
+function Track({
+  start,
+  end,
+  tone,
+  order,
+}: {
+  start: YearMonth;
+  end: YearMonth | null;
+  tone: "current" | "role" | "context";
+  order: number;
+}) {
+  const { left, width } = span(start, end);
+  return (
+    <span aria-hidden className="relative block h-full min-h-[1.5rem]">
+      {years.map((y, i) => (
+        <span key={y} className="absolute inset-y-0 w-px bg-line" style={{ left: `${(i / years.length) * 100}%` }} />
+      ))}
+      <span className="absolute inset-y-0 right-0 w-px bg-line" />
+      <span
+        className={cn(
+          "rv-bar absolute top-[calc(50%-5px)] h-2.5 rounded-[1px]",
+          tone === "current" && "bg-accent",
+          tone === "role" && "bg-ink/75",
+          tone === "context" && "hatch border border-rule",
+        )}
+        style={{ left: `${left}%`, width: `${width}%`, ...delay(0.2 + order * 0.09) }}
+      />
+      {/* An open end: the period is still running. */}
+      {end === null ? (
+        <span
+          className={cn(
+            "rv absolute top-1/2 border-t-[1.5px] border-dashed",
+            tone === "current" ? "border-accent" : "border-rule",
+          )}
+          style={{ left: `${left + width}%`, right: 0, ...delay(0.8 + order * 0.09) }}
+        />
+      ) : null}
+    </span>
+  );
+}
+
+function Highlights({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2.5">
+      {items.map((h) => (
+        <li key={h} className="relative pl-6 text-muted">
+          <span aria-hidden className="absolute left-0 top-[0.8em] h-[1.5px] w-3 bg-accent" />
+          {h}
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 export function Experience() {
-  const [open, setOpen] = useState<string | null>(otherExperience[0]?.id ?? null);
-  // Timeline progress: the accent rule fills as the list scrolls through view.
-  const listRef = useRef<HTMLOListElement>(null);
-  const { scrollYProgress } = useScroll({ target: listRef, offset: ["start 75%", "end 55%"] });
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, restDelta: 0.001 });
+  const [open, setOpen] = useState<Set<string>>(new Set());
+  const toggle = (id: string) =>
+    setOpen((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   return (
-    <section id="experience" aria-labelledby="experience-title" className="textured relative bg-surface pb-14 pt-24 sm:pb-20 sm:pt-32">
-      <div className="container-page">
-        <SectionHeader
-          id="experience-title"
-          index="02"
-          label="Experience"
-          numeral
-          title={
-            <>
-              Corporate exposure, <span className="italic text-accent">grounded</span> in real operations.
-            </>
-          }
-          intro="An internship inside a multinational's People & Culture function, alongside earlier roles in partnerships, finance, communications and administration."
-        />
+    <Section
+      id="experience"
+      label={sections.experience.label}
+      title={sections.experience.title}
+      intro={sections.experience.intro}
+    >
+      <div className="mt-12 sm:mt-16">
+        {/* Axis */}
+        <div className={cn(cols, "rv items-end pb-2")} style={delay(0.2)} aria-hidden>
+          <div className="relative col-start-1 h-6 lg:col-start-2">
+            {years.map((y, i) => (
+              <span
+                key={y}
+                className="tabular absolute bottom-0 pl-2 text-[0.9375rem] leading-none text-muted"
+                style={{ left: `${(i / years.length) * 100}%` }}
+              >
+                {y}
+              </span>
+            ))}
+          </div>
+        </div>
 
-        {/* Featured: Mattel */}
-        <Reveal className="mt-16">
-          <article
-            aria-labelledby="exp-mattel"
-            className="relative overflow-hidden rounded-2xl border border-line bg-raised shadow-soft"
-          >
-            <div className="grid lg:grid-cols-12">
-              <div className="border-b border-line p-7 sm:p-10 lg:col-span-5 lg:border-b-0 lg:border-r">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-2 rounded-full bg-sage/15 px-3 py-1 text-xs font-medium text-sage">
-                    <span className="h-1.5 w-1.5 rounded-full bg-sage" aria-hidden />
-                    Current internship
-                  </span>
-                  <span className="chip">{mattel.period}</span>
-                </div>
-                <h3 id="exp-mattel" className="mt-8 font-serif text-[2.6rem] leading-none text-ink sm:text-[3.2rem]">
-                  {mattel.organization}
-                </h3>
-                <p className="mt-3 text-sm text-muted">{mattel.unit}</p>
-                <p className="mt-8 text-lg font-medium leading-snug text-ink">{mattel.role}</p>
-                <p className="mt-4 text-[0.975rem] leading-relaxed text-muted">{mattel.summary}</p>
-                <p className="mt-8 text-xs leading-relaxed text-muted">
-                  Internship role. Project details elsewhere on this site are summarised at a high level and do not
-                  include confidential company information.
+        <ol>
+          {/* Current role: always open */}
+          <li className="rv border-t border-ink" style={delay(0.24)}>
+            <div className={cn(cols, "py-6 sm:py-7")}>
+              <div>
+                <h3 className="display text-display-md text-ink">{mattel.organization}</h3>
+                <p className="mt-3 font-[650] text-ink">{mattel.role}</p>
+                <p className="mt-0.5 text-muted">{mattel.unit}</p>
+                <p className="tabular mt-1.5 text-[0.9375rem] text-faint">
+                  {mattel.period}, {mattel.location}
                 </p>
               </div>
-              <div className="p-7 sm:p-10 lg:col-span-7">
-                <p className="eyebrow">What the role involves</p>
-                <ul className="mt-6 space-y-0">
-                  {mattel.highlights.map((h, i) => (
-                    <motion.li
-                      key={h}
-                      initial={{ opacity: 0, x: -8 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: 0.06 * i, ease: [0.16, 1, 0.3, 1] }}
-                      className="group/row grid grid-cols-[2rem_1fr] gap-2 border-t border-line py-4 first:border-t-0 first:pt-0"
-                    >
-                      <span className="font-mono text-xs tabular-nums text-accent">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="text-[0.975rem] leading-relaxed text-ink transition-transform duration-500 ease-editorial group-hover/row:translate-x-1">
-                        {h}
-                      </span>
-                    </motion.li>
+              <div className="col-start-1 row-start-2 mt-5 h-6 lg:col-start-2 lg:row-start-1 lg:-my-7 lg:mt-[-1.75rem] lg:h-auto lg:self-stretch">
+                <Track start={mattel.start} end={mattel.end} tone="current" order={0} />
+              </div>
+            </div>
+
+            {/* Same columns as the chart, so the list lines up under the time axis. */}
+            <div className="grid gap-x-10 gap-y-9 pb-10 sm:pb-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_2.75rem]">
+              <div>
+                <p className="max-w-measure text-ink">{mattel.summary}</p>
+                <p className="note mt-6 max-w-[26rem]">{mattel.note}</p>
+              </div>
+              <div className="lg:col-span-2">
+                <h4 className="subhead">{mattel.highlightsTitle}</h4>
+                <ul className="mt-4 border-t border-line">
+                  {mattel.highlights.map((h) => (
+                    <li key={h} className="relative border-b border-line py-3 pl-6 text-muted">
+                      <span aria-hidden className="absolute left-0 top-[1.55em] h-[1.5px] w-3 bg-accent" />
+                      {h}
+                    </li>
                   ))}
                 </ul>
-                <a href="#work" className="link-underline mt-8 inline-block text-sm font-medium text-ink">
-                  See the case studies from this role →
+                <a href="#work" className="link mt-6 inline-flex min-h-[2.75rem] items-center gap-2 font-[650] text-ink">
+                  {mattel.workLink}
+                  <ArrowDown size={16} aria-hidden />
                 </a>
               </div>
             </div>
-            <AnalysisFlow />
-          </article>
-        </Reveal>
+          </li>
 
-        {/* Timeline */}
-        <div className="mt-20 grid gap-10 lg:grid-cols-12">
-          <Reveal className="lg:col-span-4">
-            <h3 className="font-serif text-3xl text-ink">Earlier experience</h3>
-            <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted">
-              Roles that built the fundamentals — negotiating with partners, managing budgets, coordinating
-              stakeholders and keeping records accurate.
-            </p>
-          </Reveal>
-
-          <ol ref={listRef} className="relative lg:col-span-8">
-            <span aria-hidden className="absolute bottom-2 left-[0.4375rem] top-2 w-px bg-line" />
-            <motion.span
-              aria-hidden
-              style={{ scaleY: progress }}
-              className="absolute bottom-2 left-[0.4375rem] top-2 w-px origin-top bg-accent"
-            />
-            {otherExperience.map((item, i) => {
-              const isOpen = open === item.id;
-              const panelId = `exp-panel-${item.id}`;
-              return (
-                <Reveal as="li" key={item.id} delay={0.05 * i} className="relative pl-10">
-                  <span
-                    aria-hidden
-                    className={cn(
-                      "absolute left-0 top-[1.6rem] h-[0.9375rem] w-[0.9375rem] rounded-full border-2 transition-colors duration-300",
-                      isOpen ? "border-accent bg-accent" : "border-line bg-surface",
-                    )}
-                  />
-                  <div className="border-b border-line">
-                    <h4>
-                      <button
-                        type="button"
-                        aria-expanded={isOpen}
-                        aria-controls={panelId}
-                        onClick={() => setOpen(isOpen ? null : item.id)}
-                        className="group flex w-full items-start justify-between gap-6 py-5 text-left"
-                      >
-                        <span>
-                          <span className="block text-xs text-muted">
-                            {item.period} · {item.location}
-                          </span>
-                          <span className="mt-1.5 block text-lg font-medium leading-snug text-ink">{item.role}</span>
-                          <span className="mt-0.5 block text-[0.975rem] text-muted">{item.organization}</span>
+          {/* Other roles: expandable */}
+          {otherExperience.map((item, i) => {
+            const isOpen = open.has(item.id);
+            const panelId = `exp-panel-${item.id}`;
+            return (
+              <li key={item.id} className="rv border-t border-line" style={delay(0.3 + i * 0.06)}>
+                <h3>
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => toggle(item.id)}
+                    className={cn(cols, "group w-full items-center py-5 text-left")}
+                  >
+                    <span className="block">
+                      <span className="block font-[650] text-ink">{item.role}</span>
+                      <span className="mt-0.5 block text-muted">{item.organization}</span>
+                      <span className="tabular mt-1.5 block text-[0.9375rem] text-faint">
+                        {item.period}, {item.location}
+                      </span>
+                      {item.keyResult ? (
+                        <span className="mt-2.5 block text-[0.9375rem] text-muted">
+                          <span className="font-[650] text-accent">{item.keyResult.value}</span> {item.keyResult.label}
                         </span>
-                        <span className="flex shrink-0 items-center gap-4">
-                          {item.keyResult ? (
-                            <span className="hidden text-right sm:block">
-                              <span className="block font-serif text-2xl leading-none text-accent">
-                                {item.keyResult.value}
-                              </span>
-                              <span className="mt-1 block max-w-[11rem] text-[0.7rem] leading-tight text-muted">
-                                {item.keyResult.label}
-                              </span>
-                            </span>
-                          ) : null}
-                          <span
-                            className={cn(
-                              "grid h-9 w-9 place-items-center rounded-full border border-line text-ink transition-transform duration-500 ease-editorial group-hover:border-ink/40",
-                              isOpen && "rotate-45",
-                            )}
-                            aria-hidden
-                          >
-                            <Plus size={16} />
-                          </span>
-                        </span>
-                      </button>
-                    </h4>
-                    <AnimatePresence initial={false}>
-                      {isOpen ? (
-                        <motion.div
-                          id={panelId}
-                          key="panel"
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                          className="overflow-hidden"
-                        >
-                          <div className="pb-6">
-                            {item.keyResult ? (
-                              <p className="mb-4 sm:hidden">
-                                <span className="font-serif text-2xl text-accent">{item.keyResult.value}</span>{" "}
-                                <span className="text-sm text-muted">{item.keyResult.label}</span>
-                              </p>
-                            ) : null}
-                            <p className="text-[0.975rem] leading-relaxed text-ink">{item.summary}</p>
-                            <ul className="mt-4 space-y-2">
-                              {item.highlights.map((h) => (
-                                <li key={h} className="flex gap-3 text-sm leading-relaxed text-muted">
-                                  <span className="mt-[0.6rem] h-px w-3 shrink-0 bg-accent" aria-hidden />
-                                  {h}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </motion.div>
                       ) : null}
-                    </AnimatePresence>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </ol>
-        </div>
+                    </span>
+                    <span className="col-start-1 row-start-2 mt-4 block h-6 lg:col-start-2 lg:row-start-1 lg:-my-5 lg:mt-[-1.25rem] lg:h-auto lg:self-stretch">
+                      <Track start={item.start} end={item.end} tone="role" order={i + 1} />
+                    </span>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        "col-start-2 row-span-2 row-start-1 grid h-9 w-9 place-items-center justify-self-end rounded-full border border-rule text-ink transition-[transform,background-color,color,border-color] duration-300 ease-draft group-hover:border-ink lg:col-start-3 lg:row-span-1",
+                        isOpen && "rotate-45 border-ink bg-ink text-paper",
+                      )}
+                    >
+                      <Plus size={16} />
+                    </span>
+                  </button>
+                </h3>
+                <AnimatePresence initial={false}>
+                  {isOpen ? (
+                    <motion.div
+                      id={panelId}
+                      key="panel"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
+                      className="overflow-hidden"
+                    >
+                      <div className="max-w-measure pb-8 pt-1">
+                        <p className="text-ink">{item.summary}</p>
+                        <div className="mt-4">
+                          <Highlights items={item.highlights} />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </li>
+            );
+          })}
+
+          {/* Context: studies run alongside all of it */}
+          <li className="rv border-y border-line" style={delay(0.56)}>
+            <div className={cn(cols, "items-center py-5")}>
+              <p>
+                <span className="block text-muted">Studying alongside</span>
+                <a href="#education" className="link mt-0.5 inline-block text-ink">
+                  {education.school}
+                </a>
+                <span className="tabular mt-1.5 block text-[0.9375rem] text-faint">{education.period}</span>
+              </p>
+              <div className="col-start-1 row-start-2 mt-4 h-6 lg:col-start-2 lg:row-start-1 lg:-my-5 lg:mt-[-1.25rem] lg:h-auto lg:self-stretch">
+                <Track start={education.start} end={education.end} tone="context" order={otherExperience.length + 1} />
+              </div>
+            </div>
+          </li>
+        </ol>
       </div>
-    </section>
+    </Section>
   );
 }

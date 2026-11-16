@@ -1,36 +1,49 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Download } from "lucide-react";
 import { navLinks, profile } from "@/data/content";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useDialog } from "@/components/ui/use-dialog";
 import { cn } from "@/lib/utils";
 
+// Which navigation entry each page section belongs to.
+const sectionToNav: Record<string, string> = {
+  top: "",
+  about: "about",
+  experience: "experience",
+  work: "work",
+  projects: "work",
+  skills: "skills",
+  credentials: "credentials",
+  honors: "credentials",
+  education: "credentials",
+  contact: "contact",
+};
+
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState<string>("");
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
+  const [active, setActive] = useState("");
   const sheetRef = useDialog<HTMLDivElement>(open, () => setOpen(false));
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Highlight the section currently occupying the middle of the viewport.
+  // Highlight the entry whose section occupies the middle of the viewport.
   useEffect(() => {
-    const ids = navLinks.map((l) => l.href.slice(1));
-    // The hero (#top) is observed too, so no link is highlighted while it's in view.
-    const sections = ["top", ...ids].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
+    const sections = Object.keys(sectionToNav)
+      .map((id) => document.getElementById(id))
+      .filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id === "top" ? "" : e.target.id);
+          if (e.isIntersecting) setActive(sectionToNav[e.target.id] ?? "");
         });
       },
       { rootMargin: "-45% 0px -50% 0px" },
@@ -43,22 +56,17 @@ export function Navbar() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 h-[var(--header-h)] transition-[background-color,border-color,backdrop-filter] duration-500",
-          scrolled || open
-            ? "border-b border-line/70 bg-paper/80 backdrop-blur-md supports-[backdrop-filter]:bg-paper/70"
-            : "border-b border-transparent",
+          "fixed inset-x-0 top-0 z-50 h-[var(--header-h)] border-b transition-[background-color,border-color] duration-300",
+          scrolled || open ? "border-line bg-paper/85 backdrop-blur-md" : "border-transparent",
         )}
       >
-        <nav aria-label="Primary" className="container-page flex h-full items-center justify-between gap-6">
-          <a href="#top" className="group flex items-baseline gap-2 text-ink">
-            <span className="font-serif text-[1.35rem] italic leading-none">Nizamuddin</span>{" "}
-            <span className="hidden text-sm tracking-tight text-muted transition-colors group-hover:text-ink sm:inline">
-              Zahrani
-            </span>
-            <span className="sr-only"> — back to top</span>
+        <nav aria-label="Primary" className="container-page flex h-full items-center justify-between gap-4">
+          <a href="#top" className="-ml-1 whitespace-nowrap rounded-control px-1 py-2 text-[1.0625rem] font-[650] leading-none text-ink">
+            {profile.name}
+            <span className="sr-only">, back to top</span>
           </a>
 
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul className="hidden items-center lg:flex">
             {navLinks.map((l) => {
               const isActive = active === l.href.slice(1);
               return (
@@ -67,20 +75,19 @@ export function Navbar() {
                     href={l.href}
                     aria-current={isActive ? "true" : undefined}
                     className={cn(
-                      "relative rounded-full px-3.5 py-2 text-sm transition-colors",
+                      "relative block px-3.5 py-2.5 text-[0.9375rem] transition-colors duration-200",
                       isActive ? "text-ink" : "text-muted hover:text-ink",
                     )}
                   >
+                    {l.label}
                     {isActive ? (
                       <motion.span
-                        layoutId="nav-active"
-                        className="absolute inset-0 -z-10 rounded-full bg-ink/[0.06]"
-                        transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                      >
-                        <span className="absolute bottom-1 left-1/2 h-[3px] w-[3px] -translate-x-1/2 rounded-full bg-accent" />
-                      </motion.span>
+                        layoutId="nav-node"
+                        aria-hidden
+                        className="absolute bottom-0 left-1/2 -ml-[3px] h-1.5 w-1.5 rounded-full bg-accent"
+                        transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                      />
                     ) : null}
-                    {l.label}
                   </a>
                 </li>
               );
@@ -89,12 +96,17 @@ export function Navbar() {
 
           <div className="flex items-center gap-1">
             <ThemeToggle />
-            <a href={profile.resumeUrl} download className="btn-primary ml-2 hidden h-10 min-h-0 px-4 md:inline-flex">
+            <a
+              href={profile.resumeUrl}
+              download={profile.resumeFileName}
+              className="btn-solid ml-1.5 hidden h-10 min-h-0 px-4 md:inline-flex lg:hidden xl:inline-flex"
+            >
+              <Download size={15} aria-hidden />
               Download CV
             </a>
             <button
               type="button"
-              className="grid h-11 w-11 place-items-center rounded-full text-ink hover:bg-ink/[0.06] lg:hidden"
+              className="icon-btn -mr-2 lg:hidden"
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close menu" : "Open menu"}
@@ -103,25 +115,20 @@ export function Navbar() {
               <span className="relative block h-3 w-5" aria-hidden>
                 <span
                   className={cn(
-                    "absolute left-0 top-0 h-px w-5 bg-current transition-transform duration-300",
-                    open && "translate-y-[5.5px] rotate-45",
+                    "absolute left-0 top-0 h-[1.5px] w-5 bg-current transition-transform duration-300 ease-draft",
+                    open && "translate-y-[5.25px] rotate-45",
                   )}
                 />
                 <span
                   className={cn(
-                    "absolute bottom-0 left-0 h-px w-5 bg-current transition-transform duration-300",
-                    open && "-translate-y-[5.5px] -rotate-45",
+                    "absolute bottom-0 left-0 h-[1.5px] w-5 bg-current transition-transform duration-300 ease-draft",
+                    open && "-translate-y-[5.25px] -rotate-45",
                   )}
                 />
               </span>
             </button>
           </div>
         </nav>
-        <motion.div
-          aria-hidden
-          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-accent"
-          style={{ scaleX: progress }}
-        />
       </header>
 
       <AnimatePresence>
@@ -135,37 +142,59 @@ export function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 top-[var(--header-h)] z-40 overflow-y-auto bg-paper lg:hidden"
           >
-            <div className="container-page flex min-h-full flex-col justify-between pb-10 pt-8">
-              <ul className="flex flex-col">
-                {navLinks.map((l, i) => (
-                  <motion.li
-                    key={l.href}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.04 * i + 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="border-b border-line"
-                  >
-                    <a
-                      href={l.href}
-                      onClick={() => setOpen(false)}
-                      className="flex items-baseline justify-between py-4 font-serif text-[2.1rem] leading-none text-ink"
+            <div className="flex min-h-full flex-col justify-between px-[var(--pad-l)] pb-10 pt-9">
+              {/* The menu is the page's route: a line with a stop for each section. */}
+              <ol className="relative ml-1.5">
+                <motion.span
+                  aria-hidden
+                  className="absolute bottom-7 left-0 top-7 w-[1.5px] origin-top bg-accent"
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
+                />
+                {navLinks.map((l, i) => {
+                  const last = i === navLinks.length - 1;
+                  return (
+                    <motion.li
+                      key={l.href}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.05 * i + 0.08, duration: 0.4, ease: [0.2, 0.8, 0.2, 1] }}
+                      className="relative"
                     >
-                      {l.label}
-                      <span className="eyebrow">0{i + 1}</span>
-                    </a>
-                  </motion.li>
-                ))}
-              </ul>
-              <div className="mt-10 flex flex-col gap-3">
-                <a href={profile.resumeUrl} download className="btn-primary w-full">
+                      <span
+                        aria-hidden
+                        className={cn("pt absolute top-1/2", last ? "pt-end -left-[7.75px] -mt-[8.5px]" : "-left-[4.75px] -mt-[5.5px]")}
+                      />
+                      <a
+                        href={l.href}
+                        onClick={() => setOpen(false)}
+                        className="display block py-3 pl-8 text-[2.25rem] leading-none text-ink"
+                      >
+                        {l.label}
+                      </a>
+                    </motion.li>
+                  );
+                })}
+              </ol>
+              <div className="mt-12 flex flex-col gap-3">
+                <a href={profile.resumeUrl} download={profile.resumeFileName} className="btn-solid w-full" onClick={() => setOpen(false)}>
+                  <Download size={16} aria-hidden />
                   Download CV
                 </a>
-                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="btn-ghost w-full">
-                  LinkedIn
+                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="btn-line w-full">
+                  LinkedIn<span className="sr-only"> (opens in a new tab)</span>
                 </a>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="sr-only focus:not-sr-only focus:mt-1 focus:rounded-control focus:px-4 focus:py-3 focus:text-ink"
+                >
+                  Close menu
+                </button>
               </div>
             </div>
           </motion.div>

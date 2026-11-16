@@ -40,7 +40,7 @@ certificates, awards and education. Components read from it; no copy is hard-cod
 ```
 app/                  layout, metadata, OG image, icon, sitemap, robots, global styles (design tokens)
 components/sections/  one component per page section
-components/ui/        primitives: reveal, section header, theme toggle, dialog hook, lightbox, certificate frame
+components/ui/        primitives: section layout, scroll thread, in-view reveal, theme toggle, dialog hook, lightbox, certificate frame
 data/content.ts       all site content
 lib/                  utilities and the lazily-created Supabase client
 ```
