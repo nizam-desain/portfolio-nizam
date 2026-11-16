@@ -1,18 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Check, Copy, Download, Loader2, Send } from "lucide-react";
-import { profile } from "@/data/content";
-import { Reveal } from "@/components/ui/reveal";
-import { SectionHeader } from "@/components/ui/section-header";
+import { ArrowUpRight, Check, Copy, Download, Loader2 } from "lucide-react";
+import { contact, profile, sections } from "@/data/content";
+import { Section } from "@/components/ui/section";
+import { delay } from "@/lib/utils";
 
-type Status = "idle" | "sending" | "sent" | "mailto" | "error";
+type Status = "idle" | "sending" | "sent" | "mailto" | "fallback";
 
-const links = [
-  { label: "LinkedIn", href: profile.linkedin, handle: "in/nizamuddin-zahrani" },
-  { label: "GitHub", href: profile.github, handle: "nizam-desain" },
-];
+// Inlined at build time. With no backend configured the form hands the
+// message to the visitor's own email app, and says so before they send.
+const hasBackend = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+const statusText: Record<Status, string> = {
+  idle: "",
+  sending: "",
+  sent: "Message sent. Thank you, I will reply by email.",
+  mailto: "Your email app should now be open with the message ready to send.",
+  fallback: "The form could not send your message, so it has been handed to your email app instead.",
+};
 
 export function Contact() {
   const [copied, setCopied] = useState(false);
@@ -38,211 +44,204 @@ export function Contact() {
     setTimeout(() => setCopied(false), 2200);
   };
 
+  const openMailApp = () => {
+    const subject = encodeURIComponent(`Portfolio enquiry from ${form.name.trim()}`);
+    const body = encodeURIComponent(`${form.message.trim()}\n\n${form.name.trim()}\n${form.email.trim()}`);
+    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+  };
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.company) return; // honeypot: silently ignore bots
-    // Loaded on demand so the Supabase SDK isn't part of the initial page bundle.
-    const { getSupabase } = await import("@/lib/supabase");
-    const supabase = getSupabase();
-
-    // Without a configured backend, hand the message to the visitor's mail app.
-    if (!supabase) {
-      const subject = encodeURIComponent(`Portfolio enquiry from ${form.name}`);
-      const body = encodeURIComponent(`${form.message}\n\n— ${form.name} (${form.email})`);
-      window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
+    if (form.company) return; // honeypot: quietly ignore bots
+    if (!hasBackend) {
+      openMailApp();
       setStatus("mailto");
       return;
     }
-
     setStatus("sending");
-    const { error } = await supabase
-      .from("messages")
-      .insert([{ name: form.name.trim(), email: form.email.trim(), message: form.message.trim() }]);
-    if (error) {
-      console.error("Contact form submission failed:", error.message);
-      setStatus("error");
-      return;
+    try {
+      // Loaded on demand so the Supabase SDK is not part of the page's first load.
+      const { getSupabase } = await import("@/lib/supabase");
+      const supabase = getSupabase();
+      if (!supabase) throw new Error("Supabase is not configured");
+      const { error } = await supabase
+        .from("messages")
+        .insert([{ name: form.name.trim(), email: form.email.trim(), message: form.message.trim() }]);
+      if (error) throw new Error(error.message);
+      setStatus("sent");
+      setForm({ name: "", email: "", message: "", company: "" });
+    } catch (err) {
+      // The message is never dropped: if the service fails, the visitor's email app takes over.
+      console.warn("Contact form: falling back to email.", err instanceof Error ? err.message : err);
+      openMailApp();
+      setStatus("fallback");
     }
-    setStatus("sent");
-    setForm({ name: "", email: "", message: "", company: "" });
   };
 
-  const field =
-    "w-full rounded-lg border border-line bg-paper px-4 py-3 text-[0.975rem] text-ink placeholder:text-muted/70 transition-colors focus:border-accent focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-accent/25";
+  const links = [
+    { label: "LinkedIn", detail: profile.linkedinHandle, href: profile.linkedin },
+    { label: "GitHub", detail: profile.githubHandle, href: profile.github },
+  ];
 
   return (
-    <section id="contact" aria-labelledby="contact-title" className="textured relative overflow-hidden bg-surface py-24 sm:py-32">
-      <div className="container-page">
-        <SectionHeader
-          id="contact-title"
-          index="09"
-          label="Contact"
-          title={
-            <>
-              Let&apos;s talk about the <span className="italic text-accent">problem</span> you&apos;re solving.
-            </>
-          }
-          intro="Open to internship and graduate opportunities in business analysis, strategy & operations, and consulting. The quickest way to reach me is email or LinkedIn."
-        />
+    <Section
+      id="contact"
+      end
+      label={sections.contact.label}
+      title={sections.contact.title}
+      intro={sections.contact.intro}
+      className="pb-20 sm:pb-24 lg:pb-28"
+    >
+      <div className="mt-12 grid gap-x-10 gap-y-14 sm:mt-16 lg:grid-cols-12">
+        <div className="rv lg:col-span-6" style={delay(0.2)}>
+          <h3 className="text-muted">Email</h3>
+          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <a
+              href={`mailto:${profile.email}`}
+              className="display link break-all text-[clamp(1.45rem,6.4vw,2.6rem)] leading-tight text-ink"
+            >
+              {profile.email}
+            </a>
+            <button type="button" onClick={copyEmail} className="btn-line min-w-[6.75rem] px-4" aria-label="Copy email address">
+              {copied ? <Check size={16} aria-hidden /> : <Copy size={16} aria-hidden />}
+              {copied ? "Copied" : "Copy"}
+            </button>
+            <span className="sr-only" aria-live="polite">
+              {copied ? "Email address copied to the clipboard" : ""}
+            </span>
+          </div>
 
-        <div className="mt-16 grid gap-12 lg:grid-cols-12">
-          <Reveal className="lg:col-span-6">
-            <p className="eyebrow">Email</p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <a
-                href={`mailto:${profile.email}`}
-                className="link-underline break-all font-serif text-[1.75rem] leading-tight text-ink sm:text-[2.4rem]"
-              >
-                {profile.email}
-              </a>
-              <button
-                type="button"
-                onClick={copyEmail}
-                className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-3.5 text-sm text-muted transition-colors hover:border-ink/40 hover:text-ink"
-                aria-label="Copy email address"
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  {copied ? (
-                    <motion.span key="ok" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 text-sage">
-                      <Check size={15} aria-hidden /> Copied
-                    </motion.span>
-                  ) : (
-                    <motion.span key="copy" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
-                      <Copy size={15} aria-hidden /> Copy
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </button>
-              <span className="sr-only" aria-live="polite">
-                {copied ? "Email address copied to clipboard" : ""}
-              </span>
-            </div>
-
-            <ul className="mt-12 border-t border-line">
-              {links.map((l) => (
-                <li key={l.label} className="border-b border-line">
-                  <a
-                    href={l.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group flex items-center justify-between py-5"
-                  >
-                    <span>
-                      <span className="block text-lg font-medium text-ink">{l.label}</span>
-                      <span className="text-sm text-muted">{l.handle}</span>
-                    </span>
-                    <ArrowUpRight
-                      size={20}
-                      aria-hidden
-                      className="text-muted transition-transform duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent"
-                    />
-                    <span className="sr-only">(opens in a new tab)</span>
-                  </a>
-                </li>
-              ))}
-              <li className="border-b border-line">
-                <a href={profile.resumeUrl} download className="group flex items-center justify-between py-5">
+          <ul className="mt-10 border-b border-line">
+            {links.map((l) => (
+              <li key={l.label} className="border-t border-line">
+                <a
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex min-h-[4.5rem] items-center justify-between gap-4 py-4"
+                >
                   <span>
-                    <span className="block text-lg font-medium text-ink">Curriculum vitae</span>
-                    <span className="text-sm text-muted">PDF · updated 2026</span>
+                    <span className="block font-[650] text-ink transition-colors duration-200 group-hover:text-accent">{l.label}</span>
+                    <span className="block text-[0.9375rem] text-muted">{l.detail}</span>
                   </span>
-                  <Download
+                  <ArrowUpRight
                     size={20}
                     aria-hidden
-                    className="text-muted transition-transform duration-300 group-hover:translate-y-0.5 group-hover:text-accent"
+                    className="shrink-0 text-muted transition-[transform,color] duration-300 ease-draft group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent"
                   />
+                  <span className="sr-only">(opens in a new tab)</span>
                 </a>
               </li>
-            </ul>
-            <p className="mt-6 text-sm text-muted">Based in {profile.location}.</p>
-          </Reveal>
-
-          <Reveal delay={0.1} className="lg:col-span-5 lg:col-start-8">
-            <form onSubmit={onSubmit} className="rounded-2xl border border-line bg-raised p-6 shadow-soft sm:p-8" noValidate={false}>
-              <p className="font-serif text-2xl text-ink">Send a message</p>
-              <div className="mt-6 space-y-4">
-                <div>
-                  <label htmlFor="cf-name" className="mb-1.5 block text-sm text-ink">
-                    Name
-                  </label>
-                  <input
-                    id="cf-name"
-                    required
-                    autoComplete="name"
-                    maxLength={120}
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className={field}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="cf-email" className="mb-1.5 block text-sm text-ink">
-                    Email
-                  </label>
-                  <input
-                    id="cf-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    maxLength={200}
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className={field}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="cf-message" className="mb-1.5 block text-sm text-ink">
-                    Message
-                  </label>
-                  <textarea
-                    id="cf-message"
-                    required
-                    rows={5}
-                    maxLength={4000}
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    className={`${field} resize-y`}
-                  />
-                </div>
-                {/* Honeypot — hidden from people and assistive tech */}
-                <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
-                  <label htmlFor="cf-company">Company</label>
-                  <input
-                    id="cf-company"
-                    tabIndex={-1}
-                    autoComplete="off"
-                    value={form.company}
-                    onChange={(e) => setForm({ ...form, company: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <button type="submit" disabled={status === "sending"} className="btn-primary mt-6 w-full disabled:opacity-60">
-                {status === "sending" ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" aria-hidden /> Sending…
-                  </>
-                ) : (
-                  <>
-                    Send message <Send size={15} aria-hidden />
-                  </>
-                )}
-              </button>
-              <p className="mt-3 min-h-[1.25rem] text-sm" role="status" aria-live="polite">
-                {status === "sent" ? <span className="text-sage">Thank you — your message has been sent.</span> : null}
-                {status === "mailto" ? (
-                  <span className="text-muted">Your email app should open with the message ready to send.</span>
-                ) : null}
-                {status === "error" ? (
-                  <span className="text-accent">
-                    Something went wrong. Please email me directly at {profile.email}.
-                  </span>
-                ) : null}
-              </p>
-            </form>
-          </Reveal>
+            ))}
+            <li className="border-t border-line">
+              <a
+                href={profile.resumeUrl}
+                download={profile.resumeFileName}
+                className="group flex min-h-[4.5rem] items-center justify-between gap-4 py-4"
+              >
+                <span>
+                  <span className="block font-[650] text-ink transition-colors duration-200 group-hover:text-accent">Curriculum vitae</span>
+                  <span className="block text-[0.9375rem] text-muted">PDF, 4 pages</span>
+                </span>
+                <Download
+                  size={20}
+                  aria-hidden
+                  className="shrink-0 text-muted transition-[transform,color] duration-300 ease-draft group-hover:translate-y-0.5 group-hover:text-accent"
+                />
+              </a>
+            </li>
+          </ul>
+          <p className="mt-6 text-muted">Based in {profile.location}.</p>
         </div>
+
+        <form onSubmit={onSubmit} className="rv lg:col-span-5 lg:col-start-8" style={delay(0.3)} aria-labelledby="contact-form-title">
+          <h3 id="contact-form-title" className="subhead">
+            {contact.formTitle}
+          </h3>
+          <div className="mt-5 space-y-4">
+            <div>
+              <label htmlFor="cf-name" className="mb-1.5 block text-[0.9375rem] text-ink">
+                Name
+              </label>
+              <input
+                id="cf-name"
+                name="name"
+                required
+                autoComplete="name"
+                maxLength={120}
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="field"
+              />
+            </div>
+            <div>
+              <label htmlFor="cf-email" className="mb-1.5 block text-[0.9375rem] text-ink">
+                Email
+              </label>
+              <input
+                id="cf-email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                maxLength={200}
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="field"
+              />
+            </div>
+            <div>
+              <label htmlFor="cf-message" className="mb-1.5 block text-[0.9375rem] text-ink">
+                Message
+              </label>
+              <textarea
+                id="cf-message"
+                name="message"
+                required
+                rows={5}
+                maxLength={4000}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="field resize-y"
+              />
+            </div>
+            {/* Honeypot: hidden from people and assistive technology */}
+            <div aria-hidden className="absolute -left-[9999px] h-px w-px overflow-hidden">
+              <label htmlFor="cf-company">Company</label>
+              <input
+                id="cf-company"
+                name="company"
+                tabIndex={-1}
+                autoComplete="off"
+                value={form.company}
+                onChange={(e) => setForm({ ...form, company: e.target.value })}
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <button type="submit" disabled={status === "sending"} className="btn-solid disabled:opacity-60">
+              {status === "sending" ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" aria-hidden /> Sending
+                </>
+              ) : hasBackend ? (
+                "Send message"
+              ) : (
+                "Open in email app"
+              )}
+            </button>
+            {!hasBackend ? (
+              <p className="max-w-[17rem] text-[0.9375rem] leading-snug text-muted">
+                Opens your email app with this message filled in.
+              </p>
+            ) : null}
+          </div>
+          <p className="mt-3 min-h-[1.5rem] text-[0.9375rem] text-ink" role="status" aria-live="polite">
+            {statusText[status]}
+          </p>
+        </form>
       </div>
-    </section>
+    </Section>
   );
 }
