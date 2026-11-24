@@ -106,6 +106,21 @@ function art(m: Motif, fg: string, ac: string, soft: string) {
           ))}
         </>
       );
+    case "trace":
+      return (
+        <>
+          {[0, 1, 2, 3].map((n) => (
+            <rect key={n} x={90 + n * 160} y={150} width="120" height="200" fill={n === 3 ? ac : "none"} stroke={fg} strokeWidth={sw} />
+          ))}
+          <path d="M60 250 H740" stroke={ac} strokeWidth="3" strokeDasharray={"10 8"} />
+          {[0, 1, 2, 3].map((n) => (
+            <circle key={n} cx={150 + n * 160} cy={250} r="9" fill={fg} />
+          ))}
+          {[0, 1, 2].map((n) => (
+            <line key={n} x1={110} y1={410 + n * 24} x2={n === 1 ? 520 : 640} y2={410 + n * 24} stroke={fg} strokeOpacity="0.5" strokeWidth="2" />
+          ))}
+        </>
+      );
     case "network": {
       const hubs = [
         [120, 140],

@@ -13,7 +13,7 @@ export function Opening() {
           <span>Nizam Zahrani</span>
           <span>Portfolio — 2026</span>
         </p>
-        <p className="display o-word mt-4 overflow-hidden whitespace-nowrap text-center uppercase leading-[0.8]" style={{ fontSize: "clamp(5rem, 24vw, 30rem)" }}>
+        <p className="display o-word mt-4 overflow-hidden whitespace-nowrap text-center uppercase leading-[0.8]" style={{ fontSize: "clamp(3.5rem, 12vw, 12rem)" }}>
           {word.split("").map((ch, i) => (
             <span key={i} style={{ ["--i" as string]: i }}>
               {ch}

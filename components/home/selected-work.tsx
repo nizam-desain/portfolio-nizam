@@ -15,6 +15,7 @@ const layouts = [
   { cover: "md:col-span-7", text: "md:col-span-4 md:col-start-9 md:self-end", tone: "ink" as const, ratio: "aspect-[4/3]" },
   { cover: "md:col-span-6 md:col-start-6 md:order-2", text: "md:col-span-4 md:col-start-1 md:order-1 md:self-start md:pt-24", tone: "sage" as const, ratio: "aspect-[5/6]" },
   { cover: "md:col-span-10 md:col-start-2", text: "md:col-span-5 md:col-start-2", tone: "sheet" as const, ratio: "aspect-[16/7]" },
+  { cover: "md:col-span-5 md:col-start-8 md:order-2", text: "md:col-span-5 md:col-start-1 md:order-1 md:self-center", tone: "ink" as const, ratio: "aspect-square" },
 ];
 
 export function SelectedWork() {
@@ -33,8 +34,7 @@ export function SelectedWork() {
             </span>
           </h2>
           <p className="fade col-span-4 max-w-measure self-end text-stone md:col-span-3 md:col-start-10" style={{ ["--i" as string]: 2 }}>
-            Three case studies from my internship, sanitised for confidentiality, followed by competition, proposal and
-            coursework projects. Each one says what was actually delivered and what was only proposed.
+            Four internship case studies, told mostly in diagrams — then competition and coursework projects.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ export function SelectedWork() {
                     <span className="meta">{w.organization}</span>
                     <span className="meta">{w.period}</span>
                   </div>
-                  <h3 className="display mt-5 text-h2 uppercase">
+                  <h3 className="display mt-5 text-h2 uppercase [overflow-wrap:anywhere] lg:[overflow-wrap:normal]">
                     <Link href={`/work/${w.slug}`} className="transition-colors duration-base hover:text-sage-ink">
                       {w.title}
                     </Link>

@@ -52,195 +52,254 @@ export const sections = [
 
 // ── Work ─────────────────────────────────────────────────────
 
-export type Motif = "lanes" | "gate" | "stepper" | "network" | "funnel" | "modules" | "grid";
+export type Motif = "lanes" | "gate" | "stepper" | "trace" | "network" | "funnel" | "modules" | "grid";
+
+/** Keys of the purpose-built case-study visuals in components/work/visuals. */
+export type VisualKey =
+  | "food-hub"
+  | "food-gaps"
+  | "food-lifecycle"
+  | "food-compare"
+  | "food-tests"
+  | "gtr-asis"
+  | "gtr-tobe"
+  | "gtr-rejections"
+  | "gtr-pains"
+  | "ojt-shift"
+  | "ojt-journey"
+  | "ojt-stages"
+  | "ojt-manual"
+  | "leave-trace"
+  | "leave-paths"
+  | "leave-evidence";
 
 export type Work = {
   slug: string;
   index: string;
   title: string;
-  /** One line, shown in the index. */
+  /** One line, shown in the index and under the title. */
   line: string;
   kind: "Professional" | "Competition" | "Proposal" | "Coursework" | "Technical";
   organization: string;
   role: string;
   period: string;
   status: string;
-  /** "confirmed": completed work with confirmed deliverables. "ongoing": analysis in progress. "concept": a proposal, not implemented. */
+  /** "confirmed": completed, with confirmed deliverables. "ongoing": in progress. "concept": a proposal, not implemented. */
   evidence: "confirmed" | "ongoing" | "concept";
   motif: Motif;
-  context: string;
-  problem: string;
-  responsibilities: string[];
-  approach: string[];
-  /** What was actually produced or confirmed. */
+  /** Real figures only, taken from the project documents. */
+  facts: { value: string; label: string }[];
+  /** Visual-first story: one short sentence + one visual per chapter. */
+  chapters?: { title: string; text: string; visual: VisualKey }[];
+  /** Used when a project has no chapters (academic work). */
+  did?: string[];
   outcomes: string[];
-  /** Proposed or open items that are NOT confirmed outcomes. */
   proposed?: string[];
-  limitations: string[];
+  limits: string;
   skills: string[];
-  flow?: Flow;
   link?: { label: string; href: string };
   confidential?: boolean;
 };
-
-/** A conceptual AS-IS / TO-BE flow. Generic by design: not a system screenshot. */
-export type Flow = {
-  caption: string;
-  lanes: string[];
-  steps: { lane: number; label: string; kind?: "step" | "decision" | "doc" | "friction" }[];
-};
-
-const sanitised =
-  "Internal project at Mattel Indonesia, described at a high level. System names, people, data, business rules and screenshots are intentionally withheld.";
 
 export const work: Work[] = [
   {
     slug: "corporate-food-ordering",
     index: "01",
-    title: "Corporate Food Ordering Process",
-    line: "Watching an ordering operation run before deciding what to change.",
+    title: "Multi‑Vendor Food Ordering",
+    line: "A canteen ordering app with payment gaps, rebuilt into one platform for several outlets.",
     kind: "Professional",
     organization: "Mattel Indonesia",
-    role: "Functional / business analysis contribution",
-    period: "2026 – present",
-    status: "Ongoing",
-    evidence: "ongoing",
+    role: "Functional analyst",
+    period: "Oct – Nov 2026",
+    status: "Tested · not yet deployed",
+    evidence: "confirmed",
     motif: "lanes",
-    context:
-      "An internal food-ordering initiative. Ordering, payment, order-status updates and the coordination between administrative and kitchen teams all had to work together — in practice, not only on paper.",
-    problem:
-      "How does the ordering operation really run day to day, and where could coordination between the people involved and the supporting information system be improved?",
-    responsibilities: [
-      "Conduct stakeholder discussions with the people involved in ordering and fulfilment.",
-      "Observe administrative and kitchen activities to see how the process works in practice.",
-      "Analyse the AS-IS ordering, payment and order-status workflow end to end.",
-      "Support TO-BE workflow design and evaluate operational requirements and constraints.",
-      "Work with technical colleagues to assess the feasibility of potential improvements.",
+    facts: [
+      { value: "43/43", label: "agreed functional tests passed" },
+      { value: "3", label: "AS-IS gaps reproduced in testing" },
+      { value: "3", label: "role-based interfaces specified" },
+      { value: "0", label: "code changes needed to add a vendor" },
     ],
-    approach: [
-      "Observation first — watching the real operation before relying on documented procedure.",
-      "Mapping each hand-off between ordering, preparation and status updates to locate friction.",
-      "Weighing improvement options by operational fit, favouring practical solutions that avoid unnecessary technical complexity.",
+    chapters: [
+      {
+        title: "Three gaps behind one complaint",
+        text: "I separated the payment problem into distinct events, then reproduced each gap in AS-IS tests.",
+        visual: "food-gaps",
+      },
+      {
+        title: "One application, three interfaces",
+        text: "The TO-BE serves customers, vendor kitchens and administrators from one configurable platform.",
+        visual: "food-hub",
+      },
+      {
+        title: "An order lifecycle with clear exits",
+        text: "Every order now ends in a known state — including cancelled and expired ones, which are kept, not deleted.",
+        visual: "food-lifecycle",
+      },
+      {
+        title: "Before and after",
+        text: "Six areas changed between the AS-IS and the tested TO-BE.",
+        visual: "food-compare",
+      },
+      {
+        title: "Tested against agreed rules",
+        text: "Each requirement was traced to a functional test and checked with evidence.",
+        visual: "food-tests",
+      },
     ],
-    outcomes: ["An AS-IS understanding of the ordering and fulfilment workflow, built from interviews and observation."],
-    proposed: [
-      "Improvement opportunities at the hand-offs between ordering, preparation and status updates.",
-      "Input to a TO-BE workflow.",
-      "An assessment of functional requirements against operational constraints.",
+    outcomes: [
+      "AS-IS analysis with three gaps reproduced",
+      "Functional specification for three interfaces",
+      "Business rules confirmed by the business owner",
+      "43 of 43 functional tests passed",
     ],
-    limitations: [
-      sanitised,
-      "Analysis is ongoing. Recommendations are still under discussion; nothing here should be read as an implemented change.",
-    ],
-    skills: ["Stakeholder interviews", "Process observation", "AS-IS / TO-BE mapping", "Requirements analysis"],
-    flow: {
-      caption: "Conceptual service blueprint. Generic roles and steps; friction points are where hand-offs were examined.",
-      lanes: ["Requester", "Administration", "Kitchen"],
-      steps: [
-        { lane: 0, label: "Place order" },
-        { lane: 1, label: "Confirm & record", kind: "doc" },
-        { lane: 1, label: "Payment", kind: "decision" },
-        { lane: 2, label: "Prepare" },
-        { lane: 1, label: "Status update", kind: "friction" },
-        { lane: 0, label: "Collect" },
-      ],
-    },
+    proposed: ["Production deployment (owned by the development team)", "Outlet staff onboarding before go-live"],
+    limits:
+      "Tested in a local development environment. Payment is checked manually by vendors; there is no automatic bank settlement.",
+    skills: ["Process analysis", "Requirements", "Business rules", "Functional testing", "Stakeholder validation"],
     confidential: true,
   },
   {
     slug: "request-approval-workflow",
     index: "02",
-    title: "Internal Request & Approval Workflow",
-    line: "Testing whether a workflow behaves the way the business intends — including when it shouldn't.",
+    title: "Item‑Level Approval Workflow",
+    line: "From one decision per request to approvals routed item by item.",
     kind: "Professional",
     organization: "Mattel Indonesia",
-    role: "Functional analyst contribution",
-    period: "2026",
-    status: "Documentation & validation completed",
+    role: "Functional analyst",
+    period: "Sep – Nov 2026",
+    status: "Documented & developer-tested",
     evidence: "confirmed",
     motif: "gate",
-    context:
-      "An internal request-management workflow in which requests pass through several approval steps. The aim was to make sure the workflow behaved exactly as the business intended, including the cases that don't go to plan.",
-    problem:
-      "Do workflow conditions, business rules and system behaviour match the intended business requirements — and where they don't, what exactly differs?",
-    responsibilities: [
-      "AS-IS and TO-BE analysis of the request and approval process.",
-      "Assessment of the approval flow and clarification of business rules with stakeholders.",
-      "Functional requirements analysis and exception-handling review.",
-      "Scenario-based functional testing against agreed business rules.",
-      "Process documentation and user guidance, validated with stakeholders.",
+    facts: [
+      { value: "10", label: "pain points confirmed with the owner" },
+      { value: "15", label: "use cases modelled" },
+      { value: "5", label: "approval scenarios tested" },
+      { value: "4", label: "models: swimlane, use case, DFD, ERD" },
     ],
-    approach: [
-      "Defining the rules first: what should happen, for whom, and under which conditions.",
-      "Designing test scenarios around both the expected path and the exceptions.",
-      "Comparing actual behaviour with intended behaviour, then communicating gaps clearly to stakeholders and the technical team.",
+    chapters: [
+      {
+        title: "AS-IS: every reviewer decides everything",
+        text: "Three reviewers in sequence, each approving or rejecting the whole request. One rejection ends it.",
+        visual: "gtr-asis",
+      },
+      {
+        title: "Ten pain points, confirmed",
+        text: "Problems were listed before solutions and confirmed with the document owner.",
+        visual: "gtr-pains",
+      },
+      {
+        title: "TO-BE: route by item tier",
+        text: "After a first review, the system sends each item to the approver who owns its tier.",
+        visual: "gtr-tobe",
+      },
+      {
+        title: "Two kinds of rejection",
+        text: "A rejection can now stop the request, or remove only the items it applies to.",
+        visual: "gtr-rejections",
+      },
     ],
     outcomes: [
-      "Process maps of the request and approval workflow.",
-      "System documentation and user guidance.",
-      "Testing evidence from scenario-based functional validation.",
-      "Findings communicated to the relevant stakeholders and technical team.",
+      "Business process & system documentation",
+      "AS-IS and TO-BE swimlanes, use cases, DFD and ERD",
+      "Five approval scenarios verified in developer testing",
+      "Director-level AS-IS vs TO-BE presentation",
     ],
-    limitations: [sanitised, "Production rollout is outside the scope of this summary; no performance figures are claimed."],
-    skills: ["Business rules analysis", "Functional testing", "Exception handling", "Process documentation", "Stakeholder validation"],
-    flow: {
-      caption: "Conceptual approval flow with an exception path. Steps are generic; the real rules are not shown.",
-      lanes: ["Requester", "Approvers", "Validation"],
-      steps: [
-        { lane: 0, label: "Submit request" },
-        { lane: 1, label: "Review" },
-        { lane: 1, label: "Rule check", kind: "decision" },
-        { lane: 0, label: "Return / revise", kind: "friction" },
-        { lane: 2, label: "Test scenarios", kind: "doc" },
-        { lane: 1, label: "Complete" },
-      ],
-    },
+    proposed: ["User acceptance testing"],
+    limits: "Developer testing only, not UAT. Item tiers and roles are shown generically.",
+    skills: ["AS-IS / TO-BE", "Business rules", "Use case & DFD", "ERD", "Scenario testing"],
     confidential: true,
   },
   {
     slug: "requisition-workflow-documentation",
     index: "03",
-    title: "Requisition Workflow Documentation",
-    line: "Writing a process down so the people who use it can follow it without asking.",
+    title: "Training Requisition: Paper to Digital",
+    line: "A paper form passed around for signatures, replaced by one online flow — and a manual people can follow.",
     kind: "Professional",
     organization: "Mattel Indonesia",
-    role: "Functional analysis & documentation",
-    period: "2026",
-    status: "Documentation completed",
+    role: "Functional analysis & user documentation",
+    period: "Oct 2026",
+    status: "User manual v1.2 completed",
     evidence: "confirmed",
     motif: "stepper",
-    context:
-      "Requisition workflows for on-the-job training and internship placements inside an HR self-service portal, where clear documentation helps requesters and approvers use the process correctly.",
-    problem:
-      "Requesters and approvers needed one clear, correct description of how each requisition type moves from request to approval.",
-    responsibilities: [
-      "Understand the on-the-job training and internship requisition workflows from the business side.",
-      "Analyse the approval process and clarify functional behaviour where it was unclear.",
-      "Produce user documentation for the requisition process.",
-      "Coordinate with business and technical colleagues to confirm details.",
+    facts: [
+      { value: "5", label: "approval stages documented" },
+      { value: "10", label: "how-to sections" },
+      { value: "8", label: "troubleshooting topics" },
+      { value: "1", label: "form instead of a paper chain" },
     ],
-    approach: [
-      "Walking through each requisition type step by step with the relevant stakeholders.",
-      "Writing for the end user — plain language, ordered steps, and clear expectations at each stage.",
+    chapters: [
+      {
+        title: "From paper chain to online flow",
+        text: "Requests used to travel on paper for signatures. Now they are submitted once and tracked online.",
+        visual: "ojt-shift",
+      },
+      {
+        title: "The requester's journey",
+        text: "Six steps, written in the order a requester actually meets them.",
+        visual: "ojt-journey",
+      },
+      {
+        title: "Five approval stages",
+        text: "Each approver is notified by e-mail; the requester sees the current stage at any time.",
+        visual: "ojt-stages",
+      },
+      {
+        title: "A manual built around questions",
+        text: "How-to sections for the happy path, troubleshooting for everything else.",
+        visual: "ojt-manual",
+      },
     ],
-    outcomes: ["User documentation for the requisition process.", "Functional clarifications confirmed with business and technical colleagues."],
-    limitations: [sanitised],
-    skills: ["Workflow analysis", "User documentation", "Functional clarification", "Cross-functional coordination"],
-    flow: {
-      caption: "Conceptual requisition path documented for users. Generic stages only.",
-      lanes: ["Requester", "Approver", "Guide"],
-      steps: [
-        { lane: 0, label: "Choose type", kind: "decision" },
-        { lane: 0, label: "Complete request" },
-        { lane: 1, label: "Approve" },
-        { lane: 2, label: "User guide", kind: "doc" },
-      ],
-    },
+    outcomes: ["User manual v1.2 for the training requisition", "Functional clarifications confirmed with business and technical colleagues"],
+    limits: "Screens and system addresses from the manual are not reproduced here.",
+    skills: ["Workflow analysis", "User documentation", "Functional clarification"],
+    confidential: true,
+  },
+  {
+    slug: "leave-management-assessment",
+    index: "04",
+    title: "Leave Module: AS‑IS Baseline",
+    line: "Establishing what a leave system actually does before anyone proposes a change.",
+    kind: "Professional",
+    organization: "Mattel Indonesia",
+    role: "Functional analyst",
+    period: "Nov 2026",
+    status: "Baseline delivered for technical review",
+    evidence: "confirmed",
+    motif: "trace",
+    facts: [
+      { value: "7", label: "process paths traced end to end" },
+      { value: "20", label: "evidence extracts" },
+      { value: "13", label: "questions for technical review" },
+      { value: "0", label: "changes made — read-only" },
+    ],
+    chapters: [
+      {
+        title: "Trace every action to its data",
+        text: "Each user action was followed from the screen, through the logic, to what gets written.",
+        visual: "leave-trace",
+      },
+      {
+        title: "Seven paths a request can take",
+        text: "Submission, approvals at one and two levels, administrative approval, rejection, cancellation and deletion.",
+        visual: "leave-paths",
+      },
+      {
+        title: "Label what is known",
+        text: "Every observation carries a label, so confirmed behaviour is never confused with a suspected gap.",
+        visual: "leave-evidence",
+      },
+    ],
+    outcomes: ["AS-IS process & functional documentation", "Balance-change matrix per action", "Prioritised questions for technical review"],
+    proposed: ["Business-rule decisions by the HR owner", "Any TO-BE design (out of scope)"],
+    limits:
+      "Testing environment only, read-only queries, no runtime tests. Specific findings stay internal.",
+    skills: ["AS-IS analysis", "Evidence traceability", "Data investigation", "Functional documentation"],
     confidential: true,
   },
   {
     slug: "blibli-ai-logistics",
-    index: "04",
+    index: "05",
     title: "Blibli AI Logistics",
     line: "Linking prediction, monitoring and routing to the operational goals they should serve.",
     kind: "Competition",
@@ -250,27 +309,22 @@ export const work: Work[] = [
     status: "Competition proposal",
     evidence: "concept",
     motif: "network",
-    context:
-      "A competition brief: improve supply-chain resilience and operational visibility for an e-commerce logistics network.",
-    problem:
-      "Which combination of capabilities would give operators earlier warning of late deliveries and a clearer view across hubs — and how should they connect?",
-    responsibilities: [
+    facts: [
+      { value: "3", label: "capabilities linked: prediction, monitoring, routing" },
+      { value: "18", label: "page proposal" },
+    ],
+    did: [
       "Led the team through the proposal.",
-      "Designed the business architecture linking SLA-breach prediction, visual hub monitoring and carbon-aware routing.",
-      "Aligned the technical components with operational objectives such as on-time delivery and visibility across hubs.",
+      "Designed the business architecture linking SLA-breach prediction, hub monitoring and carbon-aware routing.",
     ],
-    approach: [
-      "Starting from operational objectives, then choosing capabilities that serve them.",
-      "Describing how each component hands information to the next, rather than listing features.",
-    ],
-    outcomes: ["A written competition proposal with a business architecture."],
-    limitations: ["Prototype-level academic and competition work — not a commercial deployment."],
-    skills: ["Business architecture", "Logistics operations", "SLA concepts", "Operational strategy"],
+    outcomes: ["A written competition proposal with a business architecture"],
+    limits: "Prototype-level competition work — not a commercial deployment.",
+    skills: ["Business architecture", "Logistics operations", "Operational strategy"],
     link: { label: "Read the proposal (PDF)", href: "/proposal-ai-logistics.pdf" },
   },
   {
     slug: "amartha-proxyscore",
-    index: "05",
+    index: "06",
     title: "Amartha ProxyScore",
     line: "A business case for widening credit access to unbanked micro-businesses.",
     kind: "Proposal",
@@ -280,21 +334,15 @@ export const work: Work[] = [
     status: "Pitch & proposal",
     evidence: "concept",
     motif: "funnel",
-    context: "A business proposal and pitch for an AI-based credit-scoring framework aimed at unbanked MSMEs.",
-    problem: "Is there a credible product–market fit, and how should the case be told to the people who would fund it?",
-    responsibilities: [
-      "Co-developed the business proposal and pitch deck.",
-      "Formulated the business narrative.",
-      "Analysed scalability against a market of 50 million entrepreneurs and assessed target users.",
-    ],
-    approach: ["Sizing the opportunity before describing the product.", "Shaping the narrative around the user, not the model."],
-    outcomes: ["A business proposal and pitch deck."],
-    limitations: ["A proposal; the framework was not built or deployed."],
-    skills: ["Business analysis", "Market evaluation", "Financial inclusion", "Pitch development"],
+    facts: [{ value: "50M", label: "entrepreneurs in the market analysed" }],
+    did: ["Co-developed the business proposal and pitch deck.", "Analysed scalability and target users to justify product–market fit."],
+    outcomes: ["A business proposal and pitch deck"],
+    limits: "A proposal; the framework was not built or deployed.",
+    skills: ["Business analysis", "Market evaluation", "Pitch development"],
   },
   {
     slug: "erp-business-process-analysis",
-    index: "06",
+    index: "07",
     title: "ERP Business Process Analysis",
     line: "Procurement to manufacturing, traced across three ERP environments.",
     kind: "Coursework",
@@ -304,23 +352,19 @@ export const work: Work[] = [
     status: "Coursework",
     evidence: "confirmed",
     motif: "modules",
-    context:
-      "Coursework covering end-to-end processes across procurement, inventory, supplier management and manufacturing in Epicor Kinetic, Odoo and Accurate.",
-    problem: "How do these processes cross module boundaries, and where do they lose efficiency?",
-    responsibilities: [
-      "Mapped cross-module workflows and integration requirements.",
-      "Identified operational inefficiencies and proposed improvements aligned with ERP best practice.",
+    facts: [
+      { value: "3", label: "ERP environments" },
+      { value: "4", label: "process areas" },
     ],
-    approach: ["Following one business transaction through every module it touches."],
-    outcomes: ["Process documentation across three ERP environments."],
-    proposed: ["Improvements aligned with ERP best practice (coursework recommendations)."],
-    limitations: ["Academic simulation environments, not a live company system."],
-    skills: ["Process mapping", "Cross-functional processes", "Epicor Kinetic", "Odoo", "Accurate"],
+    did: ["Mapped cross-module workflows in Epicor Kinetic, Odoo and Accurate.", "Identified inefficiencies and proposed improvements."],
+    outcomes: ["Process documentation across three ERP environments"],
+    limits: "Academic simulation environments, not a live company system.",
+    skills: ["Process mapping", "Epicor Kinetic", "Odoo", "Accurate"],
     link: { label: "Epicor documentation (PDF)", href: "/images/laporan-epicor.pdf" },
   },
   {
     slug: "mobile-inventory",
-    index: "07",
+    index: "08",
     title: "Mobile Inventory & Asset Management",
     line: "A supporting technical project: data model first, screens second.",
     kind: "Technical",
@@ -330,12 +374,10 @@ export const work: Work[] = [
     status: "Academic build",
     evidence: "confirmed",
     motif: "grid",
-    context: "An Android application for tracking inventory, built as an academic project to improve inventory visibility.",
-    problem: "What structure does the data need so that the reporting people want is straightforward to produce?",
-    responsibilities: ["Designed the relational data structure and reporting dashboard.", "Built the app and its backend end to end."],
-    approach: ["Designing the relational model around the reports it had to support."],
-    outcomes: ["A working academic Android application with a reporting dashboard."],
-    limitations: ["Academic project, not deployed in an organisation."],
+    facts: [{ value: "1", label: "Android app with reporting dashboard" }],
+    did: ["Designed the relational data structure and reporting dashboard.", "Built the app and its backend end to end."],
+    outcomes: ["A working academic Android application"],
+    limits: "Academic project, not deployed in an organisation.",
     skills: ["Java", "Android", "PHP", "MySQL"],
   },
 ];
@@ -362,14 +404,14 @@ export const mattel: Role & { practice: { label: string; text: string }[] } = {
   period: "Sep 2026 – present",
   location: "Indonesia",
   summary:
-    "A functional, business-facing role. I analyse workflows, requirements, system behaviour and operational constraints, and work alongside the technical colleagues who own implementation.",
+    "A business-facing functional role, working alongside the technical colleagues who own implementation.",
   highlights: [
-    "Analyse business processes and information-system workflows to identify functional improvement opportunities.",
-    "Facilitate stakeholder discussions to understand current operations, requirements and constraints.",
-    "Translate business needs into structured functional requirements and process documentation.",
-    "Collaborate with technical colleagues to validate solution feasibility and clarify expected system behaviour.",
-    "Support scenario-based functional testing and validation against agreed business rules.",
-    "Communicate findings and proposed improvements to relevant stakeholders.",
+    "Map how business processes and system workflows really run.",
+    "Run stakeholder discussions on operations, needs and constraints.",
+    "Write functional requirements and process documentation.",
+    "Validate feasibility and expected behaviour with technical colleagues.",
+    "Test scenarios against agreed business rules.",
+    "Report findings and proposed improvements.",
   ],
   practice: [
     { label: "Process analysis", text: "AS-IS and TO-BE workflows, hand-offs, exceptions." },
@@ -441,9 +483,8 @@ export const leadership: Role[] = [
 export const about = {
   lead: "I'm interested in the distance between how a process is supposed to work and how it actually works.",
   paragraphs: [
-    "Most of what I've learned about that distance came from watching it. At Mattel Indonesia's People & Culture Service Hub I sit with the people who run a process, follow a request from start to finish, and write down what actually happens, not only what the procedure says.",
-    "My degree is in Information Systems for Business and Management, with a concentration in ERP. It taught me how processes, data and systems depend on one another. What keeps me interested is the business question underneath: who needs what, under which rules, and what it costs when the hand-off fails.",
-    "I'm early in my career and I'm building toward business analysis, strategy and operations, and eventually management consulting — work where structured thinking and clear communication matter as much as the answer.",
+    "At Mattel Indonesia's People & Culture Service Hub I sit with the people who run a process, follow a request from start to finish, and write down what actually happens.",
+    "My degree is in Information Systems for Business and Management, with an ERP concentration. I'm early in my career and building toward business analysis, strategy and operations, and management consulting.",
   ],
   principle: "Understand the problem before designing the solution.",
   facts: [
@@ -461,37 +502,37 @@ export const method = [
   {
     n: "01",
     title: "Understand the business",
-    body: "What is this process for, who depends on it, and what does a good outcome look like to them? I start here so the analysis answers a business question, not a system one.",
+    body: "Who depends on this process, and what does a good outcome look like to them?",
     artefact: "Context & objectives",
   },
   {
     n: "02",
     title: "Investigate the current process",
-    body: "Interviews, then observation. I follow real requests through the real operation and map the AS-IS as it is, not as the procedure describes it.",
+    body: "Interviews, then observation — mapping the AS-IS as it is, not as the procedure says.",
     artefact: "AS-IS map",
   },
   {
     n: "03",
     title: "Identify gaps and requirements",
-    body: "Separate root causes from symptoms. Where the process and the intended rules diverge, I write the requirement that would close the gap, in language both sides can check.",
+    body: "Separate causes from symptoms, and write requirements both sides can check.",
     artefact: "Gap list & functional requirements",
   },
   {
     n: "04",
     title: "Design practical improvements",
-    body: "Options are weighed by operational fit. I favour the change people will actually adopt over the one that only looks complete on a diagram.",
+    body: "Favour the change people will actually adopt.",
     artefact: "TO-BE direction",
   },
   {
     n: "05",
     title: "Validate with stakeholders",
-    body: "Walk the proposal back through the people who do the work and the people who build it. Disagreement here is cheap; after build, it isn't.",
+    body: "Walk it back through the people who do the work and the people who build it.",
     artefact: "Agreed rules",
   },
   {
     n: "06",
     title: "Support implementation and testing",
-    body: "Scenario-based tests against the agreed rules — the expected path and the exceptions — plus documentation so the process can be used without me in the room.",
+    body: "Test the expected path and the exceptions, then document it for users.",
     artefact: "Test evidence & user guidance",
   },
 ];
@@ -503,7 +544,7 @@ export const capabilities = [
     title: "Business & Process Analysis",
     body: "Mapping AS-IS and TO-BE workflows, hand-offs and exceptions from interviews and direct observation.",
     items: ["Business process analysis", "AS-IS / TO-BE mapping", "Process observation", "Workflow optimisation"],
-    evidence: ["corporate-food-ordering", "erp-business-process-analysis"],
+    evidence: ["corporate-food-ordering", "leave-management-assessment"],
   },
   {
     title: "Strategy & Problem Solving",
@@ -515,7 +556,7 @@ export const capabilities = [
     title: "Functional Requirements",
     body: "Turning what people need into requirements that technical colleagues can evaluate, build against and test.",
     items: ["Requirements elicitation", "Functional analysis", "Business rules analysis", "Use case, DFD & ERD diagrams"],
-    evidence: ["request-approval-workflow"],
+    evidence: ["request-approval-workflow", "corporate-food-ordering"],
   },
   {
     title: "Stakeholder Collaboration",
@@ -527,13 +568,13 @@ export const capabilities = [
     title: "Data & Decision Support",
     body: "Enough analysis and modelling to ground a recommendation in what the data shows.",
     items: ["Microsoft Excel", "Power BI", "SQL", "Relational data modelling"],
-    evidence: ["mobile-inventory"],
+    evidence: ["leave-management-assessment", "mobile-inventory"],
   },
   {
     title: "Functional Testing & Validation",
     body: "Designing scenarios around the expected path and the exceptions, and recording evidence against agreed rules.",
     items: ["Scenario-based functional testing", "Exception handling", "Test evidence"],
-    evidence: ["request-approval-workflow"],
+    evidence: ["corporate-food-ordering", "request-approval-workflow"],
   },
   {
     title: "Systems & Digital Transformation",
