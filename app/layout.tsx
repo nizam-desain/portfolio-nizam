@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { display, sans, serif, mono } from "@/lib/fonts";
+import { sans, serif } from "@/lib/fonts";
 import { Providers } from "@/components/providers";
 import { MotionRoot } from "@/components/motion-root";
 import { Header } from "@/components/site/header";
@@ -84,7 +84,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable}`}
+      className={`${sans.variable} ${serif.variable}`}
       suppressHydrationWarning
     >
       <head>

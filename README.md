@@ -12,44 +12,24 @@ npm run build   # no environment variables required
 npm run lint
 ```
 
-## Creative direction — "The Operating Manual"
+## Creative direction — v2 "Strategic Intelligence × Creative Technology × Cinematic Editorial"
 
-The site reads like an annotated analysis document: Swiss 12-column grid, section references (§01), figure numbers,
-hairline rules, registration marks and a process-line motif (steps, decision diamonds, documents, friction points)
-that appears in the hero figure, the method diagram, project covers and case-study flows. Two cinematic moments
-(the dark Experience band and the pinned Method section) break the rhythm.
+A multidisciplinary personal portfolio (business, people, technology, design). Serif display headings in
+sentence case, original 3D artwork and conceptual mockups next to analytical diagrams, soft gradient
+section washes in light mode and a midnight-navy / indigo atmosphere in dark mode. The full, current
+specification lives in the "Portfolio Design Specification" doc.
 
-## Design system
-
-| Token | Light | Dark |
-| --- | --- | --- |
-| `paper` | Warm Ivory `#F2F0E8` | Ink `#101110` |
-| `sheet` (inset plates) | `#EAE7DC` | `#191A18` |
-| `ink` | `#101110` | `#F2F0E8` |
-| `stone` (secondary text, AA) | `#5F625C` | `#9A9D96` |
-| `sage` (fills) / `sage-ink` (text) | `#B8CB9B` / `#4D6638` | `#B8CB9B` |
-| `oxide` (review-pencil marks, focus) | `#A3441C` | `#DB7B50` |
-| `night` (bands) | `#101110` | `#1A1B19` |
-
-- **Type** (self-hosted, SIL OFL — see `app/fonts/LICENSES.md`): Archivo variable at condensed width for display,
-  Instrument Sans for text, Newsreader Italic for accents, IBM Plex Mono for metadata. Fluid scale in
-  `tailwind.config.ts` (`meta` → `mega`).
-- **Grid & spacing:** 4 columns → 12 columns at 768 px; `--gutter`, `--margin`, `--section` and `--frame` in
+- **Type** (self-hosted, SIL OFL — `app/fonts/LICENSES.md`): Instrument Serif (display, italic accents) and
+  Plus Jakarta Sans (text, labels). Two families only; no monospace.
+- **Colour:** porcelain / mist / lavender / sage / peach washes, charcoal text, refined indigo and coral
+  accents (light); deep midnight, navy surfaces, lavender and teal accents, ivory text (dark). Tokens in
   `app/globals.css`.
-- **Shape:** square corners and 1 px rules; no shadows, gradients or pills.
-- **Motion tokens:** `--ease-out` `cubic-bezier(.16,1,.3,1)`, `--ease-inout` `cubic-bezier(.65,0,.35,1)`;
-  180 / 320 / 640 / 1100 ms.
-
-## Motion system
-
-- One IntersectionObserver (`components/motion-root.tsx`) sets `data-in` on `[data-reveal]` blocks; CSS handles
-  masked line reveals (`.mask`), fades, rule draws and clip-path wipes. Content is visible without JavaScript.
-- Above-the-fold blocks (`.now`) animate with CSS keyframes from first paint.
-- Opening sequence: CSS only, once per session, ~2 s, skipped on small screens and under reduced motion.
-- Hero Fig. 0: pointer-reactive process map (magnetic nodes, relationship highlighting, a request token).
-- Work index: cursor-following cover preview on fine pointers only; method section: pinned diagram drawn to the
-  active step; theme change: top-down View Transition wipe.
-- `prefers-reduced-motion` disables all of it.
+- **Imagery:** `public/art/` — original 3D renders (Three.js, rendered offline) and conceptual UI mockups made
+  for this site. Mockups are labelled "Conceptual mockup"; none are production screenshots. Stock photo
+  libraries were not reachable from the build environment, so no stock photography is used.
+- **Motion:** cinematic image reveals, masked headings, layered hero depth, pinned method stages, credential
+  filtering, a before/after slider, an interactive approval-scenario player and order-lifecycle stepper. All
+  respect `prefers-reduced-motion`.
 
 ## Content & confidentiality
 

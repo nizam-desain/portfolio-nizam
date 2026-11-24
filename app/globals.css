@@ -3,30 +3,38 @@
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   THE OPERATING MANUAL — design tokens
+   STRATEGIC INTELLIGENCE × CREATIVE TECHNOLOGY × CINEMATIC EDITORIAL
+   Light = "gallery morning": porcelain, mist blue, soft lavender and
+   sage washes; charcoal type; refined indigo + warm coral accents.
+   Dark  = "midnight studio": deep navy into indigo, ambient teal and
+   lavender light, warm ivory type.
    Colour values are RGB channels so Tailwind can apply alpha.
-   Light is "printed sheet": warm ivory paper, ink, sage annotations,
-   an oxide "review pencil" mark. Dark is "night shift": ink ground,
-   ivory type, sage signal. Both are composed, not inverted.
+   Token names are kept from v1 for continuity; their meaning is below.
    ───────────────────────────────────────────────────────────── */
 :root {
-  --paper: 242 240 232;      /* Warm Ivory  #F2F0E8 */
-  --sheet: 234 231 220;      /* deeper sheet for inset plates */
-  --ink: 16 17 16;           /* Ink Black   #101110 */
-  --graphite: 41 43 40;      /* Graphite    #292B28 */
-  --stone: 95 98 92;         /* text-safe Stone (#5F625C, 5.5:1 on paper) */
-  --line: 16 17 16;          /* used at /12–/20 alpha */
-  --sage: 184 203 155;       /* Muted Sage  #B8CB9B (fills only) */
-  --sage-ink: 77 102 56;     /* sage for text/strokes on paper (5.4:1) */
-  --oxide: 163 68 28;        /* review-pencil mark (5.9:1) */
-  --night: 16 17 16;
-  --ivory: 242 240 232;
+  --paper: 250 249 246;      /* page ground      #FAF9F6 porcelain */
+  --sheet: 243 241 236;      /* raised / alt     #F3F1EC soft ivory */
+  --card: 255 255 255;       /* cards, plates */
+  --ink: 32 36 44;           /* text             #20242C charcoal */
+  --graphite: 58 64 75;      /* long text        #3A404B */
+  --stone: 98 107 120;       /* secondary text   #626B78 slate (5.2:1) */
+  --line: 32 36 44;          /* hairlines, used with alpha */
+  --sage: 201 231 221;       /* highlight fill   #C9E7DD soft teal */
+  --sage-ink: 76 84 165;     /* accent text      #4C54A5 refined indigo (6.4:1) */
+  --oxide: 182 83 59;        /* warm accent      #B6533B coral (4.9:1) */
+  --lav: 168 164 244;        /* lavender         #A8A4F4 */
+  --teal: 117 212 197;       /* teal             #75D4C5 */
+  --night: 17 24 39;         /* dark bands       #111827 */
+  --ivory: 246 244 239;      /* text on night    #F6F4EF */
+  --shadow: 32 36 60;
 
   --gutter: clamp(1rem, 0.6rem + 1.2vw, 1.75rem);
-  --margin: clamp(1.25rem, 0.4rem + 3.6vw, 4.5rem);
-  --section: clamp(6rem, 4rem + 9vw, 13rem);
-  --frame: 1760px;
-  --header-h: 4.25rem;
+  --margin: clamp(1.25rem, 0.5rem + 3.2vw, 4rem);
+  --section: clamp(4.5rem, 3rem + 5vw, 8.5rem);
+  --frame: 1640px;
+  --header-h: 4.5rem;
+  --radius: 22px;
+  --radius-lg: 32px;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
@@ -39,23 +47,24 @@
 }
 
 .dark {
-  --paper: 16 17 16;
-  --sheet: 25 26 24;
-  --ink: 242 240 232;
-  --graphite: 214 212 204;
-  --stone: 154 157 150;
-  --line: 242 240 232;
-  --sage: 184 203 155;
-  --sage-ink: 184 203 155;
-  --oxide: 219 123 80;
-  --night: 26 27 25;       /* bands lift slightly off the dark ground */
+  --paper: 9 13 23;          /* #090D17 deep midnight */
+  --sheet: 17 24 39;         /* #111827 midnight navy */
+  --card: 28 38 56;          /* #1C2638 slate surface */
+  --ink: 246 244 239;        /* #F6F4EF warm ivory */
+  --graphite: 213 218 227;
+  --stone: 183 192 206;      /* #B7C0CE soft silver (10:1) */
+  --line: 183 192 206;
+  --sage: 117 212 197;       /* teal fill, dark text on it */
+  --sage-ink: 168 164 244;   /* lavender accent text */
+  --oxide: 244 169 138;      /* peach accent */
+  --night: 22 30 51;         /* bands lift off the ground */
+  --shadow: 0 0 0;
   color-scheme: dark;
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
-    text-rendering: optimizeLegibility;
     scroll-padding-top: calc(var(--header-h) + 1rem);
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -63,14 +72,30 @@
   }
   body {
     @apply bg-paper font-sans text-body text-ink antialiased;
-    font-feature-settings: "ss01", "cv11";
     overflow-x: clip;
   }
-  ::selection { background: rgb(var(--sage)); color: rgb(16 17 16); }
+  /* Ambient page light: two soft fixed glows behind everything. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(60vw 50vh at 85% -10%, rgb(232 238 247 / 0.9), transparent 70%),
+      radial-gradient(50vw 45vh at -10% 30%, rgb(239 237 248 / 0.8), transparent 70%);
+  }
+  .dark body::before {
+    background:
+      radial-gradient(60vw 55vh at 90% -10%, rgb(37 39 71 / 0.95), transparent 70%),
+      radial-gradient(45vw 45vh at -5% 40%, rgb(117 212 197 / 0.07), transparent 70%),
+      radial-gradient(40vw 40vh at 60% 110%, rgb(168 164 244 / 0.09), transparent 70%);
+  }
+  ::selection { background: rgb(var(--lav) / 0.55); color: rgb(var(--ink)); }
   :focus-visible {
-    outline: 2px solid rgb(var(--oxide));
+    outline: 2px solid rgb(var(--sage-ink));
     outline-offset: 3px;
-    border-radius: 1px;
+    border-radius: 6px;
   }
   img { user-select: none; }
   h1, h2, h3 { text-wrap: balance; }
@@ -93,39 +118,44 @@
     .grid-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
   }
 
-  /* Condensed Archivo is the voice of the site. */
+  /* Display voice: Instrument Serif, sentence case, comfortable leading. */
   .display {
-    font-family: var(--font-display);
-    font-stretch: 72%;
-    font-weight: 560;
-    font-variation-settings: "wdth" 72;
-  }
-  .display-wide {
-    font-family: var(--font-display);
-    font-stretch: 118%;
-    font-weight: 480;
-    font-variation-settings: "wdth" 118;
+    font-family: var(--font-serif);
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.04;
   }
   .accent-serif {
     font-family: var(--font-serif);
     font-style: italic;
-    font-weight: 380;
+    font-weight: 400;
     letter-spacing: -0.01em;
   }
-
-  /* Document metadata: section refs, figure numbers, labels. */
+  /* Labels: small sans caps, readable (12px), never monospace. */
   .meta {
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
-    line-height: 1.4;
-    letter-spacing: 0.08em;
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    line-height: 1.45;
+    font-weight: 600;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
   }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: rgb(var(--sage-ink));
+  }
+  .eyebrow::before {
+    content: "";
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+  }
 
-  .rule { border-color: rgb(var(--line) / 0.16); }
-  .rule-strong { border-color: rgb(var(--line) / 0.9); }
-
-  /* Text link: an underline that is drawn, not toggled. */
   .ink-link {
     background-image: linear-gradient(currentColor, currentColor);
     background-size: 100% 1px;
@@ -136,63 +166,87 @@
   }
   .ink-link:hover { background-size: 0% 1px; background-position: 100% 100%; }
 
-  /* Primary action: a filled ink slab, square, with a sliding sage plate. */
+  /* Primary action: rounded slab with a gradient sheen that slides on hover. */
   .slab {
     position: relative;
     isolation: isolate;
     display: inline-flex;
     align-items: center;
-    gap: 0.9rem;
+    gap: 0.75rem;
     min-height: 3rem;
-    padding: 0 1.25rem;
+    padding: 0 1.4rem;
+    border-radius: 14px;
     background: rgb(var(--ink));
     color: rgb(var(--paper));
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 600;
     overflow: hidden;
+    box-shadow: 0 10px 30px -14px rgb(var(--shadow) / 0.55);
+    transition: transform var(--t-slow) var(--ease-out), box-shadow var(--t-slow) var(--ease-out);
   }
   .slab::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
-    background: rgb(var(--sage));
-    transform: translateY(101%);
-    transition: transform var(--t-slow) var(--ease-out);
+    background: linear-gradient(110deg, rgb(var(--sage-ink)), rgb(var(--lav)) 55%, rgb(var(--teal)));
+    opacity: 0;
+    transform: translateX(-30%);
+    transition: opacity var(--t-slow) var(--ease-out), transform var(--t-cine) var(--ease-out);
   }
-  .slab:hover::before, .slab:focus-visible::before { transform: none; }
-  .slab:hover, .slab:focus-visible { color: rgb(16 17 16); }
+  .slab:hover::before, .slab:focus-visible::before { opacity: 1; transform: none; }
+  .slab:hover, .slab:focus-visible { color: #fff; transform: translateY(-2px); box-shadow: 0 18px 40px -16px rgb(76 84 165 / 0.6); }
+  .dark .slab:hover, .dark .slab:focus-visible { color: #0b1020; }
 
   .ghost {
     display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     min-height: 3rem;
     padding: 0 0.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 0.9rem;
+    font-weight: 600;
   }
 
-  /* Corner registration marks used to frame figures and photographs. */
-  .reg { position: relative; }
-  .reg::before, .reg::after {
-    content: "";
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    border-color: rgb(var(--ink) / 0.55);
-    pointer-events: none;
+  /* Surfaces */
+  .card {
+    background: rgb(var(--card));
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgb(var(--shadow) / 0.05), 0 18px 40px -24px rgb(var(--shadow) / 0.28);
   }
-  .reg::before { top: -7px; left: -7px; border-top-width: 1px; border-left-width: 1px; }
-  .reg::after { bottom: -7px; right: -7px; border-bottom-width: 1px; border-right-width: 1px; }
+  .dark .card { box-shadow: inset 0 0 0 1px rgb(183 192 206 / 0.1), 0 24px 50px -30px rgb(0 0 0 / 0.8); }
+  .img-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 30px 60px -36px rgb(var(--shadow) / 0.45);
+  }
+  .dark .img-frame { box-shadow: 0 0 0 1px rgb(183 192 206 / 0.12), 0 30px 70px -30px rgb(0 0 0 / 0.9); }
 
-  /* Masked line reveal. Content is visible by default; motion is opt-in
-     via .js-motion on <html>, so nothing is hidden without JavaScript. */
-  .mask { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
+  /* Section washes — subtle gradient grounds that alternate down the page. */
+  .tone-mist { background: linear-gradient(180deg, rgb(250 249 246) 0%, rgb(232 238 247) 100%); }
+  .tone-lav { background: linear-gradient(160deg, rgb(243 241 236) 0%, rgb(239 237 248) 100%); }
+  .tone-sage { background: linear-gradient(180deg, rgb(250 249 246) 0%, rgb(227 237 229) 100%); }
+  .tone-peach { background: linear-gradient(170deg, rgb(250 249 246) 0%, rgb(250 236 226) 100%); }
+  .dark .tone-mist { background: linear-gradient(180deg, rgb(9 13 23) 0%, rgb(17 24 39) 100%); }
+  .dark .tone-lav { background: radial-gradient(80% 60% at 80% 0%, rgb(37 39 71 / 0.9), transparent 70%), rgb(13 18 31); }
+  .dark .tone-sage { background: radial-gradient(70% 60% at 10% 10%, rgb(117 212 197 / 0.08), transparent 70%), rgb(12 17 29); }
+  .dark .tone-peach { background: radial-gradient(70% 60% at 90% 100%, rgb(244 169 138 / 0.07), transparent 70%), rgb(12 17 29); }
+  .band-night {
+    background:
+      radial-gradient(60% 70% at 85% 0%, rgb(76 84 165 / 0.55), transparent 70%),
+      radial-gradient(50% 60% at 0% 100%, rgb(117 212 197 / 0.14), transparent 70%),
+      linear-gradient(180deg, #111827, #0b1020);
+    color: rgb(246 244 239);
+  }
+  .dark .band-night {
+    background:
+      radial-gradient(60% 70% at 85% 0%, rgb(76 84 165 / 0.5), transparent 70%),
+      radial-gradient(50% 60% at 0% 100%, rgb(117 212 197 / 0.12), transparent 70%),
+      linear-gradient(180deg, #1a2342, #111827);
+  }
+
+  .mask { display: block; overflow: hidden; padding-bottom: 0.08em; margin-bottom: -0.08em; }
   .mask > span { display: block; }
 }
 
@@ -200,6 +254,12 @@
   .tabular { font-variant-numeric: tabular-nums; }
   .no-scrollbar { scrollbar-width: none; }
   .no-scrollbar::-webkit-scrollbar { display: none; }
+  .text-gradient {
+    background: linear-gradient(100deg, rgb(var(--sage-ink)), rgb(var(--oxide)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 /* ── Motion (only when allowed) ────────────────────────────── */
@@ -214,7 +274,7 @@
 
   .js-motion .fade {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(18px);
     transition: opacity var(--t-slow) var(--ease-out), transform var(--t-cine) var(--ease-out);
     transition-delay: calc(var(--i, 0) * 70ms + var(--d, 0ms));
   }
@@ -227,17 +287,30 @@
     transition: transform 1.4s var(--ease-out);
     transition-delay: var(--d, 0ms);
   }
-  .js-motion [data-in="true"] .draw-x,
-  .js-motion .draw-x[data-in="true"] { transform: none; }
+  .js-motion [data-in="true"] .draw-x { transform: none; }
 
-  /* Clip-path wipe for plates and covers. */
+  /* Cinematic image reveal: the frame opens while the picture settles from 1.12. */
+  .js-motion .reveal-img {
+    clip-path: inset(12% 8% 12% 8% round var(--radius-lg));
+    transition: clip-path 1.3s var(--ease-inout);
+    transition-delay: var(--d, 0ms);
+  }
+  .js-motion .reveal-img img { transform: scale(1.14); transition: transform 1.8s var(--ease-out); transition-delay: var(--d, 0ms); }
+  .js-motion [data-in="true"] .reveal-img,
+  .js-motion .reveal-img[data-in="true"] { clip-path: inset(0 0 0 0 round var(--radius-lg)); }
+  .js-motion [data-in="true"] .reveal-img img,
+  .js-motion .reveal-img[data-in="true"] img { transform: scale(1); }
+
   .js-motion .wipe {
     clip-path: inset(0 0 100% 0);
     transition: clip-path 1.2s var(--ease-inout);
     transition-delay: var(--d, 0ms);
   }
-  .js-motion [data-in="true"] .wipe,
-  .js-motion .wipe[data-in="true"] { clip-path: inset(0 0 0 0); }
+  .js-motion [data-in="true"] .wipe { clip-path: inset(0 0 0 0); }
+
+  /* Slow ambient drift for gradient glows. */
+  @keyframes drift { 0%, 100% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(3%, -4%, 0) scale(1.08); } }
+  .glow { animation: drift 18s var(--ease-inout) infinite; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -249,115 +322,60 @@
   }
 }
 
-/* ── Opening sequence ──────────────────────────────────────────
-   Pure CSS, plays once per session (an inline script adds
-   .seen to <html> on later loads). Content underneath is fully
-   rendered, so it never delays the largest paint for crawlers or
-   assistive tech, and it is skipped entirely under reduced motion. */
-.opening { display: none; }
+/* Above-the-fold blocks animate with keyframes from first paint. */
+@keyframes mask-in { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes img-in { from { clip-path: inset(10% 10% 10% 10% round 32px); transform: scale(1.04); } to { clip-path: inset(0 0 0 0 round 32px); transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
+  .js-motion .now .mask > span { transform: none; transition: none; animation: mask-in 1s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 90ms + var(--d, 0ms)); }
+  .js-motion .now .fade { opacity: 1; transform: none; transition: none; animation: fade-in-up 0.9s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 80ms + var(--d, 0ms) + 200ms); }
+  .js-motion .now .hero-img { animation: img-in 1.4s var(--ease-inout) both; animation-delay: calc(var(--d, 0ms) + 150ms); }
+}
+
+/* ── Opening: a short name card, once per session, desktop only ── */
+.opening { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
   html:not(.seen) .opening {
     display: grid;
     position: fixed;
     inset: 0;
     z-index: 90;
     place-items: center;
-    background: rgb(16 17 16);
-    color: rgb(242 240 232);
+    background: radial-gradient(60% 60% at 70% 20%, #252747, #0b1020 70%);
+    color: #f6f4ef;
     clip-path: inset(0 0 0 0);
-    animation: opening-out 0.9s var(--ease-inout) 1.35s forwards;
+    animation: opening-out 0.8s var(--ease-inout) 1.1s forwards;
     pointer-events: none;
   }
   html:not(.seen) .opening .o-word > span {
     display: inline-block;
     transform: translateY(110%);
     animation: o-rise 0.8s var(--ease-out) forwards;
-    animation-delay: calc(var(--i) * 70ms + 0.1s);
+    animation-delay: calc(var(--i) * 60ms + 0.1s);
   }
-  html:not(.seen) .opening .o-bar {
-    transform: scaleX(0);
-    transform-origin: left;
-    animation: o-bar 1.2s var(--ease-inout) 0.15s forwards;
-  }
+  html:not(.seen) .opening .o-bar { transform: scaleX(0); transform-origin: left; animation: o-bar 1s var(--ease-inout) 0.1s forwards; }
+  html:not(.seen) .after-opening { --d: 1000ms; }
 }
 @keyframes o-rise { to { transform: none; } }
 @keyframes o-bar { to { transform: none; } }
-@keyframes opening-out {
-  to { clip-path: inset(0 0 100% 0); visibility: hidden; }
-}
+@keyframes opening-out { to { clip-path: inset(0 0 100% 0); visibility: hidden; } }
 
-/* Theme switch: a horizontal wipe where View Transitions exist. */
+/* Theme switch wipe */
 ::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 
-/* ── Hero figure ───────────────────────────────────────────── */
+/* Hero figure (process map, now secondary) */
 @keyframes hs-move { from { offset-distance: 0%; } to { offset-distance: 100%; } }
-.hs-token { offset-rotate: 0deg; animation: hs-move 9s var(--ease-inout) 2.6s infinite; }
+.hs-token { offset-rotate: 0deg; animation: hs-move 9s var(--ease-inout) 2s infinite; }
 @media (prefers-reduced-motion: reduce) { .hs-token { display: none; } }
 @media (prefers-reduced-motion: no-preference) {
-  .js-motion .hero-fig .hs-edge[pathLength] {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 1.6s var(--ease-inout), stroke var(--t-base), opacity var(--t-base);
-    transition-delay: calc(var(--i, 0) * 70ms + var(--d, 0ms) + 300ms), 0ms, 0ms;
-  }
+  .js-motion .hero-fig .hs-edge[pathLength] { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.6s var(--ease-inout), stroke var(--t-base), opacity var(--t-base); transition-delay: calc(var(--i, 0) * 70ms + 300ms), 0ms, 0ms; }
   .js-motion .hero-fig[data-in="true"] .hs-edge[pathLength] { stroke-dashoffset: 0; }
-  .js-motion .hero-fig .hs-node-in {
-    opacity: 0;
-    transform: scale(0.3);
-    transform-box: fill-box;
-    transform-origin: center;
-    transition: opacity var(--t-slow) var(--ease-out), transform var(--t-slow) var(--ease-out);
-    transition-delay: calc(var(--i, 0) * 80ms + var(--d, 0ms));
-  }
-  .js-motion .hero-fig[data-in="true"] .hs-node-in { opacity: 1; transform: none; }
-  html:not(.seen) .after-opening { --d: 1250ms; }
 }
 
-/* Scroll cue: a line that travels down its track. */
-@keyframes cue { 0% { transform: translateY(-100%); } 60%, 100% { transform: translateY(100%); } }
-.cue-line { animation: cue 2.4s var(--ease-inout) infinite; }
+/* Before / after slider */
+.ba-range { -webkit-appearance: none; appearance: none; background: transparent; }
+.ba-range::-webkit-slider-thumb { -webkit-appearance: none; width: 44px; height: 100vh; cursor: ew-resize; }
+.ba-range::-moz-range-thumb { width: 44px; height: 100vh; border: 0; background: transparent; cursor: ew-resize; }
 
-/* ── Case-study flow figure ────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-  .js-motion .flow-fig .flow-edge {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    transition: stroke-dashoffset 0.9s var(--ease-inout);
-    transition-delay: calc(var(--i, 0) * 180ms + 250ms);
-  }
-  .js-motion [data-in="true"] .flow-fig .flow-edge { stroke-dashoffset: 0; }
-  .js-motion .flow-fig .flow-node {
-    opacity: 0;
-    transition: opacity var(--t-slow) var(--ease-out);
-    transition-delay: calc(var(--i, 0) * 180ms);
-  }
-  .js-motion [data-in="true"] .flow-fig .flow-node { opacity: 1; }
-}
-
-/* Small screens: skip the opening sequence and start the hero at once,
-   so the first meaningful paint is never held back on mobile networks. */
-@media (max-width: 767px) {
-  html:not(.seen) .opening { display: none !important; }
-  html:not(.seen) .after-opening { --d: 0ms; }
-  .js-motion .after-opening .mask > span { transition-duration: 700ms; }
-}
-
-/* Above-the-fold blocks (.now) animate with CSS keyframes from first paint,
-   instead of waiting for hydration and the IntersectionObserver. */
-@keyframes mask-in { from { transform: translateY(105%); } to { transform: none; } }
-@keyframes fade-in-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: no-preference) {
-  .js-motion .now .mask > span {
-    transform: none;
-    transition: none;
-    animation: mask-in 0.9s var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 80ms + var(--d, 0ms));
-  }
-  .js-motion .now .fade {
-    opacity: 1;
-    transform: none;
-    transition: none;
-    animation: fade-in-up 0.8s var(--ease-out) both;
-    animation-delay: calc(var(--i, 0) * 70ms + var(--d, 0ms) + 150ms);
-  }
-}
+/* Light-ground renders sit slightly dimmer on the dark theme so they don't glare. */
+.dark .img-frame img { filter: brightness(0.9) saturate(1.05); }
