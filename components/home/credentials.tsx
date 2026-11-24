@@ -4,162 +4,193 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { certificates, certCategories, type CertCategory, type Certificate } from "@/data/content";
-import { SectionMark } from "@/components/ui/section-mark";
+import { SectionHead } from "@/components/ui/section-head";
 import { Lightbox, type LightboxItem } from "@/components/ui/lightbox";
 import { ArrowOut, Plus } from "@/components/ui/glyphs";
 import { cn } from "@/lib/utils";
 
 type Filter = "All" | CertCategory;
-const INITIAL = 9;
+const INITIAL = 8;
+
+// Newest first; ties keep their order in the data file.
+const sorted = [...certificates].sort((a, b) => b.sort.localeCompare(a.sort));
+const latestSort = sorted[0]?.sort.slice(0, 7);
+const latest = sorted.filter((c) => c.sort.startsWith(latestSort));
 
 const toItem = (c: Certificate): LightboxItem => ({
   key: c.id,
   src: c.image.src,
   width: c.image.width,
   height: c.image.height,
-  alt: `${c.name} certificate issued by ${c.issuer}`,
+  alt: `${c.name} — ${c.type ?? "certificate"} issued by ${c.issuer}`,
   title: c.name,
-  subtitle: [c.issuer, c.platform].filter(Boolean).join(" · ") + (c.note ? ` — ${c.note}` : ""),
+  subtitle: [c.issuer, c.platform, c.type].filter(Boolean).join(" · "),
   meta: [
     { label: "Issued", value: c.issued },
+    ...(c.score ? [{ label: "Score", value: c.score }] : []),
+    ...(c.hours ? [{ label: "Study time", value: c.hours }] : []),
     ...(c.validUntil ? [{ label: "Valid until", value: c.validUntil }] : []),
     ...(c.credentialId ? [{ label: "Credential ID", value: c.credentialId }] : []),
   ],
-  verifyUrl: c.verifyUrl,
+  verifyUrl: c.linkLabel ? undefined : c.verifyUrl,
 });
 
-const issuers = Array.from(new Set(certificates.map((c) => c.issuer))).map((name) => ({
-  name,
-  count: certificates.filter((c) => c.issuer === name).length,
-}));
+const issuerTone: Record<Certificate["issuer"], string> = {
+  "Saylor University": "from-[#E8EEF7] to-[#EFEDF8]",
+  "The Open University": "from-[#E3EDE5] to-[#E8EEF7]",
+  Google: "from-[#EFEDF8] to-[#FAF9F6]",
+  "Dicoding Indonesia": "from-[#E8EEF7] to-[#FAF9F6]",
+  "EF SET": "from-[#FAECE2] to-[#FAF9F6]",
+};
+
+function Mount({ c, sizes, big = false }: { c: Certificate; sizes: string; big?: boolean }) {
+  return (
+    <span className={cn("relative block w-full overflow-hidden rounded-[18px] bg-gradient-to-br dark:from-[#1C2638] dark:to-[#111827]", issuerTone[c.issuer], big ? "aspect-[4/3]" : "aspect-[4/3]")}>
+      <span className="absolute inset-[8%] block transition-transform duration-cine ease-out group-hover:scale-[1.04] motion-reduce:group-hover:scale-100">
+        <span className="relative block h-full w-full">
+          <Image src={c.image.src} alt="" fill sizes={sizes} className="object-contain drop-shadow-[0_12px_20px_rgba(32,36,60,0.18)]" />
+        </span>
+      </span>
+      <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/85 px-2.5 py-1 text-[0.72rem] font-semibold text-[#20242C] opacity-0 backdrop-blur transition-opacity duration-base group-hover:opacity-100 group-focus-visible:opacity-100">
+        <Plus size={11} /> View
+      </span>
+    </span>
+  );
+}
 
 export function Credentials() {
   const [filter, setFilter] = useState<Filter>("All");
   const [all, setAll] = useState(false);
-  const [view, setView] = useState<number | null>(null);
+  const [view, setView] = useState<{ list: Certificate[]; index: number } | null>(null);
 
-  const list = useMemo(() => (filter === "All" ? certificates : certificates.filter((c) => c.category === filter)), [filter]);
+  const list = useMemo(() => (filter === "All" ? sorted : sorted.filter((c) => c.category === filter)), [filter]);
   const shown = all || filter !== "All" ? list : list.slice(0, INITIAL);
-  const items = useMemo(() => list.map(toItem), [list]);
-  const verifiable = certificates.filter((c) => c.verifyUrl).length;
+  const issuers = Array.from(new Set(certificates.map((c) => c.issuer)));
+  const verifiable = certificates.filter((c) => c.verifyUrl && !c.linkLabel).length;
 
   return (
-    <section id="credentials" aria-labelledby="cred-title" className="bg-sheet py-section">
+    <section id="credentials" aria-labelledby="cred-title" className="tone-mist py-section">
       <div className="frame">
-        <SectionMark ref_="07" label="Credentials" note={`${certificates.length} on file · ${verifiable} verifiable online`} />
+        <SectionHead
+          id="cred-title"
+          eyebrow="Credentials"
+          title={
+            <>
+              Learning, <span className="accent-serif text-sage-ink">on the record.</span>
+            </>
+          }
+          intro={`${certificates.length} credentials from ${issuers.length} issuers, newest first. ${verifiable} can be verified online; every certificate is shown whole, never cropped.`}
+        />
 
-        <div className="grid-12 mt-14 gap-y-8 md:mt-20" data-reveal>
-          <h2 id="cred-title" className="display col-span-4 text-h1 uppercase md:col-span-6">
-            <span className="mask"><span>Credential</span></span>
-            <span className="mask" style={{ ["--i" as string]: 1 }}><span>archive</span></span>
-          </h2>
-          <div className="fade col-span-4 self-end md:col-span-5 md:col-start-8" style={{ ["--i" as string]: 2 }}>
-            <p className="text-graphite">
-              Every certificate as issued — shown whole, never cropped — with the verification link printed on it.
-            </p>
-            <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-3" aria-label="Credentials by issuer">
-              {issuers.map((i) => (
-                <li key={i.name} className="flex items-baseline gap-2">
-                  <span className="display text-h3 tabular">{String(i.count).padStart(2, "0")}</span>
-                  <span className="meta text-stone">{i.name}</span>
-                </li>
-              ))}
-            </ul>
+        {/* Latest */}
+        <div className="mt-14" data-reveal>
+          <p className="eyebrow fade">Latest · {latest[0]?.issued}</p>
+          <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            {latest.map((c, i) => (
+              <article key={c.id} className="card fade group grid overflow-hidden sm:grid-cols-[1.05fr_1fr]" style={{ ["--i" as string]: i + 1 }}>
+                <button type="button" onClick={() => setView({ list: latest, index: i })} className="block p-3" aria-label={`Open ${c.name} certificate`}>
+                  <Mount c={c} sizes="(min-width: 1024px) 26vw, (min-width: 480px) 50vw, 100vw" big />
+                </button>
+                <div className="flex flex-col p-6 pt-3 sm:pl-3 sm:pt-6">
+                  <p className="text-small font-semibold text-sage-ink">{c.issuer}{c.platform ? ` · ${c.platform}` : ""}</p>
+                  <h3 className="display mt-2 text-h3">{c.name}</h3>
+                  <p className="mt-1 text-small text-stone">{c.type} · {c.issued}</p>
+                  <dl className="mt-4 grid grid-cols-2 gap-3">
+                    {[
+                      c.score ? ["Score", c.score] : null,
+                      c.hours ? ["Study time", c.hours] : null,
+                      c.courseCode ? ["Course code", c.courseCode] : null,
+                      c.credentialId ? ["Credential ID", c.credentialId] : null,
+                    ]
+                      .filter(Boolean)
+                      .map((kv) => (
+                        <div key={(kv as string[])[0]} className="rounded-xl bg-ink/[0.04] px-3 py-2">
+                          <dt className="text-[0.72rem] font-semibold text-stone">{(kv as string[])[0]}</dt>
+                          <dd className="text-small font-semibold">{(kv as string[])[1]}</dd>
+                        </div>
+                      ))}
+                  </dl>
+                  {c.topics?.length ? <p className="mt-4 text-small text-stone">{c.topics.join(" · ")}</p> : null}
+                  {c.verifyUrl ? (
+                    <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex min-h-11 items-center gap-1.5 pt-4 text-small font-semibold text-sage-ink">
+                      <span className="ink-link">{c.linkLabel ?? "Verify credential"}</span> <ArrowOut size={13} />
+                      <span className="sr-only"> for {c.name} (opens in a new tab)</span>
+                    </a>
+                  ) : null}
+                </div>
+              </article>
+            ))}
           </div>
         </div>
 
-        {/* Filters */}
-        <div role="group" aria-label="Filter credentials by category" className="no-scrollbar mt-14 flex gap-6 overflow-x-auto border-b border-line/90 md:gap-9">
-          {(["All", ...certCategories] as Filter[]).map((f) => {
-            const n = f === "All" ? certificates.length : certificates.filter((c) => c.category === f).length;
-            const on = filter === f;
-            return (
-              <button
-                key={f}
-                type="button"
-                aria-pressed={on}
-                onClick={() => {
-                  setFilter(f);
-                  setAll(false);
-                }}
-                className={cn(
-                  "meta relative shrink-0 whitespace-nowrap pb-3 pt-2 transition-colors duration-base",
-                  on ? "text-ink" : "text-stone hover:text-ink",
-                )}
-              >
-                {f} <sup className="tabular">{n}</sup>
-                <span aria-hidden className={cn("absolute -bottom-px left-0 h-[3px] bg-ink transition-[width] duration-slow ease-out", on ? "w-full" : "w-0")} />
-              </button>
-            );
-          })}
-        </div>
-        <p className="sr-only" aria-live="polite">
-          Showing {shown.length} of {list.length} credentials{filter !== "All" ? ` in ${filter}` : ""}.
-        </p>
-
-        <motion.ul layout className="mt-10 grid grid-cols-1 gap-x-gutter gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {shown.map((c, i) => {
-              const lead = filter === "All" && i === 0;
+        {/* Archive */}
+        <div className="mt-16 flex flex-wrap items-center justify-between gap-4">
+          <h3 className="display text-h2">Full archive</h3>
+          <div role="group" aria-label="Filter credentials by category" className="no-scrollbar -mx-1 flex max-w-full gap-2 overflow-x-auto px-1 py-1">
+            {(["All", ...certCategories] as Filter[]).map((f) => {
+              const n = f === "All" ? certificates.length : certificates.filter((c) => c.category === f).length;
+              const on = filter === f;
               return (
-                <motion.li
-                  layout
-                  key={c.id}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className={cn("flex flex-col", lead && "sm:col-span-2 lg:row-span-2")}
+                <button
+                  key={f}
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => {
+                    setFilter(f);
+                    setAll(false);
+                  }}
+                  className={cn(
+                    "inline-flex min-h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-small font-semibold transition-colors duration-base",
+                    on ? "border-ink bg-ink text-paper" : "border-line/20 bg-card hover:border-line/50",
+                  )}
                 >
-                  <button
-                    type="button"
-                    onClick={() => setView(list.indexOf(c))}
-                    className="group relative block w-full"
-                    aria-label={`Open ${c.name} certificate`}
-                  >
-                    {/* Mount: fixed ratio, certificate contained inside it with its own ratio intact */}
-                    <span className={cn("relative block w-full overflow-hidden bg-paper", lead ? "aspect-[4/3] lg:aspect-[5/4]" : "aspect-[4/3]")}>
-                      <span className="absolute inset-[7%] block transition-transform duration-cine ease-out group-hover:scale-[1.03] motion-reduce:group-hover:scale-100">
-                        <span className="relative block h-full w-full">
-                          <Image
-                            src={c.image.src}
-                            alt=""
-                            fill
-                            sizes={lead ? "(min-width: 1024px) 45vw, (min-width: 480px) 90vw, 100vw" : "(min-width: 1024px) 22vw, (min-width: 480px) 45vw, 100vw"}
-                            className="object-contain drop-shadow-[0_1px_1px_rgba(16,17,16,0.12)]"
-                          />
-                        </span>
-                      </span>
-                      <span className="meta absolute right-3 top-3 flex items-center gap-1.5 bg-ink px-2 py-1 text-paper opacity-0 transition-opacity duration-base group-hover:opacity-100 group-focus-visible:opacity-100">
-                        <Plus size={11} /> View
-                      </span>
-                    </span>
-                  </button>
-                  <div className="mt-4 flex flex-1 flex-col">
-                    <p className="meta text-stone">
-                      {c.issuer}
-                      {c.platform ? ` · ${c.platform}` : ""} · {c.issued}
-                    </p>
-                    <h3 className={cn("mt-2 leading-snug", lead ? "display text-h3 uppercase" : "text-body font-medium")}>{c.name}</h3>
-                    {c.note && lead ? <p className="mt-2 text-small text-stone">{c.note}</p> : null}
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-                      {c.credentialId ? <span className="meta text-stone">ID {c.credentialId}</span> : null}
-                      {c.verifyUrl ? (
-                        <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" className="meta inline-flex min-h-8 items-center gap-1 text-sage-ink hover:text-ink">
-                          Verify <ArrowOut size={12} />
-                          <span className="sr-only">{c.name} (opens in a new tab)</span>
-                        </a>
-                      ) : null}
-                    </div>
-                  </div>
-                </motion.li>
+                  {f} <span className={cn("tabular text-[0.75rem]", on ? "text-paper/70" : "text-stone")}>{n}</span>
+                </button>
               );
             })}
+          </div>
+        </div>
+        <p className="sr-only" aria-live="polite">
+          Showing {shown.length} of {list.length} credentials{filter !== "All" ? ` in ${filter}` : ""}, newest first.
+        </p>
+
+        <motion.ul layout className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <AnimatePresence mode="popLayout" initial={false}>
+            {shown.map((c, i) => (
+              <motion.li
+                layout
+                key={c.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className="card group flex flex-col p-3"
+              >
+                <button type="button" onClick={() => setView({ list, index: list.indexOf(c) })} className="block w-full" aria-label={`Open ${c.name} certificate`}>
+                  <Mount c={c} sizes="(min-width: 1024px) 22vw, (min-width: 480px) 45vw, 100vw" />
+                </button>
+                <div className="flex flex-1 flex-col px-2 pb-2 pt-4">
+                  <p className="text-[0.75rem] font-semibold text-stone">
+                    {c.issuer} · {c.issued}
+                  </p>
+                  <h4 className="mt-1 font-semibold leading-snug">{c.name}</h4>
+                  <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-3">
+                    <span className="rounded-full bg-ink/[0.05] px-2.5 py-1 text-[0.72rem] font-semibold text-stone">{c.category}</span>
+                    {c.verifyUrl ? (
+                      <a href={c.verifyUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 items-center gap-1 text-[0.8rem] font-semibold text-sage-ink hover:text-ink">
+                        {c.linkLabel ?? "Verify"} <ArrowOut size={12} />
+                        <span className="sr-only"> {c.name} (opens in a new tab)</span>
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </motion.li>
+            ))}
           </AnimatePresence>
         </motion.ul>
 
         {filter === "All" && list.length > INITIAL ? (
-          <div className="mt-14 flex justify-center">
+          <div className="mt-10 flex justify-center">
             <button type="button" onClick={() => setAll((a) => !a)} className="slab" aria-expanded={all}>
               {all ? "Show fewer" : `Show all ${list.length} credentials`}
             </button>
@@ -168,8 +199,8 @@ export function Credentials() {
       </div>
 
       <AnimatePresence>
-        {view !== null ? (
-          <Lightbox items={items} index={view} onIndex={setView} onClose={() => setView(null)} label="Certificate" />
+        {view ? (
+          <Lightbox items={view.list.map(toItem)} index={view.index} onIndex={(i) => setView((v) => (v ? { ...v, index: i } : v))} onClose={() => setView(null)} label="Certificate" />
         ) : null}
       </AnimatePresence>
     </section>

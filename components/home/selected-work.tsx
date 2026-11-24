@@ -1,113 +1,126 @@
+import Image from "next/image";
 import Link from "next/link";
-import { work } from "@/data/content";
-import { Cover } from "@/components/work/cover";
-import { SectionMark } from "@/components/ui/section-mark";
+import { work, type Work } from "@/data/content";
+import { SectionHead } from "@/components/ui/section-head";
 import { Evidence } from "@/components/ui/evidence";
 import { Arrow } from "@/components/ui/glyphs";
-import { WorkIndex } from "@/components/home/work-index";
 import { cn } from "@/lib/utils";
 
 const featured = work.filter((w) => w.kind === "Professional");
 const further = work.filter((w) => w.kind !== "Professional");
 
-// Three different compositions for the three professional case studies.
-const layouts = [
-  { cover: "md:col-span-7", text: "md:col-span-4 md:col-start-9 md:self-end", tone: "ink" as const, ratio: "aspect-[4/3]" },
-  { cover: "md:col-span-6 md:col-start-6 md:order-2", text: "md:col-span-4 md:col-start-1 md:order-1 md:self-start md:pt-24", tone: "sage" as const, ratio: "aspect-[5/6]" },
-  { cover: "md:col-span-10 md:col-start-2", text: "md:col-span-5 md:col-start-2", tone: "sheet" as const, ratio: "aspect-[16/7]" },
-  { cover: "md:col-span-5 md:col-start-8 md:order-2", text: "md:col-span-5 md:col-start-1 md:order-1 md:self-center", tone: "ink" as const, ratio: "aspect-square" },
-];
+function Meta({ w }: { w: Work }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-small text-stone">
+      <span className="font-semibold text-sage-ink">{w.index}</span>
+      <span>{w.organization}</span>
+      <span aria-hidden>·</span>
+      <span>{w.period}</span>
+    </div>
+  );
+}
+
+function Cover({ w, className, sizes, ratio = "aspect-[16/10]" }: { w: Work; className?: string; sizes: string; ratio?: string }) {
+  return (
+    <Link href={`/work/${w.slug}`} tabIndex={-1} aria-hidden className={cn("group/cover block", className)}>
+      <div className={cn("img-frame reveal-img relative", ratio)}>
+        <Image src={w.cover} alt="" fill sizes={sizes} className="object-cover transition-transform duration-cine ease-out group-hover/cover:scale-[1.05] motion-reduce:group-hover/cover:scale-100" />
+        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent opacity-0 transition-opacity duration-slow group-hover/cover:opacity-100" />
+        <span className="absolute bottom-4 left-4 flex translate-y-2 items-center gap-2 rounded-full bg-white px-4 py-2 text-small font-semibold text-[#20242C] opacity-0 shadow-lg transition-all duration-slow ease-out group-hover/cover:translate-y-0 group-hover/cover:opacity-100">
+          Read the case <Arrow size={14} />
+        </span>
+        <span className="absolute right-3 top-3 rounded-full bg-white/70 px-3 py-1 text-[0.7rem] font-semibold text-[#20242C] backdrop-blur-md">Original artwork</span>
+      </div>
+    </Link>
+  );
+}
+
+function Text({ w, big = true }: { w: Work; big?: boolean }) {
+  return (
+    <div>
+      <div className="fade"><Meta w={w} /></div>
+      <h3 className={cn("display fade mt-4", big ? "text-h2" : "text-h3")} style={{ ["--i" as string]: 1 }}>
+        <Link href={`/work/${w.slug}`} className="transition-colors duration-base hover:text-sage-ink">
+          {w.title}
+        </Link>
+      </h3>
+      <p className="fade mt-4 max-w-md text-graphite" style={{ ["--i" as string]: 2 }}>{w.line}</p>
+      <div className="fade mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" style={{ ["--i" as string]: 3 }}>
+        <Evidence value={w.evidence} status={w.status} className="text-stone" />
+        <Link href={`/work/${w.slug}`} className="group inline-flex items-center gap-2 text-small font-semibold">
+          <span className="ink-link">Read the case</span>
+          <Arrow size={14} className="transition-transform duration-base group-hover:translate-x-1" />
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export function SelectedWork() {
+  const [a, b, c, d] = featured;
   return (
-    <section id="work" aria-labelledby="work-title" className="py-section">
+    <section id="work" aria-labelledby="work-title" className="tone-mist py-section">
       <div className="frame">
-        <SectionMark ref_="01" label="Selected work" note={`${work.length} projects · ${featured.length} professional`} />
+        <SectionHead
+          id="work-title"
+          eyebrow="Selected work"
+          title={<>Work that starts with how things <span className="accent-serif text-sage-ink">really</span> run</>}
+          intro="Four internship case studies — sanitised, told with original artwork, diagrams and conceptual mockups — then competition and coursework projects."
+        />
 
-        <div className="grid-12 mt-12 gap-y-6 md:mt-16" data-reveal>
-          <h2 id="work-title" className="display col-span-4 text-h1 uppercase md:col-span-8">
-            <span className="mask"><span>Evidence,</span></span>
-            <span className="mask" style={{ ["--i" as string]: 1 }}>
-              <span>
-                not <span className="accent-serif normal-case tracking-[-0.02em] text-sage-ink">adjectives.</span>
-              </span>
-            </span>
-          </h2>
-          <p className="fade col-span-4 max-w-measure self-end text-stone md:col-span-3 md:col-start-10" style={{ ["--i" as string]: 2 }}>
-            Four internship case studies, told mostly in diagrams — then competition and coursework projects.
-          </p>
+        <div className="mt-16 space-y-20 md:mt-20 md:space-y-28">
+          {/* 01 — wide image left, text right */}
+          <article className="grid-12 items-center gap-y-8" data-reveal>
+            <Cover w={a} className="col-span-4 md:col-span-7" sizes="(min-width: 768px) 56vw, 100vw" />
+            <div className="col-span-4 md:col-span-4 md:col-start-9"><Text w={a} /></div>
+          </article>
+
+          {/* 02 — text left, tall image right */}
+          <article className="grid-12 items-center gap-y-8" data-reveal>
+            <div className="order-2 col-span-4 md:order-1 md:col-span-4"><Text w={b} /></div>
+            <Cover w={b} className="order-1 col-span-4 md:order-2 md:col-span-7 md:col-start-6" sizes="(min-width: 768px) 56vw, 100vw" ratio="aspect-[16/11]" />
+          </article>
+
+          {/* 03 — full-width image with an overlapping card */}
+          <article className="relative" data-reveal>
+            <Cover w={c} sizes="100vw" ratio="aspect-[16/10] md:aspect-[21/9]" />
+            <div className="card relative z-10 mx-4 -mt-16 p-6 sm:mx-8 md:absolute md:bottom-8 md:left-8 md:mx-0 md:mt-0 md:w-[30rem] md:p-8">
+              <Text w={c} big={false} />
+            </div>
+          </article>
+
+          {/* 04 — image left square, text right offset */}
+          <article className="grid-12 items-end gap-y-8" data-reveal>
+            <Cover w={d} className="col-span-4 md:col-span-6" sizes="(min-width: 768px) 48vw, 100vw" ratio="aspect-[4/3]" />
+            <div className="col-span-4 md:col-span-5 md:col-start-8 md:pb-10"><Text w={d} /></div>
+          </article>
         </div>
 
-        <ol className="mt-20 space-y-28 md:mt-28 md:space-y-40">
-          {featured.map((w, i) => {
-            const l = layouts[i % layouts.length];
-            return (
-              <li key={w.slug} className="grid-12 gap-y-8" data-reveal>
-                <Link
-                  href={`/work/${w.slug}`}
-                  className={cn("group relative col-span-4 block", l.cover)}
-                  aria-hidden
-                  tabIndex={-1}
-                >
-                  <div className="wipe relative overflow-hidden">
-                    <Cover
-                      motif={w.motif}
-                      index={w.index}
-                      tone={l.tone}
-                      className={cn(
-                        "w-full transition-transform duration-cine ease-out group-hover:scale-[1.035] motion-reduce:group-hover:scale-100",
-                        l.ratio,
-                      )}
-                    />
-                    <span className="meta absolute bottom-4 left-4 flex translate-y-3 items-center gap-2 bg-paper px-3 py-2 text-ink opacity-0 transition-[opacity,transform] duration-slow ease-out group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100">
-                      Read case <Arrow size={14} />
-                    </span>
+        {/* Further work — a gallery row */}
+        <div className="mt-24 md:mt-32">
+          <div className="flex flex-wrap items-end justify-between gap-4" data-reveal>
+            <h3 className="display fade text-h2">Further work</h3>
+            <p className="fade max-w-sm text-small text-stone">Competition, proposal and coursework projects — academic work, labelled as such.</p>
+          </div>
+          <ul className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {further.map((w, n) => (
+              <li key={w.slug} className="fade" style={{ ["--i" as string]: n }} data-reveal>
+                <Link href={`/work/${w.slug}`} className="card group block h-full overflow-hidden transition-transform duration-slow ease-out hover:-translate-y-1.5">
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <Image src={w.cover} alt="" fill sizes="(min-width: 1280px) 22vw, (min-width: 480px) 45vw, 100vw" className="object-cover transition-transform duration-cine ease-out group-hover:scale-[1.06]" />
+                  </div>
+                  <div className="p-5">
+                    <p className="text-small font-semibold text-sage-ink">{w.index} · {w.kind}</p>
+                    <p className="display mt-2 text-[1.6rem] leading-tight">{w.title}</p>
+                    <p className="mt-2 text-small text-stone">{w.line}</p>
+                    <p className="mt-4 inline-flex items-center gap-2 text-small font-semibold">
+                      Open <Arrow size={14} className="transition-transform duration-base group-hover:translate-x-1" />
+                    </p>
                   </div>
                 </Link>
-
-                <div className={cn("col-span-4", l.text)}>
-                  <div className="fade flex flex-wrap items-center gap-x-4 gap-y-2 text-stone">
-                    <span className="meta text-oxide">{w.index}</span>
-                    <span className="meta">{w.organization}</span>
-                    <span className="meta">{w.period}</span>
-                  </div>
-                  <h3 className="display mt-5 text-h2 uppercase [overflow-wrap:anywhere] lg:[overflow-wrap:normal]">
-                    <Link href={`/work/${w.slug}`} className="transition-colors duration-base hover:text-sage-ink">
-                      {w.title}
-                    </Link>
-                  </h3>
-                  <p className="accent-serif fade mt-5 text-lead text-graphite" style={{ ["--i" as string]: 1 }}>
-                    {w.line}
-                  </p>
-                  <dl className="fade mt-7 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-line/15 pt-5" style={{ ["--i" as string]: 2 }}>
-                    <div>
-                      <dt className="meta text-stone">Role</dt>
-                      <dd className="mt-1 text-small">{w.role}</dd>
-                    </div>
-                    <div>
-                      <dt className="meta text-stone">Status</dt>
-                      <dd className="mt-1">
-                        <Evidence value={w.evidence} status={w.status} className="normal-case tracking-normal [font-family:var(--font-sans)] text-small" />
-                      </dd>
-                    </div>
-                  </dl>
-                  <Link href={`/work/${w.slug}`} className="ghost ink-link fade mt-6 !min-h-0 py-1" style={{ ["--i" as string]: 3 }}>
-                    Case study <Arrow size={14} />
-                  </Link>
-                </div>
               </li>
-            );
-          })}
-        </ol>
-
-        <div className="mt-32 md:mt-44">
-          <div className="grid-12 items-end gap-y-4 border-b border-line/90 pb-5" data-reveal>
-            <h3 className="display col-span-4 text-h2 uppercase md:col-span-6">Further work</h3>
-            <p className="fade col-span-4 text-small text-stone md:col-span-4 md:col-start-9 md:text-right">
-              Competition, proposal and coursework projects. Academic work, labelled as such.
-            </p>
-          </div>
-          <WorkIndex items={further} />
+            ))}
+          </ul>
         </div>
       </div>
     </section>

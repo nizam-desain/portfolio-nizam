@@ -35,16 +35,16 @@ export function ThemeToggle({ className }: { className?: string }) {
       onClick={() => apply(dark ? "light" : "dark")}
       role="switch"
       aria-checked={dark}
-      className={cn("meta group relative flex h-11 items-center gap-2 px-1", className)}
+      className={cn("group relative flex h-11 items-center gap-2 px-1 text-small font-semibold", className)}
     >
       <span className={cn("transition-colors duration-base", dark ? "text-stone" : "")}>
         Light
       </span>
-      <span aria-hidden className="relative block h-[9px] w-[22px] border border-current">
+      <span aria-hidden className="relative block h-[14px] w-[26px] rounded-full border border-current">
         <span
           className={cn(
-            "absolute top-[1px] block h-[5px] w-[8px] bg-current transition-[left] duration-slow ease-out",
-            dark ? "left-[11px]" : "left-[1px]",
+            "absolute top-[2px] block h-[8px] w-[8px] rounded-full bg-current transition-[left] duration-slow ease-out",
+            dark ? "left-[14px]" : "left-[2px]",
           )}
         />
       </span>

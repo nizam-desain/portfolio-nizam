@@ -4,9 +4,10 @@ import Image from "next/image";
 import { useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { awards, leadership, type Award } from "@/data/content";
-import { SectionMark } from "@/components/ui/section-mark";
+import { SectionHead } from "@/components/ui/section-head";
 import { Lightbox, type LightboxItem } from "@/components/ui/lightbox";
-import { Arrow } from "@/components/ui/glyphs";
+import { Arrow, Plus } from "@/components/ui/glyphs";
+import { cn } from "@/lib/utils";
 
 const toItems = (a: Award): LightboxItem[] =>
   a.images.map((img, i) => ({
@@ -23,140 +24,130 @@ const toItems = (a: Award): LightboxItem[] =>
     ],
   }));
 
+// The two results with the strongest documents get feature treatment.
+const FEATURED = ["concord-cup", "gold-medal"];
+const tones = ["tone-lav", "tone-peach"];
+
 export function Recognition() {
   const [view, setView] = useState<{ items: LightboxItem[]; index: number } | null>(null);
-  const [lead, ...rest] = awards;
+  const featured = awards.filter((a) => FEATURED.includes(a.id));
+  const rest = awards.filter((a) => !FEATURED.includes(a.id));
 
   return (
-    <section id="recognition" aria-labelledby="rec-title" className="border-t border-line/15 py-section">
+    <section id="recognition" aria-labelledby="rec-title" className="py-section">
       <div className="frame">
-        <SectionMark ref_="06" label="Leadership & recognition" note={`${leadership.length} roles · ${awards.length} results`} />
+        <SectionHead
+          id="rec-title"
+          eyebrow="Leadership & recognition"
+          title={
+            <>
+              Outside the brief — <span className="accent-serif text-sage-ink">and on the record.</span>
+            </>
+          }
+          intro={`${leadership.length} organisational roles and ${awards.length} competition results, each with its original document.`}
+        />
 
         {/* Leadership */}
-        <div className="grid-12 mt-14 gap-y-12 md:mt-20">
-          <h2 id="rec-title" className="display col-span-4 text-h1 uppercase md:col-span-4" data-reveal>
-            <span className="mask"><span>Outside</span></span>
-            <span className="mask" style={{ ["--i" as string]: 1 }}><span>the brief</span></span>
-          </h2>
-          <div className="col-span-4 grid gap-px bg-line/15 md:col-span-8 md:grid-cols-2">
-            {leadership.map((r, i) => (
-              <article key={r.id} className="flex flex-col bg-paper p-0 md:p-8 md:first:pl-0" data-reveal>
-                <p className="meta fade text-stone" style={{ ["--i" as string]: i }}>
-                  {r.period} · {r.location}
+        <div className="mt-14 grid gap-5 lg:grid-cols-[1.25fr_1fr]">
+          {leadership.map((r, i) => (
+            <article
+              key={r.id}
+              className={cn("relative overflow-hidden rounded-frame-lg p-6 sm:p-9", i === 0 ? "band-night text-ivory" : "card")}
+              data-reveal
+            >
+              {i === 0 ? <div aria-hidden className="glow pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgb(117_212_197/0.35),transparent)]" /> : null}
+              <p className={cn("fade text-small font-semibold", i === 0 ? "text-teal" : "text-sage-ink")}>
+                {r.role} · {r.period}
+              </p>
+              <h3 className="display fade mt-3 text-h2" style={{ ["--i" as string]: 1 }}>
+                {r.organization}
+              </h3>
+              <p className={cn("fade mt-1 text-small", i === 0 ? "text-ivory/70" : "text-stone")} style={{ ["--i" as string]: 1 }}>
+                {r.location}
+              </p>
+              {r.keyResult ? (
+                <p className="fade mt-8 flex flex-wrap items-end gap-x-4 gap-y-1" style={{ ["--i" as string]: 2 }}>
+                  <span className="display text-[clamp(3.25rem,2rem+4vw,5.5rem)] leading-[0.9] text-gradient">{r.keyResult.value}</span>
+                  <span className={cn("pb-2 text-small", i === 0 ? "text-ivory/80" : "text-stone")}>{r.keyResult.label}</span>
                 </p>
-                <h3 className="display fade mt-3 text-h3 uppercase" style={{ ["--i" as string]: i + 1 }}>
-                  {r.organization}
-                </h3>
-                <p className="fade mt-1 text-small text-sage-ink" style={{ ["--i" as string]: i + 1 }}>{r.role}</p>
-                {r.keyResult ? (
-                  <p className="fade mt-8" style={{ ["--i" as string]: i + 2 }}>
-                    <span className="display block text-[clamp(3rem,2rem+4vw,5.5rem)] leading-[0.85]">{r.keyResult.value}</span>
-                    <span className="mt-2 block text-small text-stone">{r.keyResult.label}</span>
-                  </p>
-                ) : null}
-                <ul className="fade mt-6 space-y-2 text-small text-graphite" style={{ ["--i" as string]: i + 3 }}>
-                  {r.highlights.map((h) => (
-                    <li key={h} className="flex gap-3">
-                      <span aria-hidden className="mt-[0.62em] block h-px w-3 shrink-0 bg-oxide" />
-                      {h}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
+              ) : null}
+              <ul className={cn("fade mt-6 space-y-2.5 text-small", i === 0 ? "text-ivory/85" : "text-graphite")} style={{ ["--i" as string]: 3 }}>
+                {r.highlights.map((h) => (
+                  <li key={h} className="flex gap-3">
+                    <span aria-hidden className={cn("mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full", i === 0 ? "bg-teal" : "bg-oxide")} />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
         </div>
 
-        {/* Lead award */}
-        <article className="mt-28 grid-12 gap-y-10 border-t border-line/90 pt-10 md:mt-36" data-reveal aria-labelledby="award-lead">
-          <div className="col-span-4 md:col-span-5">
-            <p className="meta fade text-oxide">{lead.scope} · {lead.date}</p>
-            <p aria-hidden className="display wipe mt-4 text-[clamp(8rem,4rem+16vw,20rem)] leading-[0.78] tracking-[-0.04em]">
-              2<span className="accent-serif align-top text-[0.35em] tracking-normal text-sage-ink">nd</span>
-            </p>
-          </div>
-          <div className="col-span-4 md:col-span-6 md:col-start-7 md:self-end">
-            <h3 id="award-lead" className="display fade text-h2 uppercase">
-              {lead.title}
-            </h3>
-            <p className="fade mt-4 text-lead" style={{ ["--i" as string]: 1 }}>{lead.event}</p>
-            <p className="fade mt-3 text-small text-stone" style={{ ["--i" as string]: 2 }}>
-              {lead.organizer}. {lead.attribution}.
-            </p>
-            <p className="fade mt-3 text-small text-graphite" style={{ ["--i" as string]: 3 }}>{lead.description}</p>
-            <div className="fade mt-8 flex flex-wrap gap-4" style={{ ["--i" as string]: 4 }}>
-              {lead.images.map((img, i) => (
-                <button
-                  key={img.src}
-                  type="button"
-                  onClick={() => setView({ items: toItems(lead), index: i })}
-                  className="group relative block w-36 border border-line/20 bg-white p-2 transition-colors duration-base hover:border-ink sm:w-44"
-                  aria-label={`View ${img.caption}`}
-                >
-                  <span className="relative block" style={{ aspectRatio: `${img.width} / ${img.height}` }}>
-                    <Image src={img.src} alt="" fill sizes="176px" className="object-contain" />
-                  </span>
-                  <span className="meta mt-2 block text-left text-[#5F625C]">{img.caption}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </article>
+        {/* Featured results */}
+        <div className="mt-16 grid gap-5 md:grid-cols-2">
+          {featured.map((a, i) => (
+            <article key={a.id} className={cn("group relative overflow-hidden rounded-frame-lg p-6 ring-1 ring-line/10 sm:p-8", tones[i])} data-reveal aria-labelledby={`aw-${a.id}`}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="rounded-full bg-card px-3 py-1 text-[0.75rem] font-semibold text-sage-ink">{a.scope}</span>
+                <span className="text-small font-semibold text-stone">{a.date}</span>
+              </div>
+              <h3 id={`aw-${a.id}`} className="display fade mt-5 text-h2">
+                {a.title}
+              </h3>
+              <p className="fade mt-2 font-medium" style={{ ["--i" as string]: 1 }}>
+                {a.event}
+              </p>
+              <p className="fade mt-1 text-small text-stone" style={{ ["--i" as string]: 2 }}>
+                {[a.organizer, a.attribution].filter(Boolean).join(" · ")}
+              </p>
+              <div className="mt-7 flex gap-3">
+                {a.images.map((img, k) => (
+                  <button
+                    key={img.src}
+                    type="button"
+                    onClick={() => setView({ items: toItems(a), index: k })}
+                    className="relative block w-full max-w-[17rem] overflow-hidden rounded-2xl bg-white p-2 shadow-[0_20px_40px_-24px_rgb(var(--shadow)/0.5)] transition-transform duration-slow ease-out hover:-translate-y-1 hover:rotate-[-1deg]"
+                    aria-label={`View ${img.caption}`}
+                  >
+                    <span className="relative block overflow-hidden rounded-xl" style={{ aspectRatio: `${img.width} / ${img.height}` }}>
+                      <Image src={img.src} alt="" fill sizes="(min-width: 768px) 17rem, 45vw" className="object-contain" />
+                    </span>
+                    <span className="mt-2 flex items-center justify-between px-1 text-[0.75rem] font-semibold text-[#626B78]">
+                      {img.caption} <Plus size={12} />
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </article>
+          ))}
+        </div>
 
         {/* Archive */}
-        <div className="relative mt-20" data-reveal>
-          <table className="w-full border-collapse text-left">
-            <caption className="meta pb-4 text-left text-stone">Archive of results</caption>
-            <thead>
-              <tr className="border-b border-line/90">
-                <th scope="col" className="meta w-20 py-3 pr-4 md:w-28 font-normal text-stone">Date</th>
-                <th scope="col" className="meta hidden w-36 py-3 pr-4 font-normal text-stone md:table-cell">Scope</th>
-                <th scope="col" className="meta py-3 pr-4 font-normal text-stone">Result</th>
-                <th scope="col" className="meta w-12 py-3 font-normal text-stone md:w-40"><span className="sr-only">Evidence</span></th>
-              </tr>
-            </thead>
-            <tbody>
-              {rest.map((a, i) => (
-                <tr key={a.id} className="fade border-b border-line/15 align-top" style={{ ["--i" as string]: i }}>
-                  <td className="meta py-5 pr-4 tabular">{a.date}</td>
-                  <td className="meta hidden py-5 pr-4 text-stone md:table-cell">{a.scope}</td>
-                  <td className="py-5 pr-4">
-                    <p className="display text-[1.35rem] uppercase leading-tight">{a.title}</p>
-                    <p className="mt-1 text-small">{a.event}</p>
-                    <p className="mt-1 text-small text-stone">
-                      <span className="md:hidden">{a.scope} · </span>{[a.organizer, a.attribution].filter(Boolean).join(" · ")}
-                    </p>
-                  </td>
-                  <td className="py-5 text-right">
-                    {a.images.length ? (
-                      <button
-                        type="button"
-                        onClick={() => setView({ items: toItems(a), index: 0 })}
-                        className="meta group inline-flex min-h-11 items-center gap-2"
-                      >
-                        <span className="ink-link hidden md:inline">View certificate</span><span className="sr-only md:hidden">View certificate: {a.event}</span>
-                        <Arrow size={14} className="transition-transform duration-base group-hover:translate-x-1" />
-                      </button>
-                    ) : (
-                      <span className="meta text-stone"><span className="hidden md:inline">No document on file</span><span className="md:hidden" aria-label="No document on file">—</span></span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="mt-5 grid gap-3 md:grid-cols-3">
+          {rest.map((a, i) => (
+            <li key={a.id} className="card fade flex flex-col p-5" data-reveal style={{ ["--i" as string]: i }}>
+              <div className="flex items-center justify-between gap-3 text-[0.75rem] font-semibold text-stone">
+                <span>{a.scope}</span>
+                <span>{a.date}</span>
+              </div>
+              <p className="mt-3 text-lead font-semibold leading-snug">{a.title}</p>
+              <p className="mt-1 text-small">{a.event}</p>
+              <p className="mt-1 text-small text-stone">{[a.organizer, a.attribution].filter(Boolean).join(" · ")}</p>
+              {a.images.length ? (
+                <button type="button" onClick={() => setView({ items: toItems(a), index: 0 })} className="group mt-auto inline-flex min-h-11 items-center gap-2 pt-4 text-small font-semibold text-sage-ink">
+                  <span className="ink-link">View certificate</span>
+                  <Arrow size={13} className="transition-transform duration-base group-hover:translate-x-1" />
+                  <span className="sr-only">: {a.event}</span>
+                </button>
+              ) : null}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <AnimatePresence>
         {view ? (
-          <Lightbox
-            items={view.items}
-            index={view.index}
-            onIndex={(i) => setView((v) => (v ? { ...v, index: i } : v))}
-            onClose={() => setView(null)}
-            label="Award document"
-          />
+          <Lightbox items={view.items} index={view.index} onIndex={(i) => setView((v) => (v ? { ...v, index: i } : v))} onClose={() => setView(null)} label="Award document" />
         ) : null}
       </AnimatePresence>
     </section>

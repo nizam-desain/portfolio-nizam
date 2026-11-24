@@ -5,24 +5,24 @@
  * rendered and readable.
  */
 export function Opening() {
-  const word = "Zahrani";
+  const word = "Nizam Zahrani";
   return (
     <div className="opening" aria-hidden>
       <div className="frame w-full">
-        <p className="meta flex justify-between text-ivory/50">
+        <p className="flex justify-between text-small font-semibold text-ivory/55">
           <span>Nizam Zahrani</span>
           <span>Portfolio — 2026</span>
         </p>
-        <p className="display o-word mt-4 overflow-hidden whitespace-nowrap text-center uppercase leading-[0.8]" style={{ fontSize: "clamp(3.5rem, 12vw, 12rem)" }}>
+        <p className="display o-word mt-4 overflow-hidden whitespace-nowrap text-center leading-[1.05]" style={{ fontSize: "clamp(3.5rem, 9vw, 9rem)" }}>
           {word.split("").map((ch, i) => (
             <span key={i} style={{ ["--i" as string]: i }}>
-              {ch}
+              {ch === " " ? "\u00a0" : ch}
             </span>
           ))}
         </p>
-        <span className="o-bar mt-6 block h-px w-full bg-[#B8CB9B]" />
-        <p className="meta mt-3 flex justify-between text-ivory/50">
-          <span>Business · Systems · Perspective</span>
+        <span className="o-bar mt-6 block h-px w-full bg-gradient-to-r from-[#A8A4F4] to-[#75D4C5]" />
+        <p className="mt-3 flex justify-between text-small font-semibold text-ivory/55">
+          <span>Business · People · Technology · Design</span>
           <span>Cikarang, ID</span>
         </p>
       </div>

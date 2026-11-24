@@ -60,46 +60,39 @@ export function Header() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-slow ease-out",
           hidden && !open ? "-translate-y-full" : "translate-y-0",
-          scrolled ? "border-b border-line/15 bg-paper/90 backdrop-blur-md" : "border-b border-transparent",
+          scrolled ? "bg-paper/75 shadow-[0_1px_0_rgb(var(--line)/0.08),0_12px_30px_-20px_rgb(var(--shadow)/0.35)] backdrop-blur-xl" : "",
         )}
       >
         <div className="frame flex h-[var(--header-h)] items-center justify-between gap-6">
-          <Link href="/" className="group flex items-baseline gap-3">
-            <span className="display text-[1.35rem] uppercase leading-none tracking-[-0.01em]">{profile.name}</span>
-            <span className="meta hidden text-stone md:inline">Business &amp; functional analysis</span>
+          <Link href="/" className="group flex items-center gap-3">
+            <span aria-hidden className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[rgb(var(--sage-ink))] via-[rgb(var(--lav))] to-[rgb(var(--teal))] text-[0.8rem] font-bold text-white shadow-[0_8px_20px_-10px_rgb(76_84_165/0.7)]">NZ</span>
+            <span className="display text-[1.5rem] leading-none">{profile.name}</span>
+            <span className="hidden text-small text-stone lg:inline">Business · People · Tech · Design</span>
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-7 xl:flex">
+          <nav aria-label="Primary" className="hidden items-center gap-1 rounded-full bg-card/70 p-1 shadow-[inset_0_0_0_1px_rgb(var(--line)/0.08)] backdrop-blur-md xl:flex">
             {inline.map((s) => (
               <a
                 key={s.id}
                 href={href(s.id)}
                 className={cn(
-                  "meta relative py-2 transition-colors duration-base",
-                  active === s.id ? "text-ink" : "text-stone hover:text-ink",
+                  "relative rounded-full px-4 py-2 text-small font-semibold transition-colors duration-base",
+                  active === s.id ? "bg-ink text-paper" : "text-stone hover:text-ink",
                 )}
                 aria-current={active === s.id ? "true" : undefined}
               >
-                <span className="mr-1.5 text-oxide">{s.ref}</span>
                 {s.label}
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute -bottom-0.5 left-0 h-px bg-current transition-[width] duration-slow ease-out",
-                    active === s.id ? "w-full" : "w-0",
-                  )}
-                />
               </a>
             ))}
           </nav>
 
           <div className="flex items-center gap-4 sm:gap-6">
-            <Clock className="meta hidden text-stone 2xl:inline" />
+            <Clock className="hidden text-small font-semibold text-stone 2xl:inline" />
             <ThemeToggle className="hidden sm:flex" />
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="meta flex h-11 items-center gap-2.5"
+              className="flex h-11 items-center gap-2.5 rounded-full border border-line/15 bg-card/70 px-4 text-small font-semibold backdrop-blur-md transition-colors hover:border-line/40"
               aria-haspopup="dialog"
               aria-expanded={open}
             >
@@ -126,15 +119,15 @@ function Menu({ onClose, href }: { onClose: () => void; href: (id: string) => st
       role="dialog"
       aria-modal="true"
       aria-label="Site index"
-      className="fixed inset-0 z-[60] flex flex-col overflow-y-auto bg-night text-ivory"
+      className="fixed inset-0 z-[60] band-night flex flex-col overflow-y-auto text-ivory"
       initial={{ clipPath: "inset(0 0 100% 0)" }}
       animate={{ clipPath: "inset(0 0 0% 0)" }}
       exit={{ clipPath: "inset(100% 0 0 0)" }}
       transition={{ duration: 0.7, ease: [0.65, 0, 0.35, 1] }}
     >
       <div className="frame flex h-[var(--header-h)] shrink-0 items-center justify-between">
-        <span className="meta text-ivory/60">Index · {sections.length} sections</span>
-        <button type="button" onClick={onClose} className="meta flex h-11 items-center gap-3" data-autofocus>
+        <span className="text-small font-semibold text-ivory/60">Index · {sections.length} sections</span>
+        <button type="button" onClick={onClose} className="flex h-11 items-center gap-3 rounded-full border border-white/20 px-4 text-small font-semibold" data-autofocus>
           Close
           <span aria-hidden className="relative block h-3 w-3">
             <span className="absolute left-0 top-1/2 block h-px w-full rotate-45 bg-current" />
@@ -158,11 +151,11 @@ function Menu({ onClose, href }: { onClose: () => void; href: (id: string) => st
                 onClick={onClose}
                 className="group grid grid-cols-[3rem_1fr] items-baseline gap-4 py-3 sm:grid-cols-[5rem_1fr_auto] sm:py-4"
               >
-                <span className="meta text-sage">{s.ref}</span>
-                <span className="display text-[clamp(2rem,6.5vw,5.5rem)] uppercase leading-[0.9] transition-[letter-spacing,color] duration-slow ease-out group-hover:tracking-[0.01em] group-hover:text-sage">
+                <span className="text-small font-semibold text-teal">{s.ref}</span>
+                <span className="display text-[clamp(2rem,5.5vw,4.5rem)] leading-[1.05] transition-[transform,color] duration-slow ease-out group-hover:translate-x-2 group-hover:text-teal">
                   {s.label}
                 </span>
-                <span aria-hidden className="meta hidden text-ivory/40 transition-transform duration-slow ease-out group-hover:-translate-x-2 sm:block">
+                <span aria-hidden className="hidden text-small text-ivory/40 transition-transform duration-slow ease-out group-hover:-translate-x-2 sm:block">
                   §{s.ref}
                 </span>
               </a>
@@ -172,15 +165,15 @@ function Menu({ onClose, href }: { onClose: () => void; href: (id: string) => st
       </nav>
 
       <div className="frame grid shrink-0 gap-6 border-t border-ivory/15 py-6 sm:grid-cols-3">
-        <a href={`mailto:${profile.email}`} className="meta break-all text-ivory/80 hover:text-ivory">
+        <a href={`mailto:${profile.email}`} className="break-all text-small text-ivory/80 hover:text-ivory">
           {profile.email}
         </a>
-        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="meta flex items-center gap-2 text-ivory/80 hover:text-ivory">
+        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-small text-ivory/80 hover:text-ivory">
           LinkedIn <ArrowOut size={14} />
           <span className="sr-only">(opens in a new tab)</span>
         </a>
         <div className="flex items-center justify-between gap-4 sm:justify-end">
-          <a href={profile.resumeUrl} className="meta text-ivory/80 hover:text-ivory">
+          <a href={profile.resumeUrl} className="text-small text-ivory/80 hover:text-ivory">
             Résumé (PDF)
           </a>
           <ThemeToggle className="sm:hidden" />

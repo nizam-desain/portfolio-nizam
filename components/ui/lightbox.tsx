@@ -234,7 +234,7 @@ export function Lightbox({
         <div className="shrink-0 border-t border-white/10 px-4 py-4 sm:px-8 sm:py-5">
           <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
             <div className="min-w-0">
-              <p className="display text-xl uppercase leading-tight sm:text-2xl">{item.title}</p>
+              <p className="display text-2xl leading-tight sm:text-3xl">{item.title}</p>
               {item.subtitle ? <p className="mt-1 text-sm text-[#9A9D96]">{item.subtitle}</p> : null}
               {item.meta?.length ? (
                 <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#9A9D96]">
