@@ -26,20 +26,20 @@ export function Node({
   className?: string;
 }) {
   const t = {
-    plain: "border-ink bg-paper text-ink",
-    ink: "border-ink bg-ink text-paper",
-    sage: "border-sage-ink bg-sage text-[#101110]",
+    plain: "border-line/25 bg-card text-ink shadow-[0_6px_16px_-12px_rgb(var(--shadow)/0.35)]",
+    ink: "border-transparent bg-ink text-paper",
+    sage: "border-transparent bg-sage text-[#14202b]",
     oxide: "border-oxide bg-oxide text-paper",
-    ghost: "border-dashed border-ink/40 bg-transparent text-stone",
+    ghost: "border-dashed border-line/40 bg-transparent text-stone",
   }[tone];
   return (
     <div className={cn("fade relative flex min-w-0 flex-1 flex-col", className)} style={n !== undefined ? i(n) : undefined}>
       {role ? <span className="meta mb-1.5 truncate text-stone">{role}</span> : null}
       <div
         className={cn(
-          "relative flex min-h-[3.75rem] items-center border px-3 py-2.5 text-small font-medium leading-snug",
+          "relative flex min-h-[3.75rem] items-center rounded-xl border px-3 py-2.5 text-small font-medium leading-snug",
           t,
-          shape === "doc" && "[clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,0_100%)]",
+          shape === "doc" && "rounded-tr-none [clip-path:polygon(0_0,calc(100%-12px)_0,100%_12px,100%_100%,0_100%)]",
         )}
       >
         {shape === "diamond" ? (
@@ -94,9 +94,9 @@ export const Sw = {
 /** Figure frame with a caption line. */
 export function Plate({ children, caption, className }: { children: ReactNode; caption?: string; className?: string }) {
   return (
-    <figure className={cn("border border-line/20 bg-paper p-4 sm:p-6 md:p-8", className)}>
+    <figure className={cn("card p-4 sm:p-6 md:p-8", className)}>
       {children}
-      {caption ? <figcaption className="meta mt-6 border-t border-line/15 pt-3 text-stone">{caption}</figcaption> : null}
+      {caption ? <figcaption className="mt-6 border-t border-line/10 pt-3 text-small text-stone">{caption}</figcaption> : null}
     </figure>
   );
 }

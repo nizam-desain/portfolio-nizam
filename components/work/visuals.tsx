@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import type { VisualKey } from "@/data/content";
 import { Chain, Conn, Legend, Node, Plate, Sw, i } from "@/components/work/kit";
 import { cn } from "@/lib/utils";
+import { LifecycleStepper, ScenarioPlayer } from "@/components/work/interactive";
 
 /* Case-study visuals, redrawn from the project documents. Everything is
    generic: roles instead of names, "outlets" instead of vendor names, item
@@ -47,12 +48,12 @@ function FoodGaps() {
         {gaps.map((g, gi) => (
           <div key={g.t} className="fade" style={i(gi)}>
             <p className="meta text-oxide">Gap {gi + 1}</p>
-            <p className="display mt-1 text-[1.4rem] uppercase leading-tight">{g.t}</p>
+            <p className="display mt-1 text-[1.4rem] leading-tight">{g.t}</p>
             <ol className="mt-4">
               {g.s.map((st, si) => (
                 <li key={st.l} className="relative flex gap-3 pb-4 last:pb-0">
                   {si < g.s.length - 1 ? <span aria-hidden className={cn("absolute left-[5px] top-3 h-full w-px", st.bad ? "bg-oxide" : "bg-ink/30")} /> : null}
-                  <span aria-hidden className={cn("relative mt-1 block h-[11px] w-[11px] shrink-0 border", st.bad ? "border-oxide bg-oxide" : "border-ink bg-paper")} />
+                  <span aria-hidden className={cn("relative mt-1 block h-[11px] w-[11px] shrink-0 border", st.bad ? "border-oxide bg-oxide" : "border-ink bg-card")} />
                   <span className={cn("text-small", st.bad && "font-medium text-oxide")}>{st.l}</span>
                 </li>
               ))}
@@ -74,7 +75,7 @@ function FoodHub() {
     <Plate caption="TO-BE · one configurable platform">
       <div className="grid gap-4 md:grid-cols-3">
         {roles.map((r, n) => (
-          <div key={r.r} className="fade border border-ink" style={i(n)}>
+          <div key={r.r} className="fade overflow-hidden rounded-2xl border border-line/20" style={i(n)}>
             <p className="meta bg-ink px-3 py-2 text-paper">{r.r}</p>
             <ul className="divide-y divide-line/15 px-3">
               {r.items.map((it) => (
@@ -86,46 +87,16 @@ function FoodHub() {
       </div>
       <div aria-hidden className="mx-auto hidden h-8 w-2/3 border-x border-b border-ink md:block" />
       <div className="fade mt-4 flex flex-col items-center md:mt-0" style={i(3)}>
-        <div className="w-full bg-sage px-4 py-4 text-center md:w-2/3">
-          <p className="display text-h3 uppercase text-[#101110]">One application</p>
-          <p className="text-small text-[#101110]/75">menus · orders · payment QR · hours · reports — per outlet</p>
+        <div className="w-full rounded-2xl bg-sage px-4 py-4 text-center md:w-2/3">
+          <p className="display text-h3 text-[#14202b]">One application</p>
+          <p className="text-small text-[#14202b]/75">menus · orders · payment QR · hours · reports — per outlet</p>
         </div>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {["Outlet A", "Outlet B", "+ future outlets"].map((o, n) => (
-            <span key={o} className={cn("meta border px-3 py-1.5", n === 2 ? "border-dashed border-ink/50 text-stone" : "border-ink")}>
+            <span key={o} className={cn("meta rounded-full border px-3 py-1.5", n === 2 ? "border-dashed border-ink/50 text-stone" : "border-ink")}>
               {o}
             </span>
           ))}
-        </div>
-      </div>
-    </Plate>
-  );
-}
-
-function FoodLifecycle() {
-  return (
-    <Plate caption="TO-BE order lifecycle · generic states">
-      <Chain>
-        <Node n={0} label="Cart" />
-        <Conn />
-        <Node n={1} label="Awaiting payment" tone="ink" note="expires after a set time" />
-        <Conn />
-        <Node n={2} label="'I have paid'" note="customer statement, not proof" />
-        <Conn />
-        <Node n={3} label="Vendor verifies" shape="diamond" tone="sage" />
-        <Conn />
-        <Node n={4} label="Preparing → Ready" />
-        <Conn />
-        <Node n={5} label="Completed" tone="ink" />
-      </Chain>
-      <div className="fade mt-8 grid gap-3 border-t border-line/15 pt-6 sm:grid-cols-2 md:w-[52%]" style={i(6)}>
-        <div className="flex items-start gap-3">
-          <span aria-hidden className="mt-1 block h-3 w-3 shrink-0 border border-dashed border-oxide" />
-          <p className="text-small"><span className="font-medium">Expired</span> — not paid in time, record kept</p>
-        </div>
-        <div className="flex items-start gap-3">
-          <span aria-hidden className="mt-1 block h-3 w-3 shrink-0 border border-dashed border-oxide" />
-          <p className="text-small"><span className="font-medium">Cancelled</span> — allowed before payment, record kept</p>
         </div>
       </div>
     </Plate>
@@ -203,7 +174,7 @@ function FoodTests() {
         <ol className="relative border-l border-ink/30 pl-6">
           {timeline.map(([d, l], n) => (
             <li key={d} className="fade relative pb-4 last:pb-0" style={i(n)}>
-              <span aria-hidden className={cn("absolute -left-[29px] top-1 block h-[9px] w-[9px] border", n === timeline.length - 1 ? "border-dashed border-ink/50 bg-paper" : "border-ink bg-ink")} />
+              <span aria-hidden className={cn("absolute -left-[29px] top-1 block h-[9px] w-[9px] border", n === timeline.length - 1 ? "border-dashed border-ink/50 bg-card" : "border-ink bg-ink")} />
               <span className="meta mr-3 inline-block w-20 text-stone">{d}</span>
               <span className={cn("text-small", n === timeline.length - 1 && "text-stone")}>{l}</span>
             </li>
@@ -255,9 +226,9 @@ function GtrPains() {
   ];
   return (
     <Plate caption="10 pain points · confirmed with the document owner">
-      <ol className="grid grid-cols-2 gap-px bg-line/15 sm:grid-cols-5">
+      <ol className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line/15 sm:grid-cols-5">
         {p.map(([t, k], n) => (
-          <li key={t} className="fade flex min-h-[7.5rem] flex-col justify-between bg-paper p-3" style={i(n)}>
+          <li key={t} className="fade flex min-h-[7.5rem] flex-col justify-between bg-card p-3" style={i(n)}>
             <span className="flex items-center justify-between">
               <span className="display text-[1.5rem] leading-none text-oxide">{String(n + 1).padStart(2, "0")}</span>
               {k === "flow" ? (
@@ -303,44 +274,11 @@ function GtrTobe() {
       </div>
       <div className="fade mt-6 flex items-center gap-3 md:ml-[38%]" style={i(7)}>
         <span aria-hidden className="h-px flex-1 bg-sage-ink" />
-        <span className="border border-sage-ink bg-sage px-3 py-2 text-small font-medium text-[#101110]">Fulfilment confirms & delivers — no approve / reject</span>
+        <span className="rounded-full bg-sage px-4 py-2 text-small font-medium text-[#14202b]">Fulfilment confirms & delivers — no approve / reject</span>
       </div>
     </Plate>
   );
 }
-
-function GtrRejections() {
-  const cases = [
-    { t: "High-value only · Director rejects", items: [["High-value", "x"]], out: "Request rejected · stock restored", kind: "Whole request" },
-    { t: "Mixed · Manager rejects standard", items: [["High-value", "-"], ["Standard", "x"]], out: "Whole request rejected · never reaches the Director", kind: "Whole request" },
-    { t: "Mixed · Director rejects high-value", items: [["High-value", "x"], ["Standard", "ok"]], out: "Standard items continue to fulfilment", kind: "Item level" },
-  ];
-  return (
-    <Plate caption="Scenarios verified in developer testing (not UAT)">
-      <div className="grid gap-4 md:grid-cols-3">
-        {cases.map((c, n) => (
-          <div key={c.t} className={cn("fade flex flex-col border p-4", c.kind === "Item level" ? "border-sage-ink" : "border-ink/30")} style={i(n)}>
-            <Tag tone={c.kind === "Item level" ? "sage" : "oxide"}>{c.kind}</Tag>
-            <p className="mt-2 font-medium leading-snug">{c.t}</p>
-            <ul className="mt-4 space-y-2">
-              {c.items.map(([l, s]) => (
-                <li key={l} className="flex items-center justify-between border border-line/20 px-3 py-2 text-small">
-                  {l}
-                  <span className={cn("meta", s === "x" ? "text-oxide" : s === "ok" ? "text-sage-ink" : "text-stone")}>
-                    {s === "x" ? "Rejected" : s === "ok" ? "Approved" : "Not reached"}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-auto pt-4 text-small text-stone">→ {c.out}</p>
-          </div>
-        ))}
-      </div>
-    </Plate>
-  );
-}
-
-// ── Training requisition ─────────────────────────────────────
 
 function OjtShift() {
   return (
@@ -362,7 +300,7 @@ function OjtShift() {
           <Tag tone="sage">After · online</Tag>
           <div className="mt-5 grid grid-cols-4 gap-2">
             {["One form", "E-mail to approver", "Live tracking", "PDF copy"].map((l, n) => (
-              <div key={l} className={cn("flex aspect-square flex-col justify-end border p-2", n === 0 ? "border-sage-ink bg-sage text-[#101110]" : "border-ink")}>
+              <div key={l} className={cn("flex aspect-square flex-col justify-end rounded-xl border p-2", n === 0 ? "border-sage-ink bg-sage text-[#14202b]" : "border-ink")}>
                 <span className="meta leading-tight">{l}</span>
               </div>
             ))}
@@ -402,8 +340,8 @@ function OjtStages() {
               <div className="flex items-center md:w-full">
                 <span
                   className={cn(
-                    "grid h-10 w-10 shrink-0 place-items-center border font-mono text-small",
-                    state === "done" ? "border-ink bg-ink text-paper" : state === "now" ? "border-sage-ink bg-sage text-[#101110]" : "border-dashed border-ink/50 text-stone",
+                    "grid h-10 w-10 shrink-0 place-items-center rounded-full border text-small font-semibold",
+                    state === "done" ? "border-ink bg-ink text-paper" : state === "now" ? "border-sage-ink bg-sage text-[#14202b]" : "border-dashed border-ink/50 text-stone",
                   )}
                 >
                   {state === "done" ? "✓" : n + 1}
@@ -495,7 +433,7 @@ function LeavePaths() {
         </span>
         <ul className="grid gap-2 sm:grid-cols-2">
           {ends.map(([l, k], n) => (
-            <li key={l} className={cn("fade flex items-center justify-between gap-3 border px-3 py-3", k === "ok" ? "border-ink" : "border-dashed border-ink/50")} style={i(n + 1)}>
+            <li key={l} className={cn("fade flex items-center justify-between gap-3 rounded-xl border px-3 py-3", k === "ok" ? "border-ink" : "border-dashed border-ink/50")} style={i(n + 1)}>
               <span className="text-small font-medium">
                 <span className="meta mr-2 text-stone">{n + 2}</span>
                 {l}
@@ -524,7 +462,7 @@ function LeaveEvidence() {
           <li key={l} className="fade flex flex-col" style={i(n)}>
             <span
               className={cn(
-                "meta flex min-h-[4.25rem] items-end border p-3",
+                "meta flex min-h-[4.25rem] items-end rounded-xl border p-3",
                 t === "ink" ? "border-ink bg-ink text-paper" : t === "oxide" ? "border-oxide bg-oxide text-paper" : "border-dashed border-ink/50",
               )}
             >
@@ -541,12 +479,12 @@ function LeaveEvidence() {
 const registry: Record<VisualKey, () => React.ReactElement> = {
   "food-gaps": FoodGaps,
   "food-hub": FoodHub,
-  "food-lifecycle": FoodLifecycle,
+  "food-lifecycle": LifecycleStepper,
   "food-compare": FoodCompare,
   "food-tests": FoodTests,
   "gtr-asis": GtrAsis,
   "gtr-tobe": GtrTobe,
-  "gtr-rejections": GtrRejections,
+  "gtr-rejections": ScenarioPlayer,
   "gtr-pains": GtrPains,
   "ojt-shift": OjtShift,
   "ojt-journey": OjtJourney,
