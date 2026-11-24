@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Download, ExternalLink, X, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowOut, Chevron, Close, Download, Magnify } from "@/components/ui/glyphs";
 import { useDialog } from "@/components/ui/use-dialog";
 import { cn } from "@/lib/utils";
 
@@ -110,35 +110,35 @@ export function Lightbox({
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
     >
-      <div className="absolute inset-0 bg-[#0d0c0b]" aria-hidden onClick={onClose} />
+      <div className="absolute inset-0 bg-[#0b0c0b]/[0.97]" aria-hidden onClick={onClose} />
       <div
         ref={ref}
         role="dialog"
         aria-modal="true"
         aria-label={`${label}: ${item.title}`}
         tabIndex={-1}
-        className="relative flex h-full flex-col text-[#eeeae1] outline-none"
+        className="relative flex h-full flex-col text-[#F2F0E8] outline-none"
       >
         {/* Top bar */}
         <div className="flex shrink-0 items-center justify-between gap-3 px-3 py-2 sm:px-6 sm:py-3">
-          <p className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-[#a8a197]" aria-live="polite">
+          <p className="font-mono text-[0.7rem] uppercase tracking-[0.16em] text-[#9A9D96]" aria-live="polite">
             {index + 1} / {items.length}
           </p>
           <div className="flex items-center gap-1">
             <IconBtn label={zoomed ? "Zoom out" : "Zoom in"} onClick={() => toggleZoom()}>
-              {zoomed ? <ZoomOut size={18} /> : <ZoomIn size={18} />}
+              <Magnify size={18} minus={zoomed} />
             </IconBtn>
             <a
               href={item.src}
               download
-              className="grid h-11 w-11 place-items-center rounded-full transition-colors hover:bg-white/10"
+              className="grid h-11 w-11 place-items-center transition-colors hover:bg-white/10"
               aria-label="Download original image"
               title="Download original"
             >
-              <Download size={18} aria-hidden />
+              <Download size={18} />
             </a>
             <IconBtn label="Close viewer" onClick={onClose} autoFocus>
-              <X size={20} />
+              <Close size={20} />
             </IconBtn>
           </div>
         </div>
@@ -201,7 +201,7 @@ export function Lightbox({
                   toggleZoom({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
                 }}
                 className={cn(
-                  "relative block shrink-0 bg-white shadow-2xl",
+                  "relative block shrink-0 bg-white",
                   zoomed ? "m-auto cursor-zoom-out" : "cursor-zoom-in",
                 )}
                 style={{ width: dispW || undefined, height: dispH || undefined }}
@@ -234,14 +234,14 @@ export function Lightbox({
         <div className="shrink-0 border-t border-white/10 px-4 py-4 sm:px-8 sm:py-5">
           <div className="mx-auto flex max-w-5xl flex-col gap-3 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
             <div className="min-w-0">
-              <p className="font-serif text-xl leading-tight sm:text-2xl">{item.title}</p>
-              {item.subtitle ? <p className="mt-1 text-sm text-[#a8a197]">{item.subtitle}</p> : null}
+              <p className="display text-xl uppercase leading-tight sm:text-2xl">{item.title}</p>
+              {item.subtitle ? <p className="mt-1 text-sm text-[#9A9D96]">{item.subtitle}</p> : null}
               {item.meta?.length ? (
-                <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#a8a197]">
+                <dl className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#9A9D96]">
                   {item.meta.map((m) => (
                     <div key={m.label} className="flex gap-1.5">
                       <dt>{m.label}</dt>
-                      <dd className="font-mono text-[#eeeae1]">{m.value}</dd>
+                      <dd className="font-mono text-[#F2F0E8]">{m.value}</dd>
                     </div>
                   ))}
                 </dl>
@@ -252,9 +252,9 @@ export function Lightbox({
                 href={item.verifyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex min-h-[2.75rem] shrink-0 items-center gap-2 self-start rounded-full border border-white/20 px-4 text-sm transition-colors hover:bg-white hover:text-[#131211] sm:self-auto"
+                className="inline-flex min-h-[2.75rem] shrink-0 items-center gap-2 self-start border border-white/25 px-4 font-mono text-[0.75rem] uppercase tracking-[0.08em] transition-colors hover:bg-[#B8CB9B] hover:text-[#101110] sm:self-auto"
               >
-                Verify credential <ExternalLink size={14} aria-hidden />
+                Verify credential <ArrowOut size={14} />
                 <span className="sr-only">(opens in a new tab)</span>
               </a>
             ) : null}
@@ -283,7 +283,7 @@ function IconBtn({
       aria-label={label}
       title={label}
       data-autofocus={autoFocus ? "" : undefined}
-      className="grid h-11 w-11 place-items-center rounded-full transition-colors hover:bg-white/10"
+      className="grid h-11 w-11 place-items-center transition-colors hover:bg-white/10"
     >
       <span aria-hidden>{children}</span>
     </button>
@@ -297,11 +297,11 @@ function NavBtn({ side, onClick }: { side: "left" | "right"; onClick: () => void
       onClick={onClick}
       aria-label={side === "left" ? "Previous" : "Next"}
       className={cn(
-        "absolute top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-full bg-black/50 text-white backdrop-blur transition-colors hover:bg-white hover:text-black sm:h-12 sm:w-12",
+        "absolute top-1/2 z-10 grid h-11 w-11 -translate-y-1/2 place-items-center border border-white/25 bg-black/60 text-white transition-colors hover:bg-[#B8CB9B] hover:text-black sm:h-12 sm:w-12",
         side === "left" ? "left-2 sm:left-5" : "right-2 sm:right-5",
       )}
     >
-      {side === "left" ? <ChevronLeft size={20} aria-hidden /> : <ChevronRight size={20} aria-hidden />}
+      <Chevron size={20} dir={side} />
     </button>
   );
 }

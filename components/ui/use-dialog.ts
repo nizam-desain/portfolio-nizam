@@ -22,13 +22,13 @@ export function useDialog<T extends HTMLElement>(open: boolean, onClose: () => v
     document.body.style.overflow = "hidden";
     if (scrollbar > 0) document.body.style.paddingRight = `${scrollbar}px`;
 
-    const focusFirst = () => {
+    const raf = requestAnimationFrame(() => {
       const el = ref.current;
       if (!el) return;
-      const target = el.querySelector<HTMLElement>("[data-autofocus]") ?? el.querySelector<HTMLElement>(FOCUSABLE) ?? el;
+      const target =
+        el.querySelector<HTMLElement>("[data-autofocus]") ?? el.querySelector<HTMLElement>(FOCUSABLE) ?? el;
       target.focus({ preventScroll: true });
-    };
-    const raf = requestAnimationFrame(focusFirst);
+    });
 
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
