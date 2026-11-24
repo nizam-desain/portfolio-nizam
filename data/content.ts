@@ -21,7 +21,7 @@ export const profile = {
   initials: "NZ",
   role: "People & Culture — HR Information Systems Intern",
   roleShort: "HRIS Intern, Mattel Indonesia",
-  focus: "Business & functional analysis",
+  focus: "Business · People · Technology · Design",
   location: "Cikarang, Indonesia",
   timezone: "Asia/Jakarta",
   email: "nizamzahrani7@gmail.com",
@@ -34,9 +34,11 @@ export const profile = {
 };
 
 export const hero = {
-  words: ["Business.", "Systems.", "Perspective."],
+  lines: ["Think strategically.", "Build intelligently.", "Create"],
+  accent: "differently.",
   statement:
-    "I study how work actually moves through an organisation — the hand-offs, the rules, the places it stalls — and turn what I find into requirements and process changes people can act on.",
+    "I'm Nizam — an Information Systems student and HRIS intern at Mattel Indonesia. I work where business, people, technology and design meet: understanding how an organisation really runs, then shaping something clearer for the people in it.",
+  disciplines: ["Business analysis", "People & Culture", "Digital product & UI", "Strategy"],
 };
 
 export const sections = [
@@ -99,7 +101,15 @@ export type Work = {
   skills: string[];
   link?: { label: string; href: string };
   confidential?: boolean;
+  /** Original artwork (3D renders and conceptual mockups made for this site). */
+  cover: string;
+  tint: "peach" | "lav" | "sage" | "mist";
+  gallery?: { src: string; w: number; h: number; alt: string; caption: string; kind: "Original artwork" | "Conceptual mockup" }[];
+  compare?: { before: string; after: string; beforeLabel: string; afterLabel: string };
+  insight?: string;
 };
+
+const art = (n: string) => `/art/${n}.jpg`;
 
 export const work: Work[] = [
   {
@@ -147,6 +157,14 @@ export const work: Work[] = [
         visual: "food-tests",
       },
     ],
+    cover: art("food-cover"),
+    tint: "peach",
+    gallery: [
+      { src: art("food-suite"), w: 2400, h: 1500, alt: "Conceptual laptop and phone showing a vendor admin screen and a customer ordering app", caption: "Administrator and customer views, side by side", kind: "Conceptual mockup" },
+      { src: art("mock-food-customer"), w: 780, h: 1688, alt: "Conceptual customer ordering screen with outlets, daily subsidy and an 'I have paid' button", caption: "Customer: order, pay, say 'I have paid'", kind: "Conceptual mockup" },
+      { src: art("mock-food-vendor"), w: 2560, h: 1280, alt: "Conceptual vendor board with columns for verify payment, preparing, ready and completed", caption: "Vendor kitchen: verify payment before preparing", kind: "Conceptual mockup" },
+    ],
+    insight: "The complaint was 'payments are wrong'. The cause was three different events treated as one.",
     outcomes: [
       "AS-IS analysis with three gaps reproduced",
       "Functional specification for three interfaces",
@@ -199,6 +217,13 @@ export const work: Work[] = [
         visual: "gtr-rejections",
       },
     ],
+    cover: art("approval-cover"),
+    tint: "lav",
+    gallery: [
+      { src: art("approval-mail"), w: 2000, h: 1500, alt: "Conceptual tablet showing an approval request with item tiers", caption: "Each approver sees only the items they own", kind: "Conceptual mockup" },
+      { src: art("mock-approval-mail"), w: 1800, h: 2200, alt: "Conceptual approval message listing high-value and standard items with different actions", caption: "Standard items: decide. High-value items: view only, pending Director.", kind: "Conceptual mockup" },
+    ],
+    insight: "The fix wasn't more approvers. It was letting each approver decide only what they own.",
     outcomes: [
       "Business process & system documentation",
       "AS-IS and TO-BE swimlanes, use cases, DFD and ERD",
@@ -250,6 +275,13 @@ export const work: Work[] = [
         visual: "ojt-manual",
       },
     ],
+    cover: art("paper-cover"),
+    tint: "sage",
+    gallery: [
+      { src: art("paper-after"), w: 2000, h: 1400, alt: "Conceptual tablet with a digital requisition form and approval tracker", caption: "One form, one tracker", kind: "Conceptual mockup" },
+    ],
+    compare: { before: art("paper-before"), after: art("mock-req-form"), beforeLabel: "Paper, signed desk to desk", afterLabel: "Online form with live tracking" },
+    insight: "A good manual is written in the order people meet the screen — not the order the system was built.",
     outcomes: ["User manual v1.2 for the training requisition", "Functional clarifications confirmed with business and technical colleagues"],
     limits: "Screens and system addresses from the manual are not reproduced here.",
     skills: ["Workflow analysis", "User documentation", "Functional clarification"],
@@ -290,6 +322,13 @@ export const work: Work[] = [
         visual: "leave-evidence",
       },
     ],
+    cover: art("research-cover"),
+    tint: "mist",
+    gallery: [
+      { src: art("mock-evidence-log"), w: 2560, h: 1640, alt: "Conceptual analysis workbook listing example analysis steps, where each piece of evidence comes from, and the label applied", caption: "Every observation carries a label — example entries, no real findings", kind: "Conceptual mockup" },
+      { src: art("arches"), w: 2400, h: 1300, alt: "Abstract render of a row of arches in warm light", caption: "Structure first: what the system really does", kind: "Original artwork" },
+    ],
+    insight: "Before anyone fixes a system, someone has to agree on what it actually does today.",
     outcomes: ["AS-IS process & functional documentation", "Balance-change matrix per action", "Prioritised questions for technical review"],
     proposed: ["Business-rule decisions by the HR owner", "Any TO-BE design (out of scope)"],
     limits:
@@ -321,6 +360,8 @@ export const work: Work[] = [
     limits: "Prototype-level competition work — not a commercial deployment.",
     skills: ["Business architecture", "Logistics operations", "Operational strategy"],
     link: { label: "Read the proposal (PDF)", href: "/proposal-ai-logistics.pdf" },
+    cover: art("logistics-cover"),
+    tint: "mist",
   },
   {
     slug: "amartha-proxyscore",
@@ -339,6 +380,8 @@ export const work: Work[] = [
     outcomes: ["A business proposal and pitch deck"],
     limits: "A proposal; the framework was not built or deployed.",
     skills: ["Business analysis", "Market evaluation", "Pitch development"],
+    cover: art("credit-cover"),
+    tint: "peach",
   },
   {
     slug: "erp-business-process-analysis",
@@ -361,6 +404,8 @@ export const work: Work[] = [
     limits: "Academic simulation environments, not a live company system.",
     skills: ["Process mapping", "Epicor Kinetic", "Odoo", "Accurate"],
     link: { label: "Epicor documentation (PDF)", href: "/images/laporan-epicor.pdf" },
+    cover: art("erp-cover"),
+    tint: "sage",
   },
   {
     slug: "mobile-inventory",
@@ -379,6 +424,8 @@ export const work: Work[] = [
     outcomes: ["A working academic Android application"],
     limits: "Academic project, not deployed in an organisation.",
     skills: ["Java", "Android", "PHP", "MySQL"],
+    cover: art("inventory-cover"),
+    tint: "lav",
   },
 ];
 
@@ -539,48 +586,56 @@ export const method = [
 
 // ── Capabilities ─────────────────────────────────────────────
 
+export type Basis = "Professional" | "Certified" | "Academic" | "Leadership" | "Practice";
+
 export const capabilities = [
   {
-    title: "Business & Process Analysis",
-    body: "Mapping AS-IS and TO-BE workflows, hand-offs and exceptions from interviews and direct observation.",
-    items: ["Business process analysis", "AS-IS / TO-BE mapping", "Process observation", "Workflow optimisation"],
-    evidence: ["corporate-food-ordering", "leave-management-assessment"],
-  },
-  {
-    title: "Strategy & Problem Solving",
-    body: "Structuring an ambiguous brief into a question, then into options that can be compared on their merits.",
-    items: ["Strategic problem solving", "Business research", "Market evaluation", "Case competitions"],
-    evidence: ["blibli-ai-logistics", "amartha-proxyscore"],
-  },
-  {
-    title: "Functional Requirements",
-    body: "Turning what people need into requirements that technical colleagues can evaluate, build against and test.",
-    items: ["Requirements elicitation", "Functional analysis", "Business rules analysis", "Use case, DFD & ERD diagrams"],
-    evidence: ["request-approval-workflow", "corporate-food-ordering"],
-  },
-  {
-    title: "Stakeholder Collaboration",
-    body: "Running the conversations a process change depends on, and carrying findings between business and technical teams.",
-    items: ["Stakeholder management", "Facilitation", "Cross-functional collaboration", "Negotiation"],
-    evidence: ["corporate-food-ordering", "requisition-workflow-documentation"],
-  },
-  {
-    title: "Data & Decision Support",
-    body: "Enough analysis and modelling to ground a recommendation in what the data shows.",
-    items: ["Microsoft Excel", "Power BI", "SQL", "Relational data modelling"],
-    evidence: ["leave-management-assessment", "mobile-inventory"],
-  },
-  {
-    title: "Functional Testing & Validation",
-    body: "Designing scenarios around the expected path and the exceptions, and recording evidence against agreed rules.",
-    items: ["Scenario-based functional testing", "Exception handling", "Test evidence"],
+    title: "Business & Strategy",
+    tone: "mist" as const,
+    body: "Process analysis, requirements and testing in a real organisation, plus strategy work sharpened in case competitions.",
+    items: [
+      { t: "Business process analysis (AS-IS / TO-BE)", b: "Professional" as Basis },
+      { t: "Functional requirements & business rules", b: "Professional" as Basis },
+      { t: "Scenario-based functional testing", b: "Professional" as Basis },
+      { t: "Case analysis & business proposals", b: "Academic" as Basis },
+    ],
     evidence: ["corporate-food-ordering", "request-approval-workflow"],
   },
   {
-    title: "Systems & Digital Transformation",
-    body: "A working knowledge of enterprise systems, so conversations with technical teams start from shared ground.",
-    items: ["HRIS workflows", "Epicor Kinetic", "Odoo", "Accurate", "Power Automate"],
-    evidence: ["erp-business-process-analysis"],
+    title: "People & Organisation",
+    tone: "peach" as const,
+    body: "HR information systems at work, HR management and recruitment studied formally, and teams led outside the classroom.",
+    items: [
+      { t: "HR information systems & P&C workflows", b: "Professional" as Basis },
+      { t: "Human resource management (Saylor BUS301)", b: "Certified" as Basis },
+      { t: "Recruitment & selection (The Open University)", b: "Certified" as Basis },
+      { t: "Sponsorship, budgeting & team coordination", b: "Leadership" as Basis },
+    ],
+    evidence: ["requisition-workflow-documentation", "leave-management-assessment"],
+  },
+  {
+    title: "Technology & Systems",
+    tone: "lav" as const,
+    body: "Enough technical depth to work credibly with developers — ERP, data and the fundamentals of building software.",
+    items: [
+      { t: "ERP: Epicor Kinetic, Odoo, Accurate", b: "Academic" as Basis },
+      { t: "Excel, Power BI, SQL, Power Automate", b: "Practice" as Basis },
+      { t: "Cloud & generative AI fundamentals (AWS, Google)", b: "Certified" as Basis },
+      { t: "Python, Java, Kotlin, PHP / Laravel", b: "Academic" as Basis },
+    ],
+    evidence: ["erp-business-process-analysis", "mobile-inventory"],
+  },
+  {
+    title: "Design & Creative Technology",
+    tone: "sage" as const,
+    body: "Interfaces, visual communication and the web — explored through coursework, content work and personal projects like this site.",
+    items: [
+      { t: "UI & prototyping in Figma", b: "Practice" as Basis },
+      { t: "Web fundamentals: HTML, CSS, JavaScript", b: "Certified" as Basis },
+      { t: "Visual communication & content creation", b: "Professional" as Basis },
+      { t: "Digital product thinking", b: "Practice" as Basis },
+    ],
+    evidence: ["corporate-food-ordering", "blibli-ai-logistics"],
   },
 ];
 
@@ -589,15 +644,24 @@ export const toolkit = ["Draw.io", "Figma", "Python", "Java", "Kotlin", "PHP / L
 
 // ── Certifications ───────────────────────────────────────────
 
-export type CertCategory = "AI & Data" | "Technology & Development" | "Business & Finance" | "Language";
+export type CertCategory = "Human Resources" | "AI & Data" | "Technology & Development" | "Business & Finance" | "Language";
 
 export type Certificate = {
   id: string;
   name: string;
-  issuer: "Google" | "Dicoding Indonesia" | "EF SET";
+  issuer: "Saylor University" | "The Open University" | "Google" | "Dicoding Indonesia" | "EF SET";
   platform?: string;
   category: CertCategory;
   issued: string;
+  /** ISO year-month used for chronological sorting. */
+  sort: string;
+  type?: string;
+  courseCode?: string;
+  score?: string;
+  hours?: string;
+  topics?: string[];
+  /** Label for verifyUrl when it is not a credential check (e.g. a course page). */
+  linkLabel?: string;
   validUntil?: string;
   credentialId?: string;
   verifyUrl?: string;
@@ -611,11 +675,45 @@ const cert = (slug: string, width: number, height: number) => ({
   height,
 });
 
-// 16 unique credentials. Duplicate copies in the source PDF (Google AI
+// 18 unique credentials (16 earlier + 2 added Nov 2026). Duplicate copies in the source PDF (Google AI
 // Professional Certificate, AI for App Building, Belajar Dasar
 // Pengembangan Aplikasi Mobile) were removed by credential ID.
 // Verification URLs are the ones printed on each certificate.
 export const certificates: Certificate[] = [
+  {
+    id: "saylor-bus301",
+    name: "BUS301: Human Resource Management",
+    issuer: "Saylor University",
+    type: "Certificate of Achievement",
+    category: "Human Resources",
+    issued: "Nov 2026",
+    sort: "2026-11-09",
+    courseCode: "BUS301",
+    credentialId: "3274926057NZ",
+    score: "88% final exam",
+    hours: "24 hours",
+    verifyUrl: "https://learn.saylor.org/admin/tool/certificate/index.php?code=3274926057NZ",
+    topics: ["Human resource management", "Talent management", "People management", "Organisational management", "HR development"],
+    note: "Certificate of Achievement, final examination score 88%.",
+    image: cert("saylor-bus301-human-resource-management", 1648, 1276),
+  },
+  {
+    id: "open-university-recruitment",
+    name: "Human Resources: Recruitment and Selection",
+    issuer: "The Open University",
+    platform: "OpenLearn",
+    type: "Statement of Participation",
+    category: "Human Resources",
+    issued: "Nov 2026",
+    sort: "2026-11-09",
+    courseCode: "B615_1",
+    hours: "12 hours",
+    verifyUrl: "https://www.open.edu/openlearn/money-business/human-resources/human-resources-recruitment-and-selection/content-section-0",
+    linkLabel: "Course page",
+    topics: ["Recruitment and selection", "Talent acquisition", "Job descriptions", "Candidate assessment"],
+    note: "Free course completed including all mandatory tests.",
+    image: cert("open-university-recruitment-and-selection", 1241, 1754),
+  },
   {
     id: "google-ai-professional",
     name: "Google AI Professional Certificate",
@@ -623,6 +721,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "TSP02JRA0FK6",
     verifyUrl: "https://coursera.org/verify/professional-cert/TSP02JRA0FK6",
     note: "Professional certificate covering the seven Google AI courses below.",
@@ -635,6 +734,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "TZQFNWG1KAYG",
     verifyUrl: "https://coursera.org/verify/TZQFNWG1KAYG",
     note: "Course 1 of 7 · Google AI Professional Certificate",
@@ -647,6 +747,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "7G4Q2E9W2OY9",
     verifyUrl: "https://coursera.org/verify/7G4Q2E9W2OY9",
     note: "Course · Google AI Professional Certificate",
@@ -659,6 +760,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "1IOF5LL4OOZ9",
     verifyUrl: "https://coursera.org/verify/1IOF5LL4OOZ9",
     note: "Course · Google AI Professional Certificate",
@@ -671,6 +773,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "VGV9VH5XWF1P",
     verifyUrl: "https://coursera.org/verify/VGV9VH5XWF1P",
     note: "Course · Google AI Professional Certificate",
@@ -683,6 +786,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "JB4FYHTQ7HJQ",
     verifyUrl: "https://coursera.org/verify/JB4FYHTQ7HJQ",
     note: "Course · Google AI Professional Certificate",
@@ -695,6 +799,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "P5XH3YAZLFR2",
     verifyUrl: "https://coursera.org/verify/P5XH3YAZLFR2",
     note: "Course · Google AI Professional Certificate",
@@ -707,6 +812,7 @@ export const certificates: Certificate[] = [
     platform: "Coursera",
     category: "AI & Data",
     issued: "Jun 2026",
+    sort: "2026-06",
     credentialId: "M1C5DDP78STZ",
     verifyUrl: "https://coursera.org/verify/M1C5DDP78STZ",
     note: "Course · Google AI Professional Certificate",
@@ -718,6 +824,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "MRZMW3M4LPYQ",
     verifyUrl: "https://dicoding.com/certificates/MRZMW3M4LPYQ",
@@ -729,6 +836,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "53XE17GO9ZRN",
     verifyUrl: "https://dicoding.com/certificates/53XE17GO9ZRN",
@@ -740,6 +848,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "81P2OWE2QZOY",
     verifyUrl: "https://dicoding.com/certificates/81P2OWE2QZOY",
@@ -751,6 +860,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "EYX4QNLOWPDL",
     verifyUrl: "https://dicoding.com/certificates/EYX4QNLOWPDL",
@@ -762,6 +872,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "JLX1VQ6KJZ72",
     verifyUrl: "https://dicoding.com/certificates/JLX1VQ6KJZ72",
@@ -773,6 +884,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Technology & Development",
     issued: "Jun 2026",
+    sort: "2026-06",
     validUntil: "Jun 2029",
     credentialId: "4EXG1RLREPRL",
     verifyUrl: "https://dicoding.com/certificates/4EXG1RLREPRL",
@@ -784,6 +896,7 @@ export const certificates: Certificate[] = [
     issuer: "Dicoding Indonesia",
     category: "Business & Finance",
     issued: "Jan 2026",
+    sort: "2026-01",
     validUntil: "Jan 2029",
     credentialId: "KEXL2R0LWZG2",
     verifyUrl: "https://dicoding.com/certificates/KEXL2R0LWZG2",
@@ -795,12 +908,13 @@ export const certificates: Certificate[] = [
     issuer: "EF SET",
     category: "Language",
     issued: "Sep 2026",
+    sort: "2026-09",
     note: "EF SET score 78/100, mapped to CEFR C2 Proficient. Reading and listening.",
     image: cert("efset-english-c2", 700, 890),
   },
 ];
 
-export const certCategories: CertCategory[] = ["AI & Data", "Technology & Development", "Business & Finance", "Language"];
+export const certCategories: CertCategory[] = ["Human Resources", "AI & Data", "Technology & Development", "Business & Finance", "Language"];
 
 // ── Recognition ──────────────────────────────────────────────
 
@@ -866,13 +980,14 @@ export const awards: Award[] = [
   },
   {
     id: "gold-medal",
-    title: "Gold Medal — Biology & Medicine",
-    event: "National Science Competition",
-    date: "Jan 2024",
+    title: "Gold Medal — Biology (9th, national level)",
+    event: "National Science Olympiad #2 2023",
+    organizer: "GYPEM · PT Digital Edu Indonesia · Jakarta",
+    date: "Oct 2023",
     scope: "National",
-    attribution: "Individual",
-    description: "Recognised for excellence in biological sciences and medical knowledge.",
-    images: [],
+    attribution: "Individual · predicate A+",
+    description: "National-level biology olympiad, held 21–22 October 2023 in Jakarta.",
+    images: [{ ...{ src: "/certificates/award-national-science-olympiad-biology.jpg", width: 1280, height: 905 }, caption: "Certificate of Achievement" }],
   },
 ];
 
