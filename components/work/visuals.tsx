@@ -43,7 +43,7 @@ function FoodGaps() {
     },
   ];
   return (
-    <Plate caption="AS-IS · each gap reproduced in historical tests">
+    <Plate caption="Historical AS-IS findings · addressed in the completed TO-BE scope">
       <div className="grid gap-8 md:grid-cols-3 md:gap-6">
         {gaps.map((g, gi) => (
           <div key={g.t} className="fade" style={i(gi)}>
@@ -67,9 +67,9 @@ function FoodGaps() {
 
 function FoodHub() {
   const roles = [
-    { r: "Customer", items: ["Browse outlets", "Cart per outlet", "Pay & say 'I have paid'", "Track the order"] },
-    { r: "Vendor / kitchen", items: ["Active orders board", "Verify the payment", "Stock & sold-out", "Hand over"] },
-    { r: "Administrator", items: ["Add & activate vendors", "Hours & themes", "Reports", "Eligibility rules"] },
+    { r: "Customer", items: ["Browse outlets & menus", "See open hours & daily benefit", "Order & acknowledge payment", "Track the order status"] },
+    { r: "Vendor / kitchen", items: ["Incoming orders", "Verify payment manually", "Prepare & mark ready", "Stock & sold-out"] },
+    { r: "Administrator", items: ["Add & activate vendors", "Hours & fulfilment options", "Eligibility rules", "Master data & reports"] },
   ];
   return (
     <Plate caption="TO-BE · one configurable platform">
@@ -97,6 +97,38 @@ function FoodHub() {
               {o}
             </span>
           ))}
+        </div>
+      </div>
+      <div className="mt-8 grid gap-4 border-t border-line/15 pt-6 md:grid-cols-2">
+        <div className="fade" style={i(4)}>
+          <p className="meta text-stone">Operating windows · per outlet</p>
+          <ul className="mt-3 space-y-2">
+            {[
+              ["One continuous schedule", [[0, 100]]],
+              ["Several periods", [[0, 30], [45, 75]]],
+              ["Break between sessions", [[0, 42], [58, 100]]],
+            ].map(([l, bars]) => (
+              <li key={l as string} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] items-center gap-3">
+                <span className="text-small">{l as string}</span>
+                <span aria-hidden className="relative block h-2.5 rounded-full bg-ink/[0.07]">
+                  {(bars as number[][]).map(([a, b]) => (
+                    <span key={a} className="absolute inset-y-0 rounded-full bg-sage-ink" style={{ left: `${a}%`, width: `${b - a}%` }} />
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="fade" style={i(5)}>
+          <p className="meta text-stone">Fulfilment options · configured, not hard-coded</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {["Packaged", "Plated", "Dine-in", "Pickup", "Delivery, where supported"].map((o, n) => (
+              <span key={o} className={cn("rounded-full px-3 py-1.5 text-small", n === 4 ? "border border-dashed border-ink/50 text-stone" : "bg-ink/[0.06]")}>
+                {o}
+              </span>
+            ))}
+          </div>
+          <p className="mt-3 text-small text-stone">Offered by outlet setting, eligibility category and service type.</p>
         </div>
       </div>
     </Plate>
@@ -135,7 +167,7 @@ function Compare({ rows, caption }: { rows: [string, string, string][]; caption:
 function FoodCompare() {
   return (
     <Compare
-      caption="Summary of the status table in the project documentation"
+      caption="AS-IS findings and stakeholder requests, mapped to the delivered TO-BE"
       rows={[
         ["Payment", "Marked Paid with no check", "Customer acknowledges, vendor verifies"],
         ["Cancellation", "Cancel did not stop the order", "Cancel before payment; expiry; records kept"],
@@ -143,6 +175,9 @@ function FoodCompare() {
         ["Stock", "Restored inconsistently", "Deduct, restore, sold-out, reminders"],
         ["Outlets", "One canteen only", "Several outlets, each with its own menu"],
         ["Onboarding", "Code change per vendor", "Admin sets up and activates a vendor"],
+        ["Operating hours", "One fixed window", "Single, split or break schedules per outlet"],
+        ["Fulfilment", "One fixed workflow", "Options set per outlet and eligibility"],
+        ["Order status", "Unclear to the customer", "Clear stages, with a ready-to-collect state"],
       ]}
     />
   );
@@ -154,18 +189,24 @@ function FoodTests() {
     ["6 Nov", "TO-BE proposal"],
     ["10 Nov", "Build reported"],
     ["12–16 Nov", "Functional testing"],
-    ["18–20 Nov", "Walkthrough recorded"],
-    ["Next", "Deployment (dev team)"],
+    ["18–20 Nov", "Walkthrough & stakeholder review"],
+    ["Then", "Refinements from feedback"],
+    ["Done", "Agreed scope completed"],
+    ["Separate", "Production deployment (implementation team)"],
+  ];
+  const stock = [
+    { t: "Last available portion", d: "Two customers order the final unit at almost the same time. One order secures it; the other sees 'sold out'.", r: "No overselling in the tested flow" },
+    { t: "Mixed-stock cart", d: "A limited item runs out while another cart item is still in stock.", r: "The available item stays selectable" },
   ];
   return (
-    <Plate caption="Functional testing · 43 agreed tests · testing environment">
+    <Plate caption="43 agreed functional scenarios · testing environment · analyst-reported · not load, security or UAT testing">
       <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
         <div className="fade">
           <p className="display text-[clamp(4rem,2rem+6vw,7rem)] leading-[0.85]">
             43<span className="text-stone">/43</span>
           </p>
-          <p className="meta mt-2 text-sage-ink">Passed</p>
-          <div className="mt-5 grid max-w-[20rem] grid-cols-[repeat(11,minmax(0,1fr))] gap-[3px]" role="img" aria-label="43 of 43 functional tests passed">
+          <p className="meta mt-2 text-sage-ink">Agreed scenarios passed</p>
+          <div className="mt-5 grid max-w-[20rem] grid-cols-[repeat(11,minmax(0,1fr))] gap-[3px]" role="img" aria-label="43 of 43 agreed functional scenarios passed">
             {Array.from({ length: 43 }, (_, n) => (
               <span key={n} className="aspect-square bg-sage-ink" />
             ))}
@@ -176,10 +217,34 @@ function FoodTests() {
             <li key={d} className="fade relative pb-4 last:pb-0" style={i(n)}>
               <span aria-hidden className={cn("absolute -left-[29px] top-1 block h-[9px] w-[9px] border", n === timeline.length - 1 ? "border-dashed border-ink/50 bg-card" : "border-ink bg-ink")} />
               <span className="meta mr-3 inline-block w-20 text-stone">{d}</span>
-              <span className={cn("text-small", n === timeline.length - 1 && "text-stone")}>{l}</span>
+              <span className={cn("text-small", n === timeline.length - 1 && "text-stone", n === timeline.length - 2 && "font-semibold text-sage-ink")}>{l}</span>
             </li>
           ))}
         </ol>
+      </div>
+      <div className="mt-10 border-t border-line/15 pt-6">
+        <p className="meta text-stone">Stock-conflict checks · two targeted concurrent-order scenarios</p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          {stock.map((x, n) => (
+            <div key={x.t} className="fade rounded-2xl border border-line/20 p-4" style={i(n)}>
+              <p className="meta text-stone">Scenario {String.fromCharCode(65 + n)}</p>
+              <p className="display mt-1 text-[1.35rem] leading-tight">{x.t}</p>
+              <div aria-hidden className="mt-3 flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-sage-ink text-[0.7rem] font-semibold text-white">C1</span>
+                <span className="h-px w-6 bg-ink/40" />
+                <span className="rounded-lg border border-ink px-2 py-1 text-[0.72rem] font-semibold">{n === 0 ? "1 left" : "Limited + available"}</span>
+                <span className="h-px w-6 bg-ink/40" />
+                <span className="grid h-8 w-8 place-items-center rounded-full border border-dashed border-ink/60 text-[0.7rem] font-semibold text-stone">C2</span>
+              </div>
+              <p className="mt-3 text-small text-stone">{x.d}</p>
+              <p className="mt-2 flex items-center gap-2 text-small font-medium">
+                <span aria-hidden className="block h-2 w-2 shrink-0 bg-sage-ink" />
+                {x.r}
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-small text-stone">Scenario-specific evidence only — not load testing or a guarantee against every race condition.</p>
       </div>
     </Plate>
   );
@@ -287,10 +352,10 @@ function OjtShift() {
         <div className="fade">
           <Tag tone="oxide">Before · paper</Tag>
           <div className="mt-5 flex items-end gap-2">
-            {[0, 1, 2, 3, 4].map((n) => (
+            {[0, 1, 2, 3].map((n) => (
               <div key={n} className="flex flex-1 flex-col items-center gap-2">
-                <span aria-hidden className="block aspect-[3/4] w-full max-w-[3.25rem] border border-ink/60 bg-sheet" style={{ transform: `rotate(${[-4, 3, -2, 5, -3][n]}deg)` }} />
-                <span className="meta text-stone">Sign {n + 1}</span>
+                <span aria-hidden className="block aspect-[3/4] w-full max-w-[3.25rem] border border-ink/60 bg-sheet" style={{ transform: `rotate(${[-4, 3, -2, 5][n]}deg)` }} />
+                <span className="meta text-stone">{n === 3 ? "…" : "Sign"}</span>
               </div>
             ))}
           </div>
@@ -298,14 +363,14 @@ function OjtShift() {
         </div>
         <div className="fade" style={i(1)}>
           <Tag tone="sage">After · online</Tag>
-          <div className="mt-5 grid grid-cols-4 gap-2">
-            {["One form", "E-mail to approver", "Live tracking", "PDF copy"].map((l, n) => (
-              <div key={l} className={cn("flex aspect-square flex-col justify-end rounded-xl border p-2", n === 0 ? "border-sage-ink bg-sage text-[#14202b]" : "border-ink")}>
+          <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {["One form", "E-mail notice", "Live tracking", "Return & revise"].map((l, n) => (
+              <div key={l} className={cn("flex aspect-[2/1] flex-col justify-end rounded-xl border p-2 sm:aspect-square", n === 0 ? "border-sage-ink bg-sage text-[#14202b]" : "border-ink")}>
                 <span className="meta leading-tight">{l}</span>
               </div>
             ))}
           </div>
-          <p className="mt-5 text-small text-stone">Submitted once · every approver notified · stage visible any time</p>
+          <p className="mt-5 text-small text-stone">Submitted once · reviewers notified · stage visible · corrections made on the same request</p>
         </div>
       </div>
     </Plate>
@@ -313,13 +378,13 @@ function OjtShift() {
 }
 
 function OjtJourney() {
-  const s = ["Sign in to the HR portal", "Open requisitions", "Create request & choose type", "Complete the form", "Submit", "Track · detail · PDF"];
+  const s = ["Access the request platform", "Prepare a new request", "Complete the required information", "Submit for review", "Monitor progress", "Respond to revision requests"];
   return (
-    <Plate caption="Requester journey as written in the user manual">
+    <Plate caption="Requester journey · generalised from the user guide">
       <Chain>
         {s.map((l, n) => (
           <div key={l} className="contents">
-            <Node n={n} role={`Step ${n + 1}`} label={l} tone={n === 3 ? "sage" : n === 5 ? "ink" : "plain"} note={n === 3 ? "requester details pre-filled" : undefined} />
+            <Node n={n} role={`Step ${n + 1}`} label={l} tone={n === 2 ? "sage" : n === 4 ? "ink" : n === 5 ? "ghost" : "plain"} note={n === 2 ? "requester details pre-filled" : n === 5 ? "only when returned" : undefined} />
             {n < s.length - 1 ? <Conn /> : null}
           </div>
         ))}
@@ -329,52 +394,56 @@ function OjtJourney() {
 }
 
 function OjtStages() {
-  const st = ["Area manager", "Department head", "Talent development", "P&C manager", "P&C director"];
   return (
-    <Plate caption="Approval tracking · example state, illustrative">
-      <ol className="grid gap-3 md:grid-cols-5 md:gap-0">
-        {st.map((l, n) => {
-          const state = n < 2 ? "done" : n === 2 ? "now" : "wait";
-          return (
-            <li key={l} className="fade relative flex items-center gap-3 md:flex-col md:items-start md:gap-0" style={i(n)}>
-              <div className="flex items-center md:w-full">
-                <span
-                  className={cn(
-                    "grid h-10 w-10 shrink-0 place-items-center rounded-full border text-small font-semibold",
-                    state === "done" ? "border-ink bg-ink text-paper" : state === "now" ? "border-sage-ink bg-sage text-[#14202b]" : "border-dashed border-ink/50 text-stone",
-                  )}
-                >
-                  {state === "done" ? "✓" : n + 1}
-                </span>
-                {n < st.length - 1 ? <span aria-hidden className={cn("hidden h-px flex-1 md:block", n < 2 ? "bg-ink" : "bg-ink/25")} /> : null}
-              </div>
-              <div className="md:mt-3 md:pr-3">
-                <p className="text-small font-medium">{l}</p>
-                <p className="meta text-stone">{state === "done" ? "Approved" : state === "now" ? "Current stage" : "Waiting"}</p>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
+    <Plate caption="Conceptual workflow illustration — not an actual internal system representation">
+      <Chain>
+        <Node n={0} role="Requester" label="Request submitted" />
+        <Conn />
+        <Node n={1} role="Review" label="Review in progress" />
+        <Conn />
+        <Node n={2} role="Review" label="Decision" shape="diamond" tone="ink" />
+        <Conn tone="sage" />
+        <Node n={3} role="Approved" label="Further review" tone="sage" />
+        <Conn tone="sage" />
+        <Node n={4} role="Outcome" label="Process continues" tone="sage" />
+      </Chain>
+      <div className="mt-8 grid gap-4 md:grid-cols-[1fr_1fr]">
+        <div className="fade rounded-2xl border border-oxide/50 p-4" style={i(5)}>
+          <p className="meta text-oxide">Exception · clarification required</p>
+          <ol className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+            {["Returned to the requester", "Request refined", "Resubmitted for review"].map((l, n) => (
+              <li key={l} className="flex items-center gap-2">
+                <span className="rounded-xl border border-line/25 bg-card px-3 py-2 text-small font-medium">{l}</span>
+                {n < 2 ? <span aria-hidden className="hidden text-oxide sm:inline">→</span> : <span aria-hidden className="text-oxide">↺</span>}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 text-small text-stone">The same request is corrected and re-enters review — no duplicate request.</p>
+        </div>
+        <div className="fade rounded-2xl border border-dashed border-ink/40 p-4" style={i(6)}>
+          <p className="meta text-stone">Standard decision</p>
+          <p className="mt-3 text-small">Approve moves the request forward; decline ends it. A returned request is neither — it is waiting on the requester.</p>
+        </div>
+      </div>
     </Plate>
   );
 }
 
 function OjtManual() {
-  const how = ["Access", "Dashboard", "Create request", "Complete form", "Submit", "View request", "Track approval", "Notifications", "Request detail", "PDF"];
-  const help = ["General", "Notifications", "Request information", "PDF access", "Submission", "Approval follow-up", "When to contact support", "Support contact"];
+  const how = ["Platform access", "Request overview", "Request creation", "Information preparation", "Initial submission", "Request monitoring", "Workflow progress", "Review communications", "Revision & resubmission", "Information review", "Document access"];
+  const help = ["General guidance", "Review communications", "Request information", "Document access", "Submission difficulties", "Progress follow-up", "Escalation guidance", "Support guidance"];
   return (
-    <Plate caption="Structure of the user manual (v1.2)">
+    <Plate caption="Structure of the revised user guide · topics generalised · new or expanded guidance highlighted">
       <div className="grid gap-8 md:grid-cols-[1.25fr_1fr]">
         {[
-          ["How to · 10", how, "ink"],
+          ["User guidance · 11", how, "ink"],
           ["Troubleshooting · 8", help, "oxide"],
         ].map(([t, list, tone]) => (
           <div key={t as string} className="fade">
             <p className={cn("meta", tone === "oxide" ? "text-oxide" : "")}>{t as string}</p>
             <ol className="mt-3 grid grid-cols-2 gap-1.5">
               {(list as string[]).map((l, n) => (
-                <li key={l} className={cn("flex items-baseline gap-2 border px-2.5 py-2 text-small", tone === "oxide" ? "border-oxide/40" : "border-line/25")}>
+                <li key={l} className={cn("flex items-baseline gap-2 border px-2.5 py-2 text-small", tone === "oxide" ? "border-oxide/40" : "border-line/25", (l === "Revision & resubmission" || l === "Workflow progress") && "border-sage-ink bg-sage text-[#14202b]")}>
                   <span className="meta text-stone">{String(n + 1).padStart(2, "0")}</span>
                   {l}
                 </li>
@@ -390,7 +459,7 @@ function OjtManual() {
 // ── Leave assessment ────────────────────────────────────────
 
 function LeaveTrace() {
-  const layers = ["Screen", "Client script", "Server logic", "Stored data"];
+  const layers = ["User action", "Application logic", "Data written", "Historical records"];
   return (
     <Plate caption="Trace method · read-only, testing environment">
       <Chain>
@@ -401,69 +470,115 @@ function LeaveTrace() {
           </div>
         ))}
         <Conn tone="sage" />
-        <Node n={4} role="Output" label="Evidence extract" tone="sage" shape="doc" note="20 in total" />
+        <Node n={4} role="Output" label="Labelled observation" tone="sage" shape="doc" />
       </Chain>
       <p className="fade mt-8 border-t border-line/15 pt-3 text-small text-stone" style={i(5)}>
-        Then compared with historical records — what the logic writes vs. what the data shows.
+        Then reconciled with existing process descriptions — what the application does vs. what people expect it to do.
       </p>
     </Plate>
   );
 }
 
-function LeavePaths() {
-  const ends = [
-    ["Approved · one level", "ok"],
-    ["Approved · two levels", "ok"],
-    ["Approved by administrator", "ok"],
-    ["Rejected", "stop"],
-    ["Cancelled", "stop"],
-    ["Deleted", "stop"],
+function AsisMethod() {
+  const st: [string, string][] = [
+    ["Understand", "Purpose, process boundaries and functional scope"],
+    ["Investigate", "Trace behaviour through application and data evidence"],
+    ["Model", "Organise current-state workflows with systems-analysis techniques"],
+    ["Reconcile", "Compare views; record gaps and open assumptions"],
+    ["Document", "Structured process and functional assessment"],
+    ["Review", "Submit for technical review; list what still needs validating"],
   ];
   return (
-    <Plate caption="Paths traced · balance effect checked on each">
-      <div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_3rem_minmax(0,2fr)] md:items-center">
-        <div className="fade">
-          <Node label="Employee submits" tone="ink" role="Path 1" />
-          <div className="mt-3">
-            <Node label="Pending approval" shape="diamond" />
-          </div>
-        </div>
-        <span aria-hidden className="hidden h-full items-center md:flex">
-          <span className="block h-[85%] w-full border-y border-l border-ink" />
-        </span>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {ends.map(([l, k], n) => (
-            <li key={l} className={cn("fade flex items-center justify-between gap-3 rounded-xl border px-3 py-3", k === "ok" ? "border-ink" : "border-dashed border-ink/50")} style={i(n + 1)}>
-              <span className="text-small font-medium">
-                <span className="meta mr-2 text-stone">{n + 2}</span>
-                {l}
-              </span>
-              <span className="meta whitespace-nowrap text-stone">balance ✓</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <Plate caption="Assessment method · stage 06 requested, response pending">
+      <ol className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line/15 md:grid-cols-3 lg:grid-cols-6">
+        {st.map(([t, d], n) => (
+          <li key={t} className={cn("fade flex min-h-[9rem] flex-col justify-between p-4", n === 5 ? "bg-paper" : "bg-card")} style={i(n)}>
+            <span className={cn("display text-[1.6rem] leading-none", n === 5 ? "text-stone" : "text-sage-ink")}>{String(n + 1).padStart(2, "0")}</span>
+            <span>
+              <span className="block font-semibold">{t}</span>
+              <span className="mt-1 block text-small leading-snug text-stone">{d}</span>
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Plate>
+  );
+}
+
+function AsisModels() {
+  const g = {
+    map: <span className="flex items-center gap-1">{[0, 1, 2].map((n) => <span key={n} className="block h-3 w-4 rounded-[3px] border border-current" />)}</span>,
+    lanes: <span className="grid gap-1">{[0, 1, 2].map((n) => <span key={n} className="flex h-2.5 w-14 items-center border-y border-current opacity-50 pl-1"><span className="block h-1.5 w-3 bg-current" style={{ marginLeft: `${n * 14}px` }} /></span>)}</span>,
+    usecase: <span className="flex items-center gap-1.5"><span className="block h-4 w-1 rounded-full bg-current" /><span className="grid gap-1">{[0, 1].map((n) => <span key={n} className="block h-2.5 w-9 rounded-full border border-current" />)}</span></span>,
+    dfd: <span className="flex items-center gap-1"><span className="block h-5 w-5 rounded-full border border-current" /><span className="block h-px w-3 bg-current" /><span className="block h-3 w-6 border-y border-current" /></span>,
+    erd: <span className="flex items-center gap-1"><span className="block h-5 w-6 border border-current" /><span className="block h-px w-3 bg-current" /><span className="block h-5 w-6 border border-current" /></span>,
+    matrix: <span className="grid grid-cols-4 gap-0.5">{Array.from({ length: 8 }, (_, n) => <span key={n} className={cn("block h-2 w-2.5", [0, 5, 2, 7].includes(n) ? "bg-current" : "border border-current opacity-50")} />)}</span>,
+    rules: <span className="grid gap-1">{[10, 7, 9].map((w, n) => <span key={n} className="flex items-center gap-1"><span className="block h-1.5 w-1.5 rotate-45 border border-current" /><span className="block h-px bg-current" style={{ width: `${w * 4}px` }} /></span>)}</span>,
+    tracker: <span className="grid gap-1">{["bg-current", "border border-current", "border border-dashed border-current"].map((c, n) => <span key={n} className="flex items-center gap-1"><span className={cn("block h-2 w-2 rounded-full", c)} /><span className="block h-px w-8 bg-current opacity-50" /></span>)}</span>,
+    check: <span className="grid gap-1">{[1, 1, 0].map((c, n) => <span key={n} className="flex items-center gap-1"><span className="grid h-2.5 w-2.5 place-items-center border border-current text-[7px] leading-none">{c ? "✓" : ""}</span><span className="block h-px w-8 bg-current opacity-50" /></span>)}</span>,
+  };
+  const items: [keyof typeof g, string, string][] = [
+    ["map", "AS-IS process map", "End-to-end view of the workflows"],
+    ["lanes", "BPMN swimlanes", "Who does what, and in which order"],
+    ["usecase", "UML use cases", "What each role can do"],
+    ["dfd", "Data flow diagram", "How information moves"],
+    ["erd", "Entity relationships", "How the records connect"],
+    ["matrix", "Traceability matrix", "Functions linked to their evidence"],
+    ["rules", "Business-rule summary", "Rules as they appear today"],
+    ["tracker", "Evidence & questions tracker", "What is confirmed, what is open"],
+    ["check", "Technical review checklist", "Questions for the reviewer to answer"],
+  ];
+  return (
+    <Plate caption="Deliverable types · not every model has been validated · internal documents are not shown">
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {items.map(([k, t, d], n) => (
+          <li key={t} className="fade flex items-start gap-4 rounded-2xl border border-line/20 p-4" style={i(n)}>
+            <span aria-hidden className="grid h-12 w-16 shrink-0 place-items-center rounded-xl bg-ink/[0.05] text-sage-ink">{g[k]}</span>
+            <span>
+              <span className="block font-semibold leading-snug">{t}</span>
+              <span className="mt-1 block text-small text-stone">{d}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Plate>
+  );
+}
+
+function AsisReview() {
+  return (
+    <Plate caption="Status · technical review requested; validation and TO-BE design not yet started">
+      <Chain>
+        <Node n={0} role="Done" label="Current-state baseline documented" tone="ink" shape="doc" />
+        <Conn tone="sage" />
+        <Node n={1} role="Requested" label="Technical review" tone="sage" note="response pending" />
+        <Conn broken />
+        <Node n={2} role="Next" label="Business-owner validation" tone="ghost" />
+        <Conn broken />
+        <Node n={3} role="Out of scope" label="Improvement planning (TO-BE)" tone="ghost" />
+      </Chain>
+      <Legend items={[{ swatch: Sw.ink, label: "Delivered" }, { swatch: Sw.sage, label: "In review" }, { swatch: Sw.ghost, label: "Not started" }]} />
     </Plate>
   );
 }
 
 function LeaveEvidence() {
   const labels: [string, string, string][] = [
-    ["Confirmed by source code", "ink", "Behaviour read directly from the logic"],
-    ["Confirmed by database evidence", "ink", "Seen in structure or historical records"],
-    ["Potential functional gap", "oxide", "Differs from what may be intended"],
-    ["Pending business validation", "ghost", "Needs a rule decision from the HR owner"],
-    ["Not tested", "ghost", "No runtime test was run"],
+    ["Observed in evidence", "ink", "Seen directly in the available application or data evidence"],
+    ["Analyst interpretation", "sage", "My reading of what the behaviour suggests"],
+    ["Unresolved question", "oxide", "The evidence cannot answer it yet"],
+    ["Pending validation", "ghost", "Needs a technical or business owner to confirm"],
+    ["Not runtime-tested", "ghost", "No live walkthrough was run"],
   ];
   return (
-    <Plate caption="Evidence labels used throughout · specific findings remain internal">
+    <Plate caption="Evidence labels used throughout · methodology only — specific findings remain internal">
       <ul className="grid gap-3 md:grid-cols-5">
         {labels.map(([l, t, d], n) => (
           <li key={l} className="fade flex flex-col" style={i(n)}>
             <span
               className={cn(
                 "meta flex min-h-[4.25rem] items-end rounded-xl border p-3",
-                t === "ink" ? "border-ink bg-ink text-paper" : t === "oxide" ? "border-oxide bg-oxide text-paper" : "border-dashed border-ink/50",
+                t === "ink" ? "border-ink bg-ink text-paper" : t === "oxide" ? "border-oxide text-oxide" : t === "sage" ? "border-sage-ink bg-sage text-[#14202b]" : "border-dashed border-ink/50",
               )}
             >
               {l}
@@ -486,13 +601,15 @@ const registry: Record<VisualKey, () => React.ReactElement> = {
   "gtr-tobe": GtrTobe,
   "gtr-rejections": ScenarioPlayer,
   "gtr-pains": GtrPains,
-  "ojt-shift": OjtShift,
-  "ojt-journey": OjtJourney,
-  "ojt-stages": OjtStages,
-  "ojt-manual": OjtManual,
+  "req-shift": OjtShift,
+  "req-journey": OjtJourney,
+  "req-exceptions": OjtStages,
+  "req-manual": OjtManual,
   "leave-trace": LeaveTrace,
-  "leave-paths": LeavePaths,
   "leave-evidence": LeaveEvidence,
+  "asis-method": AsisMethod,
+  "asis-models": AsisModels,
+  "asis-review": AsisReview,
 };
 
 export function Visual({ k }: { k: VisualKey }) {
