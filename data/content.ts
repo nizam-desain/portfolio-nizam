@@ -67,13 +67,15 @@ export type VisualKey =
   | "gtr-tobe"
   | "gtr-rejections"
   | "gtr-pains"
-  | "ojt-shift"
-  | "ojt-journey"
-  | "ojt-stages"
-  | "ojt-manual"
+  | "req-shift"
+  | "req-journey"
+  | "req-exceptions"
+  | "req-manual"
   | "leave-trace"
-  | "leave-paths"
-  | "leave-evidence";
+  | "leave-evidence"
+  | "asis-method"
+  | "asis-models"
+  | "asis-review";
 
 export type Work = {
   slug: string;
@@ -107,6 +109,13 @@ export type Work = {
   gallery?: { src: string; w: number; h: number; alt: string; caption: string; kind: "Original artwork" | "Conceptual mockup" }[];
   compare?: { before: string; after: string; beforeLabel: string; afterLabel: string };
   insight?: string;
+  /** Optional overrides for the outcome panel. */
+  outcomeTitle?: string;
+  proposedTitle?: string;
+  /** A short closing reflection, shown in the outcome panel. */
+  reflection?: string;
+  /** Overrides the generated meta description. */
+  metaDescription?: string;
 };
 
 const art = (n: string) => `/art/${n}.jpg`;
@@ -116,65 +125,73 @@ export const work: Work[] = [
     slug: "corporate-food-ordering",
     index: "01",
     title: "Multi‑Vendor Food Ordering",
-    line: "A canteen ordering app with payment gaps, rebuilt into one platform for several outlets.",
+    line: "Helped turn a single-outlet ordering workflow into a configurable multi-vendor platform, with clearer payment verification, stock control and outlet operations.",
     kind: "Professional",
     organization: "Mattel Indonesia",
-    role: "Functional analyst",
+    role: "Business & functional analysis",
     period: "Oct – Nov 2026",
-    status: "Tested · not yet deployed",
+    status: "Completed · Functionally validated",
     evidence: "confirmed",
     motif: "lanes",
     facts: [
-      { value: "43/43", label: "agreed functional tests passed" },
-      { value: "3", label: "AS-IS gaps reproduced in testing" },
+      { value: "43/43", label: "agreed functional scenarios passed" },
+      { value: "3", label: "historical AS-IS gaps analysed" },
       { value: "3", label: "role-based interfaces specified" },
-      { value: "0", label: "code changes needed to add a vendor" },
+      { value: "2", label: "targeted stock-conflict checks" },
     ],
     chapters: [
       {
-        title: "Three gaps behind one complaint",
-        text: "I separated the payment problem into distinct events, then reproduced each gap in AS-IS tests.",
+        title: "Understanding the operational gaps",
+        text: "One complaint, 'payments are wrong', hid three separate business events: the customer paying, the vendor confirming receipt, and the kitchen fulfilling. I separated them and traced each historical gap to the point where they had been merged.",
         visual: "food-gaps",
       },
       {
-        title: "One application, three interfaces",
-        text: "The TO-BE serves customers, vendor kitchens and administrators from one configurable platform.",
+        title: "Designing a configurable multi-vendor platform",
+        text: "Each outlet keeps its own menu, prices, stock, operating hours, fulfilment options and payment QR inside one application. Adding or changing an outlet becomes an administrative setting rather than a code change.",
         visual: "food-hub",
       },
       {
-        title: "An order lifecycle with clear exits",
-        text: "Every order now ends in a known state — including cancelled and expired ones, which are kept, not deleted.",
+        title: "Designing a reliable order lifecycle",
+        text: "'I have paid' records the customer's acknowledgement; only the vendor's manual check confirms receipt. Preparation starts after that check, and cancelled or expired orders end in a known state with their records kept.",
         visual: "food-lifecycle",
       },
       {
-        title: "Before and after",
-        text: "Six areas changed between the AS-IS and the tested TO-BE.",
+        title: "Translating requirements into functional improvements",
+        text: "Each documented gap and stakeholder request became a defined business rule, then a change in the solution.",
         visual: "food-compare",
       },
       {
-        title: "Tested against agreed rules",
-        text: "Each requirement was traced to a functional test and checked with evidence.",
+        title: "Validation, delivery and results",
+        text: "The agreed scope was validated through scenario-based functional testing in the testing environment, including two targeted checks on stock conflicts between simultaneous orders.",
         visual: "food-tests",
       },
     ],
     cover: art("food-cover"),
     tint: "peach",
     gallery: [
-      { src: art("food-suite"), w: 2400, h: 1500, alt: "Conceptual laptop and phone showing a vendor admin screen and a customer ordering app", caption: "Administrator and customer views, side by side", kind: "Conceptual mockup" },
-      { src: art("mock-food-customer"), w: 780, h: 1688, alt: "Conceptual customer ordering screen with outlets, daily subsidy and an 'I have paid' button", caption: "Customer: order, pay, say 'I have paid'", kind: "Conceptual mockup" },
-      { src: art("mock-food-vendor"), w: 2560, h: 1280, alt: "Conceptual vendor board with columns for verify payment, preparing, ready and completed", caption: "Vendor kitchen: verify payment before preparing", kind: "Conceptual mockup" },
+      { src: art("food-suite"), w: 2400, h: 1500, alt: "Conceptual laptop and phone showing a vendor administration screen and a customer ordering app", caption: "Administrator and customer views, side by side", kind: "Conceptual mockup" },
+      { src: art("mock-food-customer"), w: 780, h: 1688, alt: "Conceptual customer screen with an outlet status bar at the top, outlet tabs, a daily benefit card and an 'I have paid' button", caption: "Customer: outlet status always visible, then order and acknowledge payment", kind: "Conceptual mockup" },
+      { src: art("mock-food-vendor"), w: 2560, h: 1280, alt: "Conceptual vendor board with columns for verify payment, preparing, ready and completed", caption: "Vendor: verify the payment before preparing", kind: "Conceptual mockup" },
+      { src: art("mock-food-kitchen"), w: 3200, h: 1800, alt: "Conceptual kitchen display with columns for incoming, preparing and ready-for-collection orders, using synthetic order numbers", caption: "Kitchen display concept: prepared UI, display hardware not yet installed", kind: "Conceptual mockup" },
     ],
+    compare: { before: art("mock-hours-before"), after: art("mock-hours-after"), beforeLabel: "Floating card", afterLabel: "Status bar" },
     insight: "The complaint was 'payments are wrong'. The cause was three different events treated as one.",
+    outcomeTitle: "Completed functional scope, validated business rules",
     outcomes: [
-      "AS-IS analysis with three gaps reproduced",
-      "Functional specification for three interfaces",
-      "Business rules confirmed by the business owner",
-      "43 of 43 functional tests passed",
+      "AS-IS analysis of payment, cancellation and daily-benefit gaps",
+      "Functional specification for customer, vendor and administrator interfaces",
+      "Business rules for outlet operations, payment verification and order handling",
+      "Configurable operating hours, fulfilment options and eligibility rules",
+      "43 of 43 agreed functional scenarios reported as passed in the testing environment",
+      "Stakeholder feedback translated into interface refinements, including the outlet status bar and kitchen display UI",
     ],
-    proposed: ["Production deployment (owned by the development team)", "Outlet staff onboarding before go-live"],
+    proposedTitle: "Separate from this scope",
+    proposed: ["Production deployment, owned by the implementation team", "Installation of kitchen display hardware"],
     limits:
-      "Tested in a local development environment. Payment is checked manually by vendors; there is no automatic bank settlement.",
-    skills: ["Process analysis", "Requirements", "Business rules", "Functional testing", "Stakeholder validation"],
+      "Validated in the testing environment against agreed scenarios — not a security, performance or UAT certification. Payment uses a static QR code checked manually by vendors; there is no automatic bank settlement. Built with technical colleagues; my contribution was the analysis, rules, scenarios and validation.",
+    skills: ["Process & gap analysis", "Requirements", "Business rules", "Functional testing", "Stakeholder collaboration"],
+    metaDescription:
+      "Business and functional analysis case study: a corporate food ordering workflow turned into a configurable multi-vendor platform, with 43 of 43 agreed functional scenarios passed.",
     confidential: true,
   },
   {
@@ -239,101 +256,132 @@ export const work: Work[] = [
     slug: "requisition-workflow-documentation",
     index: "03",
     title: "Training Requisition: Paper to Digital",
-    line: "A paper form passed around for signatures, replaced by one online flow — and a manual people can follow.",
+    line: "Documenting a digital training request workflow, refining its exception handling, and turning stakeholder feedback into clearer user guidance.",
     kind: "Professional",
     organization: "Mattel Indonesia",
     role: "Functional analysis & user documentation",
-    period: "Oct 2026",
-    status: "User manual v1.2 completed",
-    evidence: "confirmed",
+    period: "Oct – Nov 2026",
+    status: "Revised documentation · Stakeholder review",
+    evidence: "ongoing",
     motif: "stepper",
     facts: [
-      { value: "5", label: "approval stages documented" },
-      { value: "10", label: "how-to sections" },
+      { value: "Multi‑stage", label: "approval workflow documented" },
+      { value: "11", label: "user guidance sections" },
       { value: "8", label: "troubleshooting topics" },
-      { value: "1", label: "form instead of a paper chain" },
+      { value: "1", label: "consolidated user guide" },
     ],
     chapters: [
       {
-        title: "From paper chain to online flow",
-        text: "Requests used to travel on paper for signatures. Now they are submitted once and tracked online.",
-        visual: "ojt-shift",
+        title: "From paper-based requests to digital guidance",
+        text: "A paper form once travelled desk to desk for signatures. My part was to turn its digital replacement into guidance that explains how a request is submitted, reviewed, tracked — and corrected when more information is needed.",
+        visual: "req-shift",
       },
       {
         title: "The requester's journey",
-        text: "Six steps, written in the order a requester actually meets them.",
-        visual: "ojt-journey",
+        text: "The guide covers first submission, progress monitoring, clarification and revision, so a requester always knows what action is theirs.",
+        visual: "req-journey",
       },
       {
-        title: "Five approval stages",
-        text: "Each approver is notified by e-mail; the requester sees the current stage at any time.",
-        visual: "ojt-stages",
+        title: "Beyond the standard approval path",
+        text: "Stakeholder feedback showed the guide also had to explain requests that need clarification. I reviewed the revised requirements and documented how a returned request is corrected and resubmitted, keeping decision rules, instructions and exceptions consistent.",
+        visual: "req-exceptions",
       },
       {
-        title: "A manual built around questions",
-        text: "How-to sections for the happy path, troubleshooting for everything else.",
-        visual: "ojt-manual",
+        title: "A manual refined around real user needs",
+        text: "The first version covered the standard journey. After further stakeholder discussions, I revised it to add clarification scenarios, resubmission guidance, decision responsibilities and the related troubleshooting.",
+        visual: "req-manual",
       },
     ],
     cover: art("paper-cover"),
     tint: "sage",
     gallery: [
-      { src: art("paper-after"), w: 2000, h: 1400, alt: "Conceptual tablet with a digital requisition form and approval tracker", caption: "One form, one tracker", kind: "Conceptual mockup" },
+      { src: art("paper-after"), w: 2000, h: 1400, alt: "Conceptual tablet with a digital request form and a generic review tracker showing a request returned for clarification", caption: "One form, one tracker — including the return path", kind: "Conceptual mockup" },
     ],
     compare: { before: art("paper-before"), after: art("mock-req-form"), beforeLabel: "Paper, signed desk to desk", afterLabel: "Online form with live tracking" },
-    insight: "A good manual is written in the order people meet the screen — not the order the system was built.",
-    outcomes: ["User manual v1.2 for the training requisition", "Functional clarifications confirmed with business and technical colleagues"],
-    limits: "Screens and system addresses from the manual are not reproduced here.",
-    skills: ["Workflow analysis", "User documentation", "Functional clarification"],
+    insight: "A clear workflow has to explain not only how a request moves forward, but what happens when it needs to be corrected.",
+    outcomeTitle: "What the work delivered",
+    outcomes: [
+      "Revised end-user documentation for a digital training request workflow",
+      "Functional guidance updated with stakeholder feedback",
+      "Clear distinction between standard review decisions and revision scenarios",
+      "Workflow explanations aligned with user instructions",
+      "Updated exception-handling and troubleshooting guidance",
+    ],
+    proposed: ["Stakeholder review of the revised documentation", "Further refinements following feedback and functional verification"],
+    limits: "Updated documentation has been shared for stakeholder review. Screens, system names, approval roles and routing rules from the manual are not reproduced here. My role was documentation and functional analysis, not implementation.",
+    skills: ["Workflow analysis", "Exception handling", "User documentation", "Documentation change management", "Stakeholder communication"],
+    metaDescription:
+      "An anonymised professional case study covering a digital training request workflow, functional analysis, exception handling, stakeholder feedback and user documentation.",
     confidential: true,
   },
   {
     slug: "leave-management-assessment",
     index: "04",
-    title: "Leave Module: AS‑IS Baseline",
-    line: "Establishing what a leave system actually does before anyone proposes a change.",
+    title: "Enterprise Workflow Assessment: AS‑IS",
+    line: "Mapping how an HR application's existing workflows actually behave, so technical review and future improvement start from evidence, not assumption.",
     kind: "Professional",
     organization: "Mattel Indonesia",
-    role: "Functional analyst",
+    role: "Business process & functional analysis",
     period: "Nov 2026",
-    status: "Baseline delivered for technical review",
-    evidence: "confirmed",
+    status: "AS-IS documentation prepared for technical review",
+    evidence: "ongoing",
     motif: "trace",
     facts: [
-      { value: "7", label: "process paths traced end to end" },
-      { value: "20", label: "evidence extracts" },
-      { value: "13", label: "questions for technical review" },
-      { value: "0", label: "changes made — read-only" },
+      { value: "Mapped", label: "current-state workflows across functional areas" },
+      { value: "Traced", label: "each observation to its evidence" },
+      { value: "Modelled", label: "process, use case, data-flow and entity views" },
+      { value: "Logged", label: "open questions for technical review" },
     ],
     chapters: [
       {
-        title: "Trace every action to its data",
-        text: "Each user action was followed from the screen, through the logic, to what gets written.",
+        title: "A baseline before any redesign",
+        text: "The application had grown without consistent functional documentation. What began as a baseline for one module became an assessment of the wider application: not a redesign, but a reliable record of how its workflows appear in the available evidence.",
         visual: "leave-trace",
       },
       {
-        title: "Seven paths a request can take",
-        text: "Submission, approvals at one and two levels, administrative approval, rejection, cancellation and deletion.",
-        visual: "leave-paths",
+        title: "Six steps from scattered evidence to a reviewable baseline",
+        text: "Understand the scope, investigate behaviour, model it, reconcile the views, document it — then hand it over for review.",
+        visual: "asis-method",
+      },
+      {
+        title: "One process, several views",
+        text: "Recognised modelling techniques let business and technical reviewers check the same workflow from the angle they know best.",
+        visual: "asis-models",
       },
       {
         title: "Label what is known",
-        text: "Every observation carries a label, so confirmed behaviour is never confused with a suspected gap.",
+        text: "Every statement carries a label, so what the evidence shows is never mixed up with my interpretation or with what still needs confirming.",
         visual: "leave-evidence",
+      },
+      {
+        title: "Prepared for review, not yet validated",
+        text: "The baseline and its supporting materials have been submitted for technical review. Business-owner validation comes next; any TO-BE design is out of scope.",
+        visual: "asis-review",
       },
     ],
     cover: art("research-cover"),
     tint: "mist",
     gallery: [
-      { src: art("mock-evidence-log"), w: 2560, h: 1640, alt: "Conceptual analysis workbook listing example analysis steps, where each piece of evidence comes from, and the label applied", caption: "Every observation carries a label — example entries, no real findings", kind: "Conceptual mockup" },
       { src: art("arches"), w: 2400, h: 1300, alt: "Abstract render of a row of arches in warm light", caption: "Structure first: what the system really does", kind: "Original artwork" },
+      { src: art("mock-models"), w: 3200, h: 2000, alt: "Fictional modelling sheet with a three-lane swimlane, a small use case view and a data-flow and entity view, using generic labels", caption: "A fictional workflow shown as swimlane, use case and data views", kind: "Conceptual mockup" },
+      { src: art("mock-evidence-log"), w: 2560, h: 1640, alt: "Conceptual analysis workbook listing example analysis steps, where the evidence comes from, and the label applied", caption: "Every observation carries a label — example entries, no real findings", kind: "Conceptual mockup" },
     ],
     insight: "Before anyone fixes a system, someone has to agree on what it actually does today.",
-    outcomes: ["AS-IS process & functional documentation", "Balance-change matrix per action", "Prioritised questions for technical review"],
-    proposed: ["Business-rule decisions by the HR owner", "Any TO-BE design (out of scope)"],
+    outcomes: [
+      "Structured current-state business process and functional assessment",
+      "Process map, BPMN swimlanes, use case, data-flow and entity models",
+      "Functional traceability and core business-rule summaries",
+      "Evidence and unresolved-questions tracker",
+      "Technical review checklist",
+    ],
+    proposed: ["Technical review — requested, response pending", "Business-owner validation of each workflow", "Any TO-BE design (out of scope)"],
     limits:
-      "Testing environment only, read-only queries, no runtime tests. Specific findings stay internal.",
-    skills: ["AS-IS analysis", "Evidence traceability", "Data investigation", "Functional documentation"],
+      "Prepared to help technical stakeholders evaluate the existing workflows and see where validation is needed. Based on available application and test-environment evidence, read-only — no runtime walkthrough, UAT or production checks, and no improvement or impact is claimed. Module names, figures and specific findings stay internal.",
+    reflection:
+      "Working with incomplete evidence taught me to separate what I can show from what I believe, and to make every open question easy for the right person to close.",
+    skills: ["AS-IS analysis", "Process modelling (BPMN, UML, DFD, ERD)", "Requirements traceability", "Evidence-based assessment", "Review preparation"],
+    metaDescription:
+      "An anonymised AS-IS business process and functional assessment of an enterprise HR application: process mapping, systems modelling, evidence traceability and technical review preparation.",
     confidential: true,
   },
   {
@@ -455,7 +503,7 @@ export const mattel: Role & { practice: { label: string; text: string }[] } = {
   highlights: [
     "Map how business processes and system workflows really run.",
     "Run stakeholder discussions on operations, needs and constraints.",
-    "Write functional requirements and process documentation.",
+    "Write functional requirements, AS-IS assessments and user documentation, and refine them with stakeholder feedback.",
     "Validate feasibility and expected behaviour with technical colleagues.",
     "Test scenarios against agreed business rules.",
     "Report findings and proposed improvements.",
@@ -597,6 +645,7 @@ export const capabilities = [
       { t: "Business process analysis (AS-IS / TO-BE)", b: "Professional" as Basis },
       { t: "Functional requirements & business rules", b: "Professional" as Basis },
       { t: "Scenario-based functional testing", b: "Professional" as Basis },
+      { t: "Process modelling: BPMN, use case, DFD, ERD", b: "Professional" as Basis },
       { t: "Case analysis & business proposals", b: "Academic" as Basis },
     ],
     evidence: ["corporate-food-ordering", "request-approval-workflow"],

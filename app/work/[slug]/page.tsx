@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const w = work.find((x) => x.slug === slug);
   if (!w) return {};
-  const description = `${w.line} ${w.kind} work by ${profile.name} — ${w.role}, ${w.period}.`;
+  const description = w.metaDescription ?? `${w.line} ${w.kind} work by ${profile.name} — ${w.role}, ${w.period}.`;
   return {
     title: w.title,
     description,
@@ -239,12 +239,17 @@ export default async function CaseStudy({ params }: { params: Promise<Params> })
               <div>
                 <p className="eyebrow fade">Outcome</p>
                 <h2 id="h-out" className="display fade mt-3 text-h2" style={{ ["--i" as string]: 1 }}>
-                  What it delivered
+                  {w.outcomeTitle ?? "What it delivered"}
                 </h2>
                 <p className="fade mt-4 text-small text-stone" style={{ ["--i" as string]: 2 }}>
                   {w.limits}
                   {w.confidential ? " Internal project — names, people, data and screens are withheld; visuals are original and illustrative." : ""}
                 </p>
+                {w.reflection ? (
+                  <p className="display fade mt-6 text-h3 leading-snug" style={{ ["--i" as string]: 3 }}>
+                    {w.reflection}
+                  </p>
+                ) : null}
                 <p className="fade mt-5 text-small font-semibold text-stone" style={{ ["--i" as string]: 3 }}>
                   {w.skills.join(" · ")}
                 </p>
@@ -262,7 +267,7 @@ export default async function CaseStudy({ params }: { params: Promise<Params> })
                 </div>
                 <div className="card fade p-5" style={{ ["--i" as string]: 3 }}>
                   <p className="flex items-center gap-2 text-small font-semibold text-stone">
-                    <span aria-hidden className="h-2 w-2 rounded-full border border-current" /> Still open
+                    <span aria-hidden className="h-2 w-2 rounded-full border border-current" /> {w.proposedTitle ?? "Still open"}
                   </p>
                   {w.proposed?.length ? (
                     <ul className="mt-3 space-y-2.5">

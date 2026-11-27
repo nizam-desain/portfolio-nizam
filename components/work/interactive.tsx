@@ -140,12 +140,12 @@ export function ScenarioPlayer() {
 // ── Food ordering: step through an order ────────────────────
 
 const states = [
-  { k: "Cart", d: "The customer picks dishes from one outlet." },
-  { k: "Awaiting payment", d: "A payment QR is shown. The order expires if it isn't paid in time." },
-  { k: "'I have paid'", d: "The customer says they have paid. It is a statement, not proof." },
-  { k: "Vendor verifies", d: "The outlet checks the payment before anything is cooked." },
-  { k: "Preparing", d: "Only verified orders reach the kitchen board." },
-  { k: "Ready", d: "The customer is told the order can be collected." },
+  { k: "Order placed", d: "The customer places an order from one outlet's menu." },
+  { k: "Awaiting payment", d: "The outlet's static payment QR is shown. The order expires if it isn't paid in time." },
+  { k: "'I have paid'", d: "The customer acknowledges payment. It is a statement, not confirmation that funds arrived." },
+  { k: "Vendor verifies", d: "The outlet manually checks that the payment was received before anything is prepared." },
+  { k: "Preparing", d: "Only verified orders reach the kitchen." },
+  { k: "Ready", d: "The order is marked ready and the customer can see it is waiting for collection." },
   { k: "Completed", d: "Handed over. The record is kept for reports." },
 ];
 
@@ -156,7 +156,7 @@ export function LifecycleStepper() {
   const done = i === states.length - 1 || exit;
 
   return (
-    <Plate caption="Interactive · TO-BE order lifecycle with generic states">
+    <Plate caption="Interactive · TO-BE order lifecycle · payment acknowledgement and vendor verification are separate steps">
       <ol className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
         {states.map((s, n) => {
           const st = exit ? (n <= i ? "past" : "off") : n < i ? "past" : n === i ? "now" : "next";
